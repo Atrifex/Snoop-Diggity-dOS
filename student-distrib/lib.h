@@ -68,6 +68,16 @@ static inline uint32_t inl(port)
 	return val;
 }
 
+// Forces CPU to wait for I/O to complete. See osdev.org.
+// Used for PIC/other device initialization where we don't receive a response
+// from the device
+static inline void io_wait(void)
+{
+    asm volatile (
+        "outb %%al, $0x80" : : "a"(0) 
+    );
+}
+
 /* Writes a byte to a port */
 #define outb(data, port)                \
 do {                                    \
