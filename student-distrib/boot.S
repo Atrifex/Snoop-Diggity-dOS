@@ -36,6 +36,9 @@ continue:
 	# Load the GDT
 	lgdt 	gdtr_data
 
+	# Load the IDT
+	lidt 	########### place the pointer to the data
+
 	# Load CS with the new descriptor value
 	ljmp    $KERNEL_CS, $keep_going
 
