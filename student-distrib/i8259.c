@@ -34,7 +34,7 @@ i8259_init(void)
     outb(ICW4, MASTER_8259_PORT_DATA);
     io_wait();
     outb(ICW4, SLAVE_8259_PORT_DATA);
-    
+    io_wait();
     // write initial masks to synchronize our state with device state
     outb(master_mask, MASTER_8259_PORT_DATA);
     io_wait();
