@@ -8,6 +8,16 @@
 
 #include "types.h"
 
+/* Constants for initializing IDT */
+#define VALID_EXCEPTION_RANGE 20
+#define RESERVED_EXCEP_1 1
+#define RESERVED_EXCEP_15 15
+#define IRQ_LOW_BOUND 32
+#define IRQ_HIGH_BOUND 48
+#define SYSTEM_CALL_VECTOR 0x80
+#define SYSTEM_CALL_HANDLER 48
+#define USER_LEVEL_DESCRIPTOR 3
+
 /* Segment selector values */
 #define KERNEL_CS 0x0010
 #define KERNEL_DS 0x0018

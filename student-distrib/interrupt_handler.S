@@ -1,8 +1,18 @@
 #include "interrupt_handler.h"
 
+.globl exception_handler_0, exception_handler_2, exception_handler_3
+.globl exception_handler_4, exception_handler_5, exception_handler_6, exception_handler_7
+.globl exception_handler_8, exception_handler_9, exception_handler_10, exception_handler_11
+.globl exception_handler_12, exception_handler_13, exception_handler_14
+.globl exception_handler_16, exception_handler_17, exception_handler_18, exception_handler_19
+.globl IRQ0_handler, IRQ1_handler, IRQ3_handler, IRQ4_handler, IRQ5_handler
+.globl IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
+.globl IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler 
+.globl system_call_handler
+.globl ignore_int
+
 # Make interrupt handlers visible so we can fill IDT
 .globl idt_jmp_table
-
 idt_jmp_table: 
 .long exception_handler_0, ignore_int, exception_handler_2, exception_handler_3
 .long exception_handler_4, exception_handler_5, exception_handler_6, exception_handler_7
@@ -15,6 +25,7 @@ idt_jmp_table:
 .long IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
 .long IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler 
 .long system_call_handler
+
 
 # void ignore_int()
 # our null interrupt handler. 
@@ -154,6 +165,9 @@ exception_handler_4:
 # RETURN VALUE: none
 # REGISTER USAGE: We save all registers
 exception_handler_5:
+	# save caller registers
+	pushl %eax
+	pushl %ecx
 	pushl %edx
 
 	# Call subroutine to print
