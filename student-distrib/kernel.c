@@ -22,6 +22,8 @@ entry (unsigned long magic, unsigned long addr)
 	/* Clear the screen. */
 	clear();
 
+	/* initialize the IDT */
+
 	/* Am I booted by a Multiboot-compliant boot loader? */
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
 	{

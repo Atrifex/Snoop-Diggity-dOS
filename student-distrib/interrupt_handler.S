@@ -1,7 +1,20 @@
 #include "interrupt_handler.h"
 
 # Make interrupt handlers visible so we can fill IDT
-.globl ignore_int
+.globl idt_jmp_table
+
+idt_jmp_table: 
+.long exception_handler_0, ignore_int, exception_handler_2, exception_handler_3
+.long exception_handler_4, exception_handler_5, exception_handler_6, exception_handler_7
+.long exception_handler_8, exception_handler_9, exception_handler_10, exception_handler_11
+.long exception_handler_12, exception_handler_13, exception_handler_14, ignore_int
+.long exception_handler_16, exception_handler_17, exception_handler_18, exception_handler_19
+.long ignore_int, ignore_int, ignore_int, ignore_int, ignore_int, ignore_int, ignore_int
+.long ignore_int, ignore_int, ignore_int, ignore_int, ignore_int
+.long IRQ0_handler, IRQ1_handler, ignore_int, IRQ3_handler, IRQ4_handler, IRQ5_handler
+.long IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
+.long IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler 
+.long system_call_handler
 
 # void ignore_int()
 # our null interrupt handler. 
@@ -12,21 +25,26 @@
 # RETURN VALUE: none
 # REGISTER USAGE: We save all registers
 ignore_int:
-	# Save ALL registers except eip (should be taken care of by iret)
-	pushad # general-purpose registers
-	pushfd # flags
+	# stop other interrupts from interrupting this process
+	cli
 
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+	
 	# Call subroutine to print
-	call do_ignore_int
-
-	# Restore all registers
-	popfl # flags
-	popfd # general-purpose registers
+	call ignore_int_sub
+	
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
 
 	# Return from interrupt
 	iret
 
-# void divide_error()
+# void exception_handler_0()
 # interrupt handler. 
 # The null interrupt handler will be called when an unfilled IDT location is referenced,
 # whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
@@ -34,22 +52,546 @@ ignore_int:
 # OUTPUTS  : none
 # RETURN VALUE: none
 # REGISTER USAGE: We save all registers
-divide_error:
-	# Save ALL registers except eip (should be taken care of by iret)
-	pushad # general-purpose registers
-	pushfd # flags
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
 
 	# Call subroutine to print
-	call do_divide_error
+	call exception_handler_0_sub
 
-	# Restore all registers
-	popfl # flags
-	popfd # general-purpose registers
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
 
 	# Return from interrupt
 	iret
 
-debug:
 
-nmi:
+# void exception_handler_2()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_2:
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
 
+	# Call subroutine to print
+	call exception_handler_2_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+
+# void exception_handler_0()
+# interrupt handler. 
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# INPUTS   : none
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: We save all registers
+exception_handler_0:
+	# stop other interrupt from	interrupting this process
+	cli
+
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call exception_handler_0_sub
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+IRQ0_handler:
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call 
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret
+
+system_call_handler:
+	# save caller registers
+	pushl %eax
+	pushl %ecx
+	pushl %edx
+
+	# Call subroutine to print
+	call 
+
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	popl %eax
+
+	# Return from interrupt
+	iret

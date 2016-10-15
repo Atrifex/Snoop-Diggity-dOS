@@ -36,8 +36,24 @@ extern void exception_handler_19_sub();
 // exception 20-31 are reserved for intel use only
 
 /* Interrupts - IRQs for all devices */
-extern void interrupt_handler_20_sub();
+extern void IRQ0_handler_sub();
+extern void IRQ1_handler_sub();
+// IRQ 2 will never be called since the slave is connected to the master here
+extern void IRQ3_handler_sub();
+extern void IRQ4_handler_sub();
+extern void IRQ5_handler_sub();
+extern void IRQ6_handler_sub();
+extern void IRQ7_handler_sub();
+extern void IRQ8_handler_sub();
+extern void IRQ9_handler_sub();
+extern void IRQ10_handler_sub();
+extern void IRQ11_handler_sub();
+extern void IRQ12_handler_sub();
+extern void IRQ13_handler_sub();
+extern void IRQ14_handler_sub();
+extern void IRQ15_handler_sub();
 
 /* System Call */
+extern void system_call_handler_sub();
 
 #endif
