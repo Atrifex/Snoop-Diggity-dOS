@@ -2,14 +2,16 @@
 # vim:ts=4 noexpandtab
 
 #define ASM     1
-#define GDTR_LIMIT 63 # Our GDT is 64 bytes (8 entries, 8 bytes each)
 
 #include "multiboot.h"
 #include "x86_desc.h"
 
 .data
 
+	GDTR_LIMIT = 63 # Our GDT is 64 bytes (8 entries, 8 bytes each); limit should be 1 less than this
+
 gdtr_data:
+
 	.word GDTR_LIMIT
 	.long gdt_ptr # Base address of the GDT
 
