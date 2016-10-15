@@ -34,6 +34,12 @@ _tss:
 	.endr
 tss_bottom:
 
+.align 4
+	.word 0 # Padding
+gdt_desc_ptr: # To be stored in GDTR
+	.word gdt_bottom - gdt - 1
+	.long gdt
+
 	.align  16
 gdt:
 _gdt:
@@ -93,7 +99,7 @@ ldt_bottom:
 
 .align 4
 	.word 0 # Padding
-idt_desc_ptr:
+idt_desc_ptr: # To be stored in IDTR
 	.word idt_bottom - idt - 1
 	.long idt
 	
