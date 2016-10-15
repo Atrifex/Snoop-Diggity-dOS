@@ -6,15 +6,6 @@
 #include "multiboot.h"
 #include "x86_desc.h"
 
-.data
-
-	GDTR_LIMIT = 63 # Our GDT is 64 bytes (8 entries, 8 bytes each); limit should be 1 less than this
-
-gdtr_data:
-
-	.word GDTR_LIMIT
-	.long gdt_ptr # Base address of the GDT
-
 .text
 
 	# Multiboot header (required for GRUB to boot us)
@@ -34,10 +25,10 @@ _start:
 
 continue:
 	# Load the GDT
-	lgdt 	gdtr_data
+	lgdt 	gdt_desc_ptr
 
 	# Load the IDT
-	lidt 	########### place the pointer to the data
+	lidt 	idt_desc_ptr
 
 	# Load CS with the new descriptor value
 	ljmp    $KERNEL_CS, $keep_going
