@@ -12,6 +12,60 @@
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
+void init_idt()
+{
+	int i;
+	long * idt_handler = idt_jmp_table;
+
+	for(i=0; i < NUM_VEC; i++)
+	{
+		if(i < VALID_EXCEPTION_RANGE && i != RESERVED_EXCEP_1 && i != RESERVED_EXCEP_15)
+		{
+			SET_IDT_ENTRY(idt[i],idt_handler[i]);
+			idt[i].seg_selector = KERNEL_CS;
+			idt[i].reserved4 = 0;
+			idt[i].reserved3 = 1;					// 1 for trap gate
+			idt[i].reserved2 = 1;
+			idt[i].reserved1 = 1;
+			idt[i].size = 1;
+			idt[i].reserved0 = 0;
+			idt[i].dpl = 0;							// exception handling code should be run at kernel privilege
+			idt[i].present = 1;						// interrupt is used
+		}
+		else if(IRQ_LOW_BOUND <= i && i < IRQ_HIGH_BOUND)
+		{
+			SET_IDT_ENTRY(idt[i],idt_handler[i]);
+			idt[i].seg_selector = KERNEL_CS;
+			idt[i].reserved4 = 0;
+			idt[i].reserved3 = 0;					// 0 for interrupt gate
+			idt[i].reserved2 = 1;
+			idt[i].reserved1 = 1;
+			idt[i].size = 1;
+			idt[i].reserved0 = 0;
+			idt[i].dpl = 0;							// interrupt handling code should be run at kernel privilege
+			idt[i].present = 1;						// interrupt is used
+		}
+		else if(i == SYSTEM_CALL_VECTOR)
+		{
+			SET_IDT_ENTRY(idt[i],idt_handler[SYSTEM_CALL_HANDLER]);
+			idt[i].seg_selector = KERNEL_CS;
+			idt[i].reserved4 = 0;
+			idt[i].reserved3 = 1;					// 1 for trap gate
+			idt[i].reserved2 = 1;
+			idt[i].reserved1 = 1;
+			idt[i].size = 1;
+			idt[i].reserved0 = 0;
+			idt[i].dpl = USER_LEVEL_DESCRIPTOR;		// system call should be available to user code
+			idt[i].present = 1;						// interrupt is used
+		}
+		else
+		{
+			idt[i].present = 0;						// interrupt is not used
+		}
+	}
+}
+
+
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
 void
@@ -23,6 +77,7 @@ entry (unsigned long magic, unsigned long addr)
 	clear();
 
 	/* initialize the IDT */
+	init_idt();
 
 	/* Am I booted by a Multiboot-compliant boot loader? */
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
