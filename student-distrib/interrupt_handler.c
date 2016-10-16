@@ -1,4 +1,5 @@
 #include "interrupt_handler.h"
+#include "lib.h"
 
 /*
  * void ignore_int_sub()
@@ -19,20 +20,20 @@ void ignore_int_sub()
 /* 18 Exceptions */
 void exception_handler_0_sub()
 {
-	int ret_address;
-	int error_code;
+	int ret_address = 0;
+	int error_code = 0;
 
 	// When the handler is initially called, the error code is on top of the stack
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %0" 
+	// 	"movl 36(%%esp), %1"
+	// 	:"=S"(ret_address), "=D"(error_code)
+	// 	:"S"(ret_address), "D"(error_code), ""
+	// 	: "edi", "esi", "memory" // clobbers
+	// );
 
 	printf("EXCEPTION: DIVIDE BY ZERO ERROR\n");
 	printf("Error code: %i\n", error_code);
@@ -49,13 +50,13 @@ void exception_handler_2_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: NMI INTERRUPT\n");
 	printf("Error code: %i\n", error_code);
@@ -72,13 +73,13 @@ void exception_handler_3_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: BREAKPOINT\n");
 	printf("Error code: %i\n", error_code);
@@ -95,13 +96,13 @@ void exception_handler_4_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: OVERFLOW\n");
 	printf("Error code: %i\n", error_code);
@@ -118,13 +119,13 @@ void exception_handler_5_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: BOUND RANGE EXCEEDED ERROR\n");
 	printf("Error code: %i\n", error_code);
@@ -141,13 +142,13 @@ void exception_handler_6_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: INVALID OPCODE ERROR\n");
 	printf("Error code: %i\n", error_code);
@@ -164,13 +165,13 @@ void exception_handler_7_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: DEVICE NOT AVAILABLE\n");
 	printf("Error code: %i\n", error_code);
@@ -187,13 +188,13 @@ void exception_handler_8_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: DOUBLE FAULT\n");
 	printf("Error code: %i\n", error_code);
@@ -210,13 +211,13 @@ void exception_handler_9_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: COPROCESSOR SEGMENT OVERRUN\n");
 	printf("Error code: %i\n", error_code);
@@ -233,13 +234,13 @@ void exception_handler_10_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: INVALID TSS ERROR\n");
 	printf("Error code: %i\n", error_code);
@@ -256,13 +257,13 @@ void exception_handler_11_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: SEGMENT NOT PRESENT ERROR\n");
 	printf("Error code: %i\n", error_code);
@@ -279,13 +280,13 @@ void exception_handler_12_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: STACK-SEGMENT FAULT\n");
 	printf("Error code: %i\n", error_code);
@@ -302,13 +303,13 @@ void exception_handler_13_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: GENERAL PROTECTION FAULT\n");
 	printf("Error code: %i\n", error_code);
@@ -325,13 +326,13 @@ void exception_handler_14_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: PAGE FAULT ERROR\n");
 	printf("Error code: %i\n", error_code);
@@ -348,13 +349,13 @@ void exception_handler_16_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: x87 FPU FLOATING-POINT ERROR\n");
 	printf("Error code: %i\n", error_code);
@@ -371,13 +372,13 @@ void exception_handler_17_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: ALIGNMENT CHECK\n");
 	printf("Error code: %i\n", error_code);
@@ -394,13 +395,13 @@ void exception_handler_18_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: MACHINE CHECK\n");
 	printf("Error code: %i\n", error_code);
@@ -417,13 +418,13 @@ void exception_handler_19_sub()
 	// The return address is at ESP+4
 	// Since then, we pushed three caller-save, EIP, EBP, and three callee-save (due to C convention)
 	// So we need to offset locations by 32
-	asm volatile(
-		"movl 32(%%esp), %%edx;" 
-		"movl 36(%%esp), %%esi;"
-		:"S"(ret_address), "D"(error_code)
-		: // no inputs
-		: "edi", "esi" // clobbers
-	);
+	// asm volatile(
+	// 	"movl 32(%%esp), %%edx;" 
+	// 	"movl 36(%%esp), %%esi;"
+	// 	:"S"(ret_address), "D"(error_code)
+	// 	: // no inputs
+	// 	: "edi", "esi" // clobbers
+	// );
 
 	printf("EXCEPTION: SIMD FLOATING-POINT EXCEPTION\n");
 	printf("Error code: %i\n", error_code);

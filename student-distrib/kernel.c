@@ -8,6 +8,8 @@
 #include "i8259.h"
 #include "debug.h"
 
+extern long* idt_jmp_table;
+
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))

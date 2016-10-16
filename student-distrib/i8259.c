@@ -45,6 +45,7 @@ i8259_init(void)
 void
 enable_irq(uint32_t irq_num)
 {
+    uint8_t mask;
     // if IRQ line >=8, we want to use the slave - otherwise master
     uint16_t port_number = (irq_num >= NUM_INTERRUPTS_PER_PIC) ? SLAVE_8259_PORT_DATA : MASTER_8259_PORT_DATA;
     // if we're on the slave interrupt handler, subtract number of interrupts
@@ -68,6 +69,7 @@ enable_irq(uint32_t irq_num)
 void
 disable_irq(uint32_t irq_num)
 {
+    uint8_t mask;
     // if IRQ line >=8, we want to use the slave - otherwise master
     uint16_t port_number = (irq_num >= NUM_INTERRUPTS_PER_PIC) ? SLAVE_8259_PORT_DATA : MASTER_8259_PORT_DATA;
     
