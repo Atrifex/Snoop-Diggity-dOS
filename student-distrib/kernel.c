@@ -9,7 +9,7 @@
 #include "debug.h"
 #include "rtc.h"
 
-extern long* idt_jmp_table;
+extern unsigned long* idt_jmp_table;
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -18,7 +18,8 @@ extern long* idt_jmp_table;
 void init_idt()
 {
 	int i;
-	long * idt_handler = idt_jmp_table;
+
+	unsigned long* idt_handler = (unsigned long*) &idt_jmp_table;
 
 	// for all values in IDT
 	for(i=0; i < NUM_VEC; i++)

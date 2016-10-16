@@ -1,30 +1,30 @@
-.globl exception_handler_0, exception_handler_2, exception_handler_3
-.globl exception_handler_4, exception_handler_5, exception_handler_6, exception_handler_7
-.globl exception_handler_8, exception_handler_9, exception_handler_10, exception_handler_11
-.globl exception_handler_12, exception_handler_13, exception_handler_14
-.globl exception_handler_16, exception_handler_17, exception_handler_18, exception_handler_19
-.globl IRQ0_handler, IRQ1_handler, IRQ3_handler, IRQ4_handler, IRQ5_handler
-.globl IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
-.globl IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler 
-.globl system_call_handler
-.globl ignore_int
+// .globl exception_handler_0, exception_handler_2, exception_handler_3
+// .globl exception_handler_4, exception_handler_5, exception_handler_6, exception_handler_7
+// .globl exception_handler_8, exception_handler_9, exception_handler_10, exception_handler_11
+// .globl exception_handler_12, exception_handler_13, exception_handler_14
+// .globl exception_handler_16, exception_handler_17, exception_handler_18, exception_handler_19
+// .globl IRQ0_handler, IRQ1_handler, IRQ3_handler, IRQ4_handler, IRQ5_handler
+// .globl IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
+// .globl IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler 
+// .globl system_call_handler
+// .globl ignore_int
 
-# Make interrupt handlers visible so we can fill IDT
+
 .globl idt_jmp_table
 idt_jmp_table: 
-.long exception_handler_0, ignore_int, exception_handler_2, exception_handler_3
-.long exception_handler_4, exception_handler_5, exception_handler_6, exception_handler_7
-.long exception_handler_8, exception_handler_9, exception_handler_10, exception_handler_11
-.long exception_handler_12, exception_handler_13, exception_handler_14, ignore_int
-.long exception_handler_16, exception_handler_17, exception_handler_18, exception_handler_19
-.long ignore_int, ignore_int, ignore_int, ignore_int, ignore_int, ignore_int, ignore_int
-.long ignore_int, ignore_int, ignore_int, ignore_int, ignore_int
-.long IRQ0_handler, IRQ1_handler, ignore_int, IRQ3_handler, IRQ4_handler, IRQ5_handler
-.long IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
-.long IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler 
-.long system_call_handler
+	.long exception_handler_0, ignore_int, exception_handler_2, exception_handler_3
+	.long exception_handler_4, exception_handler_5, exception_handler_6, exception_handler_7
+	.long exception_handler_8, exception_handler_9, exception_handler_10, exception_handler_11
+	.long exception_handler_12, exception_handler_13, exception_handler_14, ignore_int
+	.long exception_handler_16, exception_handler_17, exception_handler_18, exception_handler_19
+	.long ignore_int, ignore_int, ignore_int, ignore_int, ignore_int, ignore_int, ignore_int
+	.long ignore_int, ignore_int, ignore_int, ignore_int, ignore_int
+	.long IRQ0_handler, IRQ1_handler, ignore_int, IRQ3_handler, IRQ4_handler, IRQ5_handler
+	.long IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
+	.long IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler 
+	.long system_call_handler
 
-
+.text
 # void ignore_int()
 # our null interrupt handler. 
 # The null interrupt handler will 	be called when an unfilled IDT location is referenced,
