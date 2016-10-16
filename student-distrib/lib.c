@@ -29,6 +29,13 @@ clear(void)
     }
 }
 
+void clear_and_reset(void)
+{
+	clear();
+	screen_x = 0;
+	screen_y = 0;
+}
+
 /* Standard printf().
  * Only supports the following format strings:
  * %%  - print a literal '%' character
