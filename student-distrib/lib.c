@@ -18,7 +18,6 @@ static char* video_mem = (char *)VIDEO;
 *   Return Value: none
 *	Function: Clears video memory
 */
-
 void
 clear(void)
 {
@@ -29,6 +28,13 @@ clear(void)
     }
 }
 
+/*
+* void clear_and_reset(void);
+*   Inputs: void
+*   Return Value: none
+*	Function: Clears video memory and resets the values of screen_x and screen_y to 0.
+* 			  This allows printing at the start of the screen.
+*/
 void clear_and_reset(void)
 {
 	clear();
