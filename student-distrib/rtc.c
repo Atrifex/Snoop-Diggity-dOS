@@ -18,18 +18,30 @@
 */
 void init_rtc() 
 {
-	unsigned long flags; 
-	cli_and_save(flags); // save flags and halt interupts for critical section
-	outb(RTC_CREG_B, RTC_CONTROL_PORT); // selects control register B of the RTC
-	char portdata = inb(RTC_DATA_PORT) | ENABLE_PERIODIC_INT; //get current state and set the disired rate
-	outb(RTC_CREG_B, RTC_CONTROL_PORT); // selects control register B of the RTC
-	outb(portdata, RTC_DATA_PORT); //update register B with PIE enabled
+	unsigned long flags;
 
-	outb(RTC_CREG_A, RTC_CONTROL_PORT); // selects control register A of the RTC
-	portdata = (inb(RTC_DATA_PORT) & MAINTAIN_SIG_BYTE) | DESIRED_PIE_RATE; //Set interrupt handle rate to 2 while maintaining significant bits
-	outb(RTC_CREG_A, RTC_CONTROL_PORT); // selects control register A of the RTC
-	outb(portdata, RTC_DATA_PORT); //updatew register B with PIE enabled
-	restore_flags(flags);	// restore our flags
+    // save flags and halt interupts for critical section
+	cli_and_save(flags);
 
+    // select register B and get current state of register to create desired state
+	outb(RTC_CREG_B, RTC_CONTROL_PORT);
+	char portdata = inb(RTC_DATA_PORT) | ENABLE_PERIODIC_INT;
+
+    // select register B and update it with PIE enabled
+	outb(RTC_CREG_B, RTC_CONTROL_PORT);
+	outb(portdata, RTC_DATA_PORT);
+
+    // select register A and set interrupt handler rate to 2 while maintianing significant bits
+	outb(RTC_CREG_A, RTC_CONTROL_PORT);
+	portdata = (inb(RTC_DATA_PORT) & MAINTAIN_SIG_BYTE) | DESIRED_PIE_RATE;
+
+    // select register A and update its value 
+	outb(RTC_CREG_A, RTC_CONTROL_PORT);
+	outb(portdata, RTC_DATA_PORT);
+
+    // restore flags
+	restore_flags(flags);
+
+    // enable irqs so taht we can get interrupts from the RTC
 	enable_irq(RTC_LINE_NO);
 }
