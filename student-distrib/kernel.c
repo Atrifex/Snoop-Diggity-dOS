@@ -8,6 +8,8 @@
 #include "i8259.h"
 #include "debug.h"
 #include "rtc.h"
+#include "paging.h"
+#include "keyboard.h"
 
 extern unsigned long* idt_jmp_table;
 
@@ -210,12 +212,17 @@ entry (unsigned long magic, unsigned long addr)
 		ltr(KERNEL_TSS);
 	}
 
+	/* Init paging */
+	init_paging();
+
 	/* Init the PIC */
 	i8259_init();
 
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
 	init_rtc();
+	
+	init_kbd();
 
 	/* Enable interrupts */
 	/* Do not enable the following until after you have set up your

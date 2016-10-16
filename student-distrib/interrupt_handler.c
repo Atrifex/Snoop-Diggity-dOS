@@ -2,6 +2,7 @@
 #include "lib.h"
 #include "rtc.h"
 #include "i8259.h"
+#include "keyboard.h"
 
 /*
  * void ignore_int_sub()
@@ -60,8 +61,8 @@ void exception_handler_2_sub()
 	);
 
 	printf("EXCEPTION: NMI INTERRUPT\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -82,8 +83,8 @@ void exception_handler_3_sub()
 	);
 
 	printf("EXCEPTION: BREAKPOINT\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -104,8 +105,8 @@ void exception_handler_4_sub()
 	);
 
 	printf("EXCEPTION: OVERFLOW\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -126,8 +127,8 @@ void exception_handler_5_sub()
 	);
 
 	printf("EXCEPTION: BOUND RANGE EXCEEDED ERROR\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -148,8 +149,8 @@ void exception_handler_6_sub()
 	);
 
 	printf("EXCEPTION: INVALID OPCODE ERROR\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -170,8 +171,8 @@ void exception_handler_7_sub()
 	);
 
 	printf("EXCEPTION: DEVICE NOT AVAILABLE\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -192,8 +193,8 @@ void exception_handler_8_sub()
 	);
 
 	printf("EXCEPTION: DOUBLE FAULT\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -214,8 +215,8 @@ void exception_handler_9_sub()
 	);
 
 	printf("EXCEPTION: COPROCESSOR SEGMENT OVERRUN\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -236,8 +237,8 @@ void exception_handler_10_sub()
 	);
 
 	printf("EXCEPTION: INVALID TSS ERROR\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -258,8 +259,8 @@ void exception_handler_11_sub()
 	);
 
 	printf("EXCEPTION: SEGMENT NOT PRESENT ERROR\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -280,8 +281,8 @@ void exception_handler_12_sub()
 	);
 
 	printf("EXCEPTION: STACK-SEGMENT FAULT\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -302,8 +303,8 @@ void exception_handler_13_sub()
 	);
 
 	printf("EXCEPTION: GENERAL PROTECTION FAULT\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -324,8 +325,8 @@ void exception_handler_14_sub()
 	);
 
 	printf("EXCEPTION: PAGE FAULT ERROR\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -346,8 +347,8 @@ void exception_handler_16_sub()
 	);
 
 	printf("EXCEPTION: x87 FPU FLOATING-POINT ERROR\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -368,8 +369,8 @@ void exception_handler_17_sub()
 	);
 
 	printf("EXCEPTION: ALIGNMENT CHECK\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -390,8 +391,8 @@ void exception_handler_18_sub()
 	);
 
 	printf("EXCEPTION: MACHINE CHECK\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -412,8 +413,8 @@ void exception_handler_19_sub()
 	);
 
 	printf("EXCEPTION: SIMD FLOATING-POINT EXCEPTION\n");
-	printf("Error code: %i\n", error_code);
-	printf("Exception occurred at address: %i\n", ret_address);
+	printf("Error code: %d\n", error_code);
+	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }	
 
@@ -432,6 +433,8 @@ void IRQ0_handler_sub()
 void IRQ1_handler_sub()
 {
 	printf("IRQ: Keyboard\n");
+	display_char();
+	send_eoi(KEYBOARD_LINE_NO);
 }	
 
 void IRQ3_handler_sub()
