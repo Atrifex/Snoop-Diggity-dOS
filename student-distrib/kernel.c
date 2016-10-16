@@ -7,6 +7,9 @@
 #include "lib.h"
 #include "i8259.h"
 #include "debug.h"
+#include "rtc.h"
+
+extern unsigned long* idt_jmp_table;
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -15,52 +18,58 @@
 void init_idt()
 {
 	int i;
-	long * idt_handler = idt_jmp_table;
 
+	unsigned long* idt_handler = (unsigned long*) &idt_jmp_table;
+
+	// for all values in IDT
 	for(i=0; i < NUM_VEC; i++)
-	{
+	{	
+		// if referring to a valid exception, then init handler
 		if(i < VALID_EXCEPTION_RANGE && i != RESERVED_EXCEP_1 && i != RESERVED_EXCEP_15)
 		{
 			SET_IDT_ENTRY(idt[i],idt_handler[i]);
 			idt[i].seg_selector = KERNEL_CS;
-			idt[i].reserved4 = 0;
-			idt[i].reserved3 = 1;					// 1 for trap gate
-			idt[i].reserved2 = 1;
-			idt[i].reserved1 = 1;
-			idt[i].size = 1;
-			idt[i].reserved0 = 0;
-			idt[i].dpl = 0;							// exception handling code should be run at kernel privilege
-			idt[i].present = 1;						// interrupt is used
+			idt[i].reserved4 = RESERVED_4_DEFAULT;
+			idt[i].reserved3 = TRAP_GATE;			
+			idt[i].reserved2 = RESERVED_2_DEFAULT;
+			idt[i].reserved1 = RESERVED_1_DEFAULT;
+			idt[i].size = DEFAULT_SIZE;
+			idt[i].reserved0 = RESERVED_0_DEFAULT;
+			idt[i].dpl = KERNEL_LEVEL_DESCRIPTOR;	
+			idt[i].present = INT_PRESENT;			
 		}
+		// if referring to a valid interrupt, then init handler
 		else if(IRQ_LOW_BOUND <= i && i < IRQ_HIGH_BOUND)
 		{
 			SET_IDT_ENTRY(idt[i],idt_handler[i]);
 			idt[i].seg_selector = KERNEL_CS;
-			idt[i].reserved4 = 0;
-			idt[i].reserved3 = 0;					// 0 for interrupt gate
-			idt[i].reserved2 = 1;
-			idt[i].reserved1 = 1;
-			idt[i].size = 1;
-			idt[i].reserved0 = 0;
-			idt[i].dpl = 0;							// interrupt handling code should be run at kernel privilege
-			idt[i].present = 1;						// interrupt is used
+			idt[i].reserved4 = RESERVED_4_DEFAULT;
+			idt[i].reserved3 = INTERRUPT_GATE;		
+			idt[i].reserved2 = RESERVED_2_DEFAULT;
+			idt[i].reserved1 = RESERVED_1_DEFAULT;
+			idt[i].size = DEFAULT_SIZE;
+			idt[i].reserved0 = RESERVED_0_DEFAULT;
+			idt[i].dpl = KERNEL_LEVEL_DESCRIPTOR;	
+			idt[i].present = INT_PRESENT;			
 		}
+		// if referring to system call, then init handler
 		else if(i == SYSTEM_CALL_VECTOR)
 		{
 			SET_IDT_ENTRY(idt[i],idt_handler[SYSTEM_CALL_HANDLER]);
 			idt[i].seg_selector = KERNEL_CS;
-			idt[i].reserved4 = 0;
-			idt[i].reserved3 = 1;					// 1 for trap gate
-			idt[i].reserved2 = 1;
-			idt[i].reserved1 = 1;
-			idt[i].size = 1;
-			idt[i].reserved0 = 0;
-			idt[i].dpl = USER_LEVEL_DESCRIPTOR;		// system call should be available to user code
-			idt[i].present = 1;						// interrupt is used
+			idt[i].reserved4 = RESERVED_4_DEFAULT;
+			idt[i].reserved3 = TRAP_GATE;	
+			idt[i].reserved2 = RESERVED_2_DEFAULT;
+			idt[i].reserved1 = RESERVED_1_DEFAULT;
+			idt[i].size = DEFAULT_SIZE;
+			idt[i].reserved0 = RESERVED_0_DEFAULT;
+			idt[i].dpl = USER_LEVEL_DESCRIPTOR;		
+			idt[i].present = INT_PRESENT;
 		}
+		// else declare handler invalid
 		else
 		{
-			idt[i].present = 0;						// interrupt is not used
+			idt[i].present = INT_NOT_PRESENT;
 		}
 	}
 }
@@ -76,15 +85,15 @@ entry (unsigned long magic, unsigned long addr)
 	/* Clear the screen. */
 	clear();
 
-	/* initialize the IDT */
-	init_idt();
-
 	/* Am I booted by a Multiboot-compliant boot loader? */
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
 	{
 		printf ("Invalid magic number: 0x%#x\n", (unsigned) magic);
 		return;
 	}
+
+	/* initialize the IDT */
+	init_idt();
 
 	/* Set MBI to the address of the Multiboot information structure. */
 	mbi = (multiboot_info_t *) addr;
@@ -206,14 +215,15 @@ entry (unsigned long magic, unsigned long addr)
 
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
+	init_rtc();
 
 	/* Enable interrupts */
 	/* Do not enable the following until after you have set up your
 	 * IDT correctly otherwise QEMU will triple fault and simple close
 	 * without showing you any output */
-	/*printf("Enabling Interrupts\n");
-	sti();*/
-
+	printf("Enabling Interrupts\n");
+	sti();
+	
 	/* Execute the first program (`shell') ... */
 
 	/* Spin (nicely, so we don't chew up cycles) */
