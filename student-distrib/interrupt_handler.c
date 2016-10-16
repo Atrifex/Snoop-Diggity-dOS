@@ -432,8 +432,8 @@ void IRQ0_handler_sub()
 
 void IRQ1_handler_sub()
 {
-	printf("IRQ: Keyboard\n");
-	display_char();
+	// printf("IRQ: Keyboard\n");
+	process_sent_scancode();
 	send_eoi(KEYBOARD_LINE_NO);
 }	
 
