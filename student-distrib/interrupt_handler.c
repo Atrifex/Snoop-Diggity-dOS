@@ -1,5 +1,7 @@
 #include "interrupt_handler.h"
 #include "lib.h"
+#include "rtc.h"
+#include "i8259.h"
 
 /*
  * void ignore_int_sub()
@@ -478,6 +480,10 @@ void IRQ7_handler_sub()
 void IRQ8_handler_sub()
 {
 	printf("IRQ: Real Time Clock\n");
+	outb(RTC_CREG_C, RTC_CONTROL_PORT); // selects control register C of the RTC
+	inb(RTC_DATA_PORT);
+
+	send_eoi(RTC_LINE_NO);
 }	
 
 void IRQ9_handler_sub()
