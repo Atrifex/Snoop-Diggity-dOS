@@ -1,0 +1,5 @@
+make: Warning: File `Makefile.dep' has modification time 3.7 s in the future
+boot.o: In function `continue':
+/workdir/Snoop-Diggity-dOS/student-distrib/boot.S:28: undefined reference to `gdt_desc_ptr'
+collect2: ld returned 1 exit status
+make: *** [bootimg] Error 1
