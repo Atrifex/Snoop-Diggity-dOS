@@ -12,6 +12,65 @@
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
+void init_idt()
+{
+	int i;
+	long * idt_handler = idt_jmp_table;
+
+	// for all values in IDT
+	for(i=0; i < NUM_VEC; i++)
+	{	
+		// if referring to a valid exception, then init handler
+		if(i < VALID_EXCEPTION_RANGE && i != RESERVED_EXCEP_1 && i != RESERVED_EXCEP_15)
+		{
+			SET_IDT_ENTRY(idt[i],idt_handler[i]);
+			idt[i].seg_selector = KERNEL_CS;
+			idt[i].reserved4 = RESERVED_4_DEFAULT;
+			idt[i].reserved3 = TRAP_GATE;			
+			idt[i].reserved2 = RESERVED_2_DEFAULT;
+			idt[i].reserved1 = RESERVED_1_DEFAULT;
+			idt[i].size = DEFAULT_SIZE;
+			idt[i].reserved0 = RESERVED_0_DEFAULT;
+			idt[i].dpl = KERNEL_LEVEL_DESCRIPTOR;	
+			idt[i].present = INT_PRESENT;			
+		}
+		// if referring to a valid interrupt, then init handler
+		else if(IRQ_LOW_BOUND <= i && i < IRQ_HIGH_BOUND)
+		{
+			SET_IDT_ENTRY(idt[i],idt_handler[i]);
+			idt[i].seg_selector = KERNEL_CS;
+			idt[i].reserved4 = RESERVED_4_DEFAULT;
+			idt[i].reserved3 = INTERRUPT_GATE;		
+			idt[i].reserved2 = RESERVED_2_DEFAULT;
+			idt[i].reserved1 = RESERVED_1_DEFAULT;
+			idt[i].size = DEFAULT_SIZE;
+			idt[i].reserved0 = RESERVED_0_DEFAULT;
+			idt[i].dpl = KERNEL_LEVEL_DESCRIPTOR;	
+			idt[i].present = INT_PRESENT;			
+		}
+		// if referring to system call, then init handler
+		else if(i == SYSTEM_CALL_VECTOR)
+		{
+			SET_IDT_ENTRY(idt[i],idt_handler[SYSTEM_CALL_HANDLER]);
+			idt[i].seg_selector = KERNEL_CS;
+			idt[i].reserved4 = RESERVED_4_DEFAULT;
+			idt[i].reserved3 = TRAP_GATE;	
+			idt[i].reserved2 = RESERVED_2_DEFAULT;
+			idt[i].reserved1 = RESERVED_1_DEFAULT;
+			idt[i].size = DEFAULT_SIZE;
+			idt[i].reserved0 = RESERVED_0_DEFAULT;
+			idt[i].dpl = USER_LEVEL_DESCRIPTOR;		
+			idt[i].present = INT_PRESENT;
+		}
+		// else declare handler invalid
+		else
+		{
+			idt[i].present = INT_NOT_PRESENT;
+		}
+	}
+}
+
+
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
 void
@@ -22,14 +81,15 @@ entry (unsigned long magic, unsigned long addr)
 	/* Clear the screen. */
 	clear();
 
-	/* initialize the IDT */
-
 	/* Am I booted by a Multiboot-compliant boot loader? */
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
 	{
 		printf ("Invalid magic number: 0x%#x\n", (unsigned) magic);
 		return;
 	}
+
+	/* initialize the IDT */
+	init_idt();
 
 	/* Set MBI to the address of the Multiboot information structure. */
 	mbi = (multiboot_info_t *) addr;

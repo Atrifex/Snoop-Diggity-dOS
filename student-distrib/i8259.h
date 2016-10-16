@@ -8,9 +8,22 @@
 
 #include "types.h"
 
+#define NUM_INTERRUPTS_PER_PIC 8
+
 /* Ports that each PIC sits on */
 #define MASTER_8259_PORT 0x20
 #define SLAVE_8259_PORT  0xA0
+
+// Ports for writing data
+#define MASTER_8259_PORT_DATA (0x20 + 1)
+#define SLAVE_8259_PORT_DATA  (0xA0 + 1)
+
+// default mask values (don't mask out slave on master, otherwise everything masked)
+#define DEFAULT_MASTER_MASK 0xFB // all except slave - 0b11111011
+#define DEFAULT_SLAVE_MASK 0xFF // all - 0b11111111
+
+// slave is wired to IRQ2 so slave irq=2
+#define SLAVE_IRQ 2
 
 /* Initialization control words to init each PIC.
  * See the Intel manuals for details on the meaning

@@ -8,6 +8,26 @@
 
 #include "types.h"
 
+/* Constants for initializing IDT */
+#define VALID_EXCEPTION_RANGE 20
+#define RESERVED_EXCEP_1 1
+#define RESERVED_EXCEP_15 15
+#define IRQ_LOW_BOUND 32
+#define IRQ_HIGH_BOUND 48
+#define SYSTEM_CALL_VECTOR 0x80
+#define SYSTEM_CALL_HANDLER 48
+#define USER_LEVEL_DESCRIPTOR 3
+#define KERNEL_LEVEL_DESCRIPTOR 0
+#define TRAP_GATE 1
+#define INTERRUPT_GATE 0
+#define DEFAULT_SIZE 1
+#define INT_PRESENT 1
+#define INT_NOT_PRESENT 0
+#define RESERVED_4_DEFAULT 0
+#define RESERVED_2_DEFAULT 1
+#define RESERVED_1_DEFAULT 1
+#define RESERVED_0_DEFAULT 0
+
 /* Segment selector values */
 #define KERNEL_CS 0x0010
 #define KERNEL_DS 0x0018
@@ -166,6 +186,8 @@ typedef union idt_desc_t {
 extern idt_desc_t idt[NUM_VEC];
 /* The descriptor used to load the IDTR */
 extern x86_desc_t idt_desc_ptr;
+/* The descriptor used to load the GDTR */
+extern x86_desc_t gdt_desc_ptr;
 
 /* Sets runtime parameters for an IDT entry */
 #define SET_IDT_ENTRY(str, handler) \
