@@ -1,5 +1,6 @@
 .data
 	PAGING_ENABLE = 0x80000000
+	WP_ENABLE = 0x10000
 	FOUR_MB_SIZE_ENABLE = 0x00000010
 	ARGUMENT_ONE = 8
 
@@ -29,6 +30,7 @@ paging_hw_enable:
 	# enables paging
 	movl %cr0, %eax
 	orl $PAGING_ENABLE, %eax
+	#orl $WP_ENABLE, %eax					 # leave this uncommented to enable write protection even in kernel space
 	movl %eax, %cr0
 
 	# restore callee save registers
