@@ -12,4 +12,4 @@ lib.o: lib.c lib.h types.h
 paging.o: paging.c paging.h lib.h types.h
 ps2.o: ps2.c ps2.h lib.h types.h
 rtc.o: rtc.c rtc.h lib.h types.h i8259.h
-scancodes.o: scancodes.c scancodes.h types.h
+scancodes.o: scancodes.c scancodes.h types.h lib.h

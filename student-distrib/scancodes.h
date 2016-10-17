@@ -3,8 +3,9 @@
 
 #include "types.h"
 
-#define SCANCODE_MAKE       0
-#define SCANCODE_BREAK      1
+#define SCANCODE_MAKE 0
+#define SCANCODE_BREAK 1
+#define SCANCODE_BREAK_MASK      1
 
 #define SCANCODE_PRINTABLE_BIT 1
 #define SCANCODE_LETTER_BIT 2
@@ -16,8 +17,8 @@
 #define SCANCODE_NUMBER     (1 << SCANCODE_NUMBER_BIT)
 #define SCANCODE_MODIFIER   (1 << SCANCODE_MODIFIER_BIT)
 
-#define IS_MAKE_SC(s)      (s.flags & SCANCODE_MAKE)
-#define IS_BREAK_SC(s)     (s.flags & SCANCODE_BREAK)
+#define IS_MAKE_SC(s)      ( (s.flags & SCANCODE_BREAK_MASK) == 0)
+#define IS_BREAK_SC(s)     (s.flags & SCANCODE_BREAK_MASK)
 #define IS_PRINTABLE_SC(s) ( (s.flags & SCANCODE_PRINTABLE) >> SCANCODE_PRINTABLE_BIT )
 #define IS_LETTER_SC(s)    ( (s.flags & SCANCODE_LETTER)    >> SCANCODE_LETTER_BIT  )
 #define IS_NUMBER_SC(s)    ( (s.flags & SCANCODE_NUMBER)    >> SCANCODE_NUMBER_BIT  )
@@ -31,6 +32,7 @@ typedef struct scancode_struct {
 } scancode_t;
 
 extern scancode_t scancode_table[256];
+extern char non_alpha_shift_table[256];
 extern void init_scancode_table();
 
 #endif
