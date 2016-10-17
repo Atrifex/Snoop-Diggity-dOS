@@ -5,13 +5,14 @@
 // .globl exception_handler_16, exception_handler_17, exception_handler_18, exception_handler_19
 // .globl IRQ0_handler, IRQ1_handler, IRQ3_handler, IRQ4_handler, IRQ5_handler
 // .globl IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
-// .globl IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler 
+// .globl IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler
 // .globl system_call_handler
 // .globl ignore_int
 
 
+# the jump table that contains pointers to all of the functions
 .globl idt_jmp_table
-idt_jmp_table: 
+idt_jmp_table:
 	.long exception_handler_0, ignore_int, exception_handler_2, exception_handler_3
 	.long exception_handler_4, exception_handler_5, exception_handler_6, exception_handler_7
 	.long exception_handler_8, exception_handler_9, exception_handler_10, exception_handler_11
@@ -21,27 +22,27 @@ idt_jmp_table:
 	.long ignore_int, ignore_int, ignore_int, ignore_int, ignore_int
 	.long IRQ0_handler, IRQ1_handler, ignore_int, IRQ3_handler, IRQ4_handler, IRQ5_handler
 	.long IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
-	.long IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler 
+	.long IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler
 	.long system_call_handler
 
 .text
+
 # void ignore_int()
-# our null interrupt handler. 
-# The null interrupt handler will 	be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# The null interrupt handler will be called when an unfilled IDT location is referenced,
+# whether due to a kernel issue or a hardware issue. Basically, it should never be called.
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 ignore_int:
 	# save caller registers
 	pushl %eax
 	pushl %ecx
 	pushl %edx
-	
+
 	# Call subroutine to print
 	call ignore_int_sub
-	
+
 	# Restore caller save registers
 	popl %edx
 	popl %ecx
@@ -51,13 +52,11 @@ ignore_int:
 	iret
 
 # void exception_handler_0()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_0_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_0:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -80,13 +79,11 @@ exception_handler_0:
 
 
 # void exception_handler_2()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_2_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_2:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -108,13 +105,11 @@ exception_handler_2:
 
 
 # void exception_handler_3()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_3_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_3:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -136,13 +131,11 @@ exception_handler_3:
 
 
 # void exception_handler_4()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_4_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_4:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -164,13 +157,11 @@ exception_handler_4:
 
 
 # void exception_handler_5()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_5_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_5:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -192,13 +183,11 @@ exception_handler_5:
 
 
 # void exception_handler_6()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_6_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_6:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -220,13 +209,11 @@ exception_handler_6:
 
 
 # void exception_handler_7()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_7_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_7:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -248,13 +235,11 @@ exception_handler_7:
 
 
 # void exception_handler_8()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_8_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_8:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -276,13 +261,11 @@ exception_handler_8:
 
 
 # void exception_handler_0()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_9_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_9:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -304,13 +287,11 @@ exception_handler_9:
 
 
 # void exception_handler_10()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_10_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_10:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -332,13 +313,11 @@ exception_handler_10:
 
 
 # void exception_handler_11()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_11_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_11:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -360,13 +339,11 @@ exception_handler_11:
 
 
 # void exception_handler_12()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_12_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_12:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -388,13 +365,11 @@ exception_handler_12:
 
 
 # void exception_handler_13()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_13_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_13:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -416,13 +391,11 @@ exception_handler_13:
 
 
 # void exception_handler_14()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_14_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_14:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -444,13 +417,11 @@ exception_handler_14:
 
 
 # void exception_handler_16()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_16_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_16:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -472,13 +443,11 @@ exception_handler_16:
 
 
 # void exception_handler_0()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_17_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_17:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -500,13 +469,11 @@ exception_handler_17:
 
 
 # void exception_handler_18()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_18_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_18:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -528,13 +495,11 @@ exception_handler_18:
 
 
 # void exception_handler_19()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to exception_handler_19_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_19:
 	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
 	cli
@@ -555,13 +520,11 @@ exception_handler_19:
 	iret
 
 # void IRQ0_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ0_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ0_handler:
 	# save caller registers
 	pushl %eax
@@ -580,13 +543,11 @@ IRQ0_handler:
 	iret
 
 # void IRQ1_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ1_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ1_handler:
 	# save caller registers
 	pushl %eax
@@ -605,13 +566,11 @@ IRQ1_handler:
 	iret
 
 # void exception_handler_19()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ3_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ3_handler:
 	# save caller registers
 	pushl %eax
@@ -630,13 +589,11 @@ IRQ3_handler:
 	iret
 
 # void IRQ4_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ4_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ4_handler:
 	# save caller registers
 	pushl %eax
@@ -655,13 +612,11 @@ IRQ4_handler:
 	iret
 
 # void IRQ5_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ5_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ5_handler:
 	# save caller registers
 	pushl %eax
@@ -680,13 +635,11 @@ IRQ5_handler:
 	iret
 
 # void IRQ6_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ6_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ6_handler:
 	# save caller registers
 	pushl %eax
@@ -705,13 +658,11 @@ IRQ6_handler:
 	iret
 
 # void IRQ7_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ7_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ7_handler:
 	# save caller registers
 	pushl %eax
@@ -730,13 +681,11 @@ IRQ7_handler:
 	iret
 
 # void IRQ8_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ8_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ8_handler:
 	# save caller registers
 	pushl %eax
@@ -755,13 +704,11 @@ IRQ8_handler:
 	iret
 
 # void IRQ9_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ9_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ9_handler:
 	# save caller registers
 	pushl %eax
@@ -780,13 +727,11 @@ IRQ9_handler:
 	iret
 
 # void IRQ10_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ10_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ10_handler:
 	# save caller registers
 	pushl %eax
@@ -805,13 +750,11 @@ IRQ10_handler:
 	iret
 
 # void IRQ11_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ11_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ11_handler:
 	# save caller registers
 	pushl %eax
@@ -830,13 +773,11 @@ IRQ11_handler:
 	iret
 
 # void IRQ12_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ12_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ12_handler:
 	# save caller registers
 	pushl %eax
@@ -855,13 +796,11 @@ IRQ12_handler:
 	iret
 
 # void IRQ13_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ13_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ13_handler:
 	# save caller registers
 	pushl %eax
@@ -880,13 +819,11 @@ IRQ13_handler:
 	iret
 
 # void IRQ14_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ14_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ14_handler:
 	# save caller registers
 	pushl %eax
@@ -905,13 +842,11 @@ IRQ14_handler:
 	iret
 
 # void IRQ15_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
+# DESCRIPTION: wrapper to IRQ15_handler_sub. Allows for IRET to be used
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 IRQ15_handler:
 	# save caller registers
 	pushl %eax
@@ -930,13 +865,11 @@ IRQ15_handler:
 	iret
 
 # void system_call_handler()
-# interrupt handler. 
-# The null interrupt handler will be called when an unfilled IDT location is referenced,
-# whether due to a kernel issue or a hardware issue.  Basically, it should never be called.
-# INPUTS   : none
+# DESCRIPTION: wrapper to system_call_handler_sub. Allows for IRET to be used
+# INPUTS   : through the use of registers eax and ecx
 # OUTPUTS  : none
 # RETURN VALUE: none
-# REGISTER USAGE: We save all registers
+# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 system_call_handler:
 	# save caller registers
 	pushl %eax
