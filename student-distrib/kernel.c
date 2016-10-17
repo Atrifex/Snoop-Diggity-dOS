@@ -17,10 +17,19 @@ extern unsigned long* idt_jmp_table;
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
+/*
+ * init_idt
+ * DESCRIPTION: initializes the idt for exceptions, interrupts, and system calls handlers
+ * INPUT: global idt variable and the idt_jmp_table from the asm
+ * OUTPUTS: none
+ * RETURN VALUE: none.
+ * SIDE EFFECTS: modifies the idt to have handlers
+*/
 void init_idt()
 {
 	int i;
 
+	// gets the pointer to the idt_jmp_table
 	unsigned long* idt_handler = (unsigned long*) &idt_jmp_table;
 
 	// for all values in IDT
@@ -32,13 +41,13 @@ void init_idt()
 			SET_IDT_ENTRY(idt[i],idt_handler[i]);
 			idt[i].seg_selector = KERNEL_CS;
 			idt[i].reserved4 = RESERVED_4_DEFAULT;
-			idt[i].reserved3 = TRAP_GATE;			
+			idt[i].reserved3 = TRAP_GATE;
 			idt[i].reserved2 = RESERVED_2_DEFAULT;
 			idt[i].reserved1 = RESERVED_1_DEFAULT;
 			idt[i].size = DEFAULT_SIZE;
 			idt[i].reserved0 = RESERVED_0_DEFAULT;
-			idt[i].dpl = KERNEL_LEVEL_DESCRIPTOR;	
-			idt[i].present = INT_PRESENT;			
+			idt[i].dpl = KERNEL_LEVEL_DESCRIPTOR;
+			idt[i].present = INT_PRESENT;
 		}
 		// if referring to a valid interrupt, then init handler
 		else if(IRQ_LOW_BOUND <= i && i < IRQ_HIGH_BOUND)
@@ -46,13 +55,13 @@ void init_idt()
 			SET_IDT_ENTRY(idt[i],idt_handler[i]);
 			idt[i].seg_selector = KERNEL_CS;
 			idt[i].reserved4 = RESERVED_4_DEFAULT;
-			idt[i].reserved3 = INTERRUPT_GATE;		
+			idt[i].reserved3 = INTERRUPT_GATE;
 			idt[i].reserved2 = RESERVED_2_DEFAULT;
 			idt[i].reserved1 = RESERVED_1_DEFAULT;
 			idt[i].size = DEFAULT_SIZE;
 			idt[i].reserved0 = RESERVED_0_DEFAULT;
-			idt[i].dpl = KERNEL_LEVEL_DESCRIPTOR;	
-			idt[i].present = INT_PRESENT;			
+			idt[i].dpl = KERNEL_LEVEL_DESCRIPTOR;
+			idt[i].present = INT_PRESENT;
 		}
 		// if referring to system call, then init handler
 		else if(i == SYSTEM_CALL_VECTOR)
@@ -60,12 +69,12 @@ void init_idt()
 			SET_IDT_ENTRY(idt[i],idt_handler[SYSTEM_CALL_HANDLER]);
 			idt[i].seg_selector = KERNEL_CS;
 			idt[i].reserved4 = RESERVED_4_DEFAULT;
-			idt[i].reserved3 = TRAP_GATE;	
+			idt[i].reserved3 = TRAP_GATE;
 			idt[i].reserved2 = RESERVED_2_DEFAULT;
 			idt[i].reserved1 = RESERVED_1_DEFAULT;
 			idt[i].size = DEFAULT_SIZE;
 			idt[i].reserved0 = RESERVED_0_DEFAULT;
-			idt[i].dpl = USER_LEVEL_DESCRIPTOR;		
+			idt[i].dpl = USER_LEVEL_DESCRIPTOR;
 			idt[i].present = INT_PRESENT;
 		}
 		// else declare handler invalid
@@ -224,6 +233,8 @@ entry (unsigned long magic, unsigned long addr)
 	
 	init_kbd();
 
+	clear_and_reset();
+	
 	/* Enable interrupts */
 	/* Do not enable the following until after you have set up your
 	 * IDT correctly otherwise QEMU will triple fault and simple close

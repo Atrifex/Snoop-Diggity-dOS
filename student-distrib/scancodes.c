@@ -1,17 +1,45 @@
 #include "scancodes.h"
+#include "lib.h"
 
 scancode_t scancode_table[256];
+char non_alpha_shift_table[256];
 
 /*
  * init_scancode_table()
- * DESCRIPTION: Initializes the scancode table 
+ * DESCRIPTION: Initializes the scancode table and the shift table
  * INPUT: none
  * OUTPUTS: none
  * RETURN VALUE: none
- * SIDE EFFECTS: Updates scancode_table
+ * SIDE EFFECTS: Updates scancode_table, non_alpha_shift_table
 */
 void init_scancode_table()
 {
+    // set-up non alpha shift table first
+    memset((void*) non_alpha_shift_table, 0, sizeof(non_alpha_shift_table));
+    non_alpha_shift_table['1'] = '!';
+    non_alpha_shift_table['2'] = '@';
+    non_alpha_shift_table['3'] = '#';
+    non_alpha_shift_table['4'] = '$';
+    non_alpha_shift_table['5'] = '%';
+    non_alpha_shift_table['6'] = '^';
+    non_alpha_shift_table['7'] = '&';
+    non_alpha_shift_table['8'] = '*';
+    non_alpha_shift_table['9'] = '(';
+    non_alpha_shift_table['0'] = ')';
+    non_alpha_shift_table['-'] = '_';
+    non_alpha_shift_table['='] = '+';
+    non_alpha_shift_table['['] = '{';
+    non_alpha_shift_table[']'] = '}';
+    non_alpha_shift_table['\\'] = '|';
+    non_alpha_shift_table['\''] = '"';
+    non_alpha_shift_table[';'] = ':';
+    non_alpha_shift_table[','] = '<';
+    non_alpha_shift_table['.'] = '>';
+    non_alpha_shift_table['/'] = '?';
+    non_alpha_shift_table['`'] = '~';
+
+    // generated code
+
     // for "esc"
     scancode_table[0x01].result = 12;
     scancode_table[0x01].flags = SCANCODE_MAKE;

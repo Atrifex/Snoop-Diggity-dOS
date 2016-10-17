@@ -2,21 +2,18 @@
 #include "lib.h"
 #include "i8259.h"
 
-// registers declared with nonmaskable interrupts
-
-
 /*
 # void init_rtc()
-# initializes RTC 
+# DESCRIPTION: initializes RTC
 # Initialized rtc registers by selecting the periodic interupt enable bit to true and altering the
-# Rate which is indicated by the least significant nibble of register A 
+# Rate which is indicated by the least significant nibble of register A
 # Should be called upon initialization of the kernel
 # INPUTS   : none
 # OUTPUTS  : none
 # RETURN VALUE: none
 # REGISTER USAGE: We save all registers and modify control registers A and B of the RTC
 */
-void init_rtc() 
+void init_rtc()
 {
 	unsigned long flags;
 
@@ -35,7 +32,7 @@ void init_rtc()
 	outb(RTC_CREG_A, RTC_CONTROL_PORT);
 	portdata = (inb(RTC_DATA_PORT) & MAINTAIN_SIG_BYTE) | DESIRED_PIE_RATE;
 
-    // select register A and update its value 
+    // select register A and update its value
 	outb(RTC_CREG_A, RTC_CONTROL_PORT);
 	outb(portdata, RTC_DATA_PORT);
 

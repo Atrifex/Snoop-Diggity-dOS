@@ -17,6 +17,7 @@
 #define DESIRED_PIE_RATE 0x0F
 #define RTC_LINE_NO 8
 
+/* used in kernel.c to init the rtc */
 extern void init_rtc();
 
 #endif

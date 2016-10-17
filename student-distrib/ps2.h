@@ -31,6 +31,7 @@
 #define SET_BIT_1 0x00000002
 
 #if USE_PS2_CONTROLLER
+/* used in in kernel.c to init the PS2 controller */
 extern void init_ps2();
 #endif
 
