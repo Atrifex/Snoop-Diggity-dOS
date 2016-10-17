@@ -1,13 +1,14 @@
 #ifndef PAGING_H
 #define PAGING_H
 
-// base address of kernel in both physical and virtual memory
+/* base address of kernel in both physical and virtual memory */
 #define KERNEL_BASE_ADDRESS 0x400000
 #define TWENTY_BIT_ADDRESS_MASK 0xFFFFF000
+#define VIDEO_MEM_BASE 0xB8000
 
+/* Macros that return the aligned address values of the directory and table entries */
 #define PDE_ADDRESS(directory_entry) (directory_entry & (TWENTY_BIT_ADDRESS_MASK))
 #define PTE_ADDRESS(table_entry) (table_entry & (TWENTY_BIT_ADDRESS_MASK))
-
 #define PDE_ADDRESS_ASSIGN(address) ((unsigned long) address & (TWENTY_BIT_ADDRESS_MASK))
 #define PTE_ADDRESS_ASSIGN(address) ((unsigned long) address & (TWENTY_BIT_ADDRESS_MASK))
 
@@ -21,8 +22,7 @@
 #define PDE_ENTRY_PRESENT 0x000003
 #define PDE_ENTRY_NOT_PRESENT 0x000002				// defaults value only allow read/write
 
-#define VIDEO_MEM_BASE 0xB8000
-
+/* General constants */
 #define PD_ENTRIES 1024
 #define PT_ENTRIES 1024
 #define BYTES_TO_ALIGN_TO 4096
@@ -30,15 +30,18 @@
 #define NOT_PRESENT_MEMORY_START 2
 #define KERNEL_PDE_ENTRY 1
 
+/* typedef to so that we can have some abstraction */
 typedef unsigned long pde_t;
 typedef unsigned long pte_t;
 
+/* externs the the page tables so that they can be used in other files */
 extern pde_t page_directory[PD_ENTRIES];
 extern pte_t page_table[PT_ENTRIES];
 
+/* so that init function can be used in kernel.c */
 extern void init_paging();
 
-// written in paging_asm.S
+/* written in paging_asm.S */
 extern void paging_hw_enable(pde_t* base);
 
 #endif

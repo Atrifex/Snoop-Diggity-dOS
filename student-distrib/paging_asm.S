@@ -8,6 +8,13 @@
 .globl paging_hw_enable
 
 # paging_hw_enable(pde_t* base)
+# DESCRIPTION: places pointer to the descriptor table into cr3
+# 			   sets bit in cr4 that allows to have 4MB pages
+#			   sets bit in cr3 that enables paging
+# INPUTS   : pde_t* base
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: uses %eax and modifies %cr3, %cr4, and %cr0
 paging_hw_enable:
 	# sets up stack
 	pushl %ebp
@@ -26,7 +33,9 @@ paging_hw_enable:
     movl %cr4, %eax
 	orl $FOUR_MB_SIZE_ENABLE, %eax
 	movl %eax, %cr4
-	
+
+	# clear TLB in the future if needed
+
 	# enables paging
 	movl %cr0, %eax
 	orl $PAGING_ENABLE, %eax

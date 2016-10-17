@@ -26,22 +26,30 @@ i8259_init(void)
     slave_mask = DEFAULT_SLAVE_MASK;
     master_mask = DEFAULT_MASTER_MASK;
 
+    // write init control word 1
     outb(ICW1, MASTER_8259_PORT);
     io_wait();
     outb(ICW1, SLAVE_8259_PORT);
     io_wait();
+
+    // write init control word 2
     outb(ICW2_MASTER, MASTER_8259_PORT_DATA);
     io_wait();
     outb(ICW2_SLAVE, SLAVE_8259_PORT_DATA);
     io_wait();
+
+    // write init control word 3
     outb(ICW3_MASTER, MASTER_8259_PORT_DATA);
     io_wait();
     outb(ICW3_SLAVE, SLAVE_8259_PORT_DATA);
     io_wait();
+
+    // write init control word 4
     outb(ICW4, MASTER_8259_PORT_DATA);
     io_wait();
     outb(ICW4, SLAVE_8259_PORT_DATA);
     io_wait();
+
     // write initial masks to synchronize our state with device state
     outb(master_mask, MASTER_8259_PORT_DATA);
     io_wait();
