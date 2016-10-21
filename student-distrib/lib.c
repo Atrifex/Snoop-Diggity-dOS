@@ -80,6 +80,17 @@ put_t(uint8_t* s)
 		putc(s[index]);
 		index++;
 	}
+
+	screen_x = 0; 
+	screen_y++;
+	while(index < 128) {
+		putc(s[index]);
+		index++;
+	}
+	screen_y--;
+
+	screen_x = 0;
+
 	return index;
 }
 

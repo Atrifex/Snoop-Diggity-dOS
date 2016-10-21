@@ -175,12 +175,6 @@ unsigned long process_sent_scancode()
 
     // see if we need to update state
     switch(raw_scancode) {
-        case (ENTER_PRESS):
-            TOGGLE_ENTER(keyboard_state);
-            break;
-        case (ENTER_RELEASE):
-            TOGGLE_ENTER(keyboard_state);
-            break;
         case (BACKSPACE_PRESS):
             TOGGLE_BACKSPACE(keyboard_state);
             break;
@@ -209,12 +203,7 @@ unsigned long process_sent_scancode()
 
 	mapped = scancode_table[raw_scancode];
 
-    if(stdin_index < KEYBOARD_BUFF_SIZE-1 && ENTER_ON(keyboard_state))
-    {
-        stdin[stdin_index++] = NEW_LINE;
-        stdin[stdin_index] = NULL_CHAR;
-        return keyboard_state;
-    }
+    if(stdin_index < KEYBOARD_BUFF_SIZE-1 && raw_scancode == ENTER_PRESS)
 
     if(stdin_index >= KEYBOARD_BUFF_SIZE-NULL_NL_PADDING)
         return keyboard_state;
