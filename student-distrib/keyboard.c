@@ -213,7 +213,7 @@ unsigned long process_sent_scancode()
 	}
 
     else if(BACKSPACE_ON(keyboard_state)){
-        if(stdin_index > 0)
+        if(stdin_index > 1)
             stdin[--stdin_index] = EMPTY_SPACE;
     }
 	else if(CONTROL_ON(keyboard_state)) {
