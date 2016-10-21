@@ -1,6 +1,9 @@
 #ifndef INTERRUPT_HANDLER_H
 #define INTERRUPT_HANDLER_H
 
+// Flag cleared by the RTC interrupt handler
+extern volatile int rtc_flag;
+
 /* 
  * Functions used by interrupt handlers to execute the core functionality 
  * of the handlers. These functions are called by the exception handlers once

@@ -11,13 +11,24 @@
 #define RTC_CREG_C 0x8C
 #define RTC_CREG_C_NO_NMI 0x0C
 
-/* wrods written to the RTC */
+/* words written to the RTC */
 #define ENABLE_PERIODIC_INT 0x40
 #define MAINTAIN_SIG_BYTE 0xF0
 #define DESIRED_PIE_RATE 0x0F
 #define RTC_LINE_NO 8
 
+// RTC interrupt frequency min and max
+#define RTC_FREQ_MIN 2
+#define RTC_FREQ_MAX 1024
+#define FREQ_FORMULA_VAL 32768
+
 /* used in kernel.c to init the rtc */
 extern void init_rtc();
+
+/*Called by read system call when RTC is specified */
+extern int read_rtc(int32_t fd, void* buf, int32_t nbytes);
+
+// Called by write system call when RTC is specified
+extern int write_rtc(int freq);
 
 #endif
