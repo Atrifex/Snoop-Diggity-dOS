@@ -20,11 +20,16 @@
 #define NEW_LINE '\n'
 #define NULL_NL_PADDING 2
 // update state macros
-#define TOGGLE_SHIFT(state) (state = state ^ SHIFT_MASK)
-#define TOGGLE_CONTROL(state) (state = state ^ CONTROL_MASK)
-#define TOGGLE_BACKSPACE(state) (state = state ^ BACKSPACE_MASK)
-#define TOGGLE_ENTER(state) (state = state ^ ENTER_MASK)
-#define TOGGLE_CAPS(state) (state = state ^ CAPS_LOCK_MASK)
+#define TURN_SHIFT_ON(state) (state = state | SHIFT_MASK)
+#define TURN_CONTROL_ON(state) (state = state | CONTROL_MASK)
+#define TURN_BACKSPACE_ON(state) (state = state | BACKSPACE_MASK)
+#define TURN_ENTER_ON(state) (state = state | ENTER_MASK)
+#define TOGGLE_CAPS_LOCK(state) (state = state ^ CAPS_LOCK_MASK)
+
+#define TURN_SHIFT_OFF(state) (state = state & ~SHIFT_MASK)
+#define TURN_CONTROL_OFF(state) (state = state & ~CONTROL_MASK)
+#define TURN_BACKSPACE_OFF(state) (state = state & ~BACKSPACE_MASK)
+#define TURN_ENTER_OFF(state) (state = state & ~ENTER_MASK)
 
 // check state macros
 #define CAPS_LOCK_ON(state) (state & CAPS_LOCK_MASK)

@@ -30,7 +30,7 @@ uint8_t get_char()
 
     // get second byte of multi-byte sequences
     if(data == MB_SEQ_INIT) {
-    	data = inb(KEYBOARD_DATA_PORT);
+        data = inb(KEYBOARD_DATA_PORT);
     }
 
     return data;
@@ -46,14 +46,13 @@ uint8_t get_char()
 */
 void init_kbd()
 {
-	// set up the scancode table
+    // set up the scancode table
     init_scancode_table();
 
-    // init keyboard buffer attributes 
+    // init keyboard buffer attributes and fill keyboard buffer w/ null bytes
     stdin_index = 0; 
-    stdin[stdin_index] = NULL_CHAR;
-    stdin[KEYBOARD_BUFF_SIZE-1] = NULL_CHAR;        // for safety sake
-
+    memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
+    
     //TODO: try to change the mode of the keyboard
 
     // enable the interrupt on the PIC
@@ -73,8 +72,6 @@ int32_t open_terminal(const uint8_t *pathname)
     isOpen = 1;
     return 0;
 }
-
-
 
 /*
  * close_terminal
@@ -96,7 +93,7 @@ int32_t close_terminal(int32_t fd)
  * DESCRIPTION: gets pointer to input buffer
  * INPUT:   int32_t fd - file descriptor to open fil 
  *          void * buf - pointer to buf to copy to
- *          int32_t nbytes - number of bytes to copy to user
+ *          int32_t nbytes - number of bytes to copy to user (stops at null or this number)
  * OUTPUTS: copy stdin to user buf
  * RETURN VALUE: int copied - succes: the number of bytes copied  
  *                            error: -1
@@ -119,12 +116,17 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
         // clear input if you see a new line---> however allow user to keep reading reset of buffer
         if(stdin[i] == NEW_LINE)
         {
-            stdin[0] = NULL_CHAR;
             stdin_index = 0;
+            memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
+            buffer[i+1] = NULL_CHAR;
+            break;
+        }
+        if(stdin[i] == NULL_CHAR) {
+            break;
         }
     }
 
-    return nbytes;
+    return i;
 }
 
 /*
@@ -155,7 +157,7 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
 
 
 /*
- * display_char
+ * process_sent_scancode
  * DESCRIPTION: returns an unsigned long containing characters to display in the two most significant bits
  *                              in the 3 least significant bits returns the (potentially) updated keyboard_state
  *                              1xx control is on, x1x capslock is on, xx1 shift is on
@@ -168,7 +170,7 @@ unsigned long process_sent_scancode()
 {
     scancode_t mapped;
     uint8_t raw_scancode = get_char();
-
+    
     /*determines map to use either controlmap, shiftmap, or normal map
     control has highest priority, and therefore goes to control map
     */
@@ -176,83 +178,87 @@ unsigned long process_sent_scancode()
     // see if we need to update state
     switch(raw_scancode) {
         case (BACKSPACE_PRESS):
-            TOGGLE_BACKSPACE(keyboard_state);
+            TURN_BACKSPACE_ON(keyboard_state);
             break;
         case (BACKSPACE_RELEASE):
-            TOGGLE_BACKSPACE(keyboard_state);
+            TURN_BACKSPACE_OFF(keyboard_state);
             break;
         case (CAPS_LOCK_PRESS):
-            TOGGLE_CAPS(keyboard_state);
+            TOGGLE_CAPS_LOCK(keyboard_state);
             break;
         case (CAPS_LOCK_RELEASE):
             //don't care about this
             break;
         case (SHIFT_PRESS):
-            TOGGLE_SHIFT(keyboard_state);
+            TURN_SHIFT_ON(keyboard_state);
             break;
         case (SHIFT_RELEASE):
-            TOGGLE_SHIFT(keyboard_state);
+            TURN_SHIFT_OFF(keyboard_state);
             break;
         case (CONTROL_PRESS):
-            TOGGLE_CONTROL(keyboard_state);
+            TURN_CONTROL_ON(keyboard_state);
             break;
         case (CONTROL_RELEASE):
-            TOGGLE_CONTROL(keyboard_state);
+            TURN_CONTROL_OFF(keyboard_state);
             break;
     }
 
-	mapped = scancode_table[raw_scancode];
+    mapped = scancode_table[raw_scancode];
 
-    if(stdin_index < KEYBOARD_BUFF_SIZE-1 && raw_scancode == ENTER_PRESS)
-
-    if(stdin_index >= KEYBOARD_BUFF_SIZE-NULL_NL_PADDING)
+    if(!IS_MAKE_SC(mapped)) {
         return keyboard_state;
-
-	if(!IS_MAKE_SC(mapped)) {
-		return keyboard_state;
-	}
-
-    else if(BACKSPACE_ON(keyboard_state)){
-        if(stdin_index > 1)
-            stdin[--stdin_index] = EMPTY_SPACE;
     }
-	else if(CONTROL_ON(keyboard_state)) {
-		if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
+
+    // 
+    if(CONTROL_ON(keyboard_state)) {
+        if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
             clear_and_reset();
-		}
-	} else if(CAPS_LOCK_ON(keyboard_state) && !SHIFT_ON(keyboard_state)) {
-		if(IS_LETTER_SC(mapped)) {
+        }
+    } else if(BACKSPACE_ON(keyboard_state)){
+        if(stdin_index > 0)
+            stdin[--stdin_index] = EMPTY_SPACE;
+    } else if(mapped.result == NEW_LINE && stdin_index < KEYBOARD_BUFF_SIZE-1) {
+        stdin[stdin_index++] = NEW_LINE;
+        stdin[stdin_index] = NULL_CHAR;
+    } 
+    
+    if(stdin_index >= KEYBOARD_BUFF_SIZE-NULL_NL_PADDING) {
+        return keyboard_state;
+    }
+    
+    if(CAPS_LOCK_ON(keyboard_state) && !SHIFT_ON(keyboard_state)) {
+        if(IS_LETTER_SC(mapped)) {
             stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL);
             if(stdin[stdin_index] != EMPTY_SPACE)
                 stdin[stdin_index] = NULL_CHAR;
-		} else if(IS_PRINTABLE_SC(mapped)) {
-			stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
+        } else if(IS_PRINTABLE_SC(mapped)) {
+            stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
             if(stdin[stdin_index] != EMPTY_SPACE)
                 stdin[stdin_index] = NULL_CHAR;
-		}
-	} else if(SHIFT_ON(keyboard_state)) {
-		if(IS_LETTER_SC(mapped) && !CAPS_LOCK_ON(keyboard_state)) {
-			stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL); // shifting letters is simple
+        }
+    } else if(SHIFT_ON(keyboard_state)) {
+        if(IS_LETTER_SC(mapped) && !CAPS_LOCK_ON(keyboard_state)) {
+            stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL); // shifting letters is simple
             if(stdin[stdin_index] != EMPTY_SPACE)
                 stdin[stdin_index] = NULL_CHAR;
-		} else if(IS_PRINTABLE_SC(mapped)) {
-			if(non_alpha_shift_table[mapped.result] != 0) {
-				stdin[stdin_index++] = (non_alpha_shift_table[mapped.result]);
+        } else if(IS_PRINTABLE_SC(mapped)) {
+            if(non_alpha_shift_table[mapped.result] != 0) {
+                stdin[stdin_index++] = (non_alpha_shift_table[mapped.result]);
                 if(stdin[stdin_index] != EMPTY_SPACE)
                     stdin[stdin_index] = NULL_CHAR;
-			} else {
-				stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
+            } else {
+                stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
                 if(stdin[stdin_index] != EMPTY_SPACE)
                     stdin[stdin_index] = NULL_CHAR;
-			}
-		}
-	} else {
-		if(IS_PRINTABLE_SC(mapped)) {
-			stdin[stdin_index++] = (mapped.result);
+            }
+        }
+    } else {
+        if(IS_PRINTABLE_SC(mapped)) {
+            stdin[stdin_index++] = (mapped.result);
             if(stdin[stdin_index] != EMPTY_SPACE)
                 stdin[stdin_index] = NULL_CHAR;
-		}
-	}
+        }
+    }
     
     return keyboard_state; // return current kb state
 }

@@ -62,6 +62,8 @@ void shift_screen_up(void)
         *(uint8_t *)(video_mem + ((i + (NUM_ROWS-1)*NUM_COLS) << 1)) = ' ';
         *(uint8_t *)(video_mem + ((i + (NUM_ROWS-1)*NUM_COLS) << 1) + 1) = ATTRIB;
     }
+    
+    screen_y--;
 }
 
 /*
@@ -74,23 +76,45 @@ void shift_screen_up(void)
 int32_t
 put_t(uint8_t* s)
 {
+    int start_x;
+    int start_y;
 	register int32_t index = 0;
+    unsigned long flags;
+    
+    cli_and_save(flags);
+    start_x = screen_x;
+    start_y = screen_y;
 
-	while(s[index] != '\0' && index < 80) {
-		putc(s[index]);
-		index++;
-	}
-
-	screen_x = 0; 
-	screen_y++;
-	while(index < 128) {
-		putc(s[index]);
-		index++;
-	}
-	screen_y--;
-
-	screen_x = 0;
-
+    while(s[index] != '\0') {
+        // || ( index != 0 && index % 80 == 0 )
+        if(s[index] == '\n' || s[index] == '\r') {
+            // handle newline
+            screen_x = 0;
+            screen_y++;
+            start_y++;
+            if(screen_y >= NUM_ROWS) {
+                shift_screen_up();
+                start_y--;
+            }
+            
+        } else if(index != 0 && index % 80 == 0) {
+            screen_y++;
+            screen_x = 0; // wrap text
+            if(screen_y >= NUM_ROWS) {
+                shift_screen_up();
+                start_y--;
+            }
+        }
+        else {
+            putc(s[index]);
+        }
+        index++;
+    }
+    
+    screen_x = start_x;
+    screen_y = start_y;
+    restore_flags(flags);
+    
 	return index;
 }
 

@@ -246,6 +246,7 @@ entry (unsigned long magic, unsigned long addr)
 	while(1){
 		read_terminal(0, buff, 128);
 		write_terminal(1, buff, 128);
+        // memset(buff, '\0', 128);
 	}
 	
 	/* Execute the first program (`shell') ... */
