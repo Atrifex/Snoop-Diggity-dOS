@@ -64,14 +64,16 @@ void init_kbd()
 }
 
 /*
- * open_kbd
- * DESCRIPTION: opens file to kbd
- * INPUT: none.
- * OUTPUTS: none.
- * RETURN VALUE: none.
- * SIDE EFFECTS: opens file to kbd inptut
+ * open_terminal
+ * DESCRIPTION: opens file to acces the stdin from kbd
+ * INPUT:       const char * pathname - path to file being opened
+ *              int flags - can be many different types 
+ *                 |---> here are some examples O_RDONLY, O_WRONLY, or O_RDWR
+ * OUTPUTS:  file descriptor
+ * RETURN VALUE: int fd - unsigned number if success, -1 if unable to open file
+ * SIDE EFFECTS: user has access to the file
 */
-int open_terminal()
+int open_terminal(const char *pathname, int flags)
 {
     isOpen = 1;
     return 0;
@@ -80,14 +82,14 @@ int open_terminal()
 
 
 /*
- * close_kbd
- * DESCRIPTION: opens file to kbd
- * INPUT: none.
- * OUTPUTS: none.
- * RETURN VALUE: none.
- * SIDE EFFECTS: opens file to kbd inptut
+ * close_terminal
+ * DESCRIPTION: close file access to the stdout to the terminal
+ * INPUT:   int fd - file descriptor to the file being closed
+ * OUTPUTS: error state  
+ * RETURN VALUE: int error - 0 if success and -1 if error
+ * SIDE EFFECTS: uses gives up access to std out
 */
-int close_terminal()
+int close_terminal(int fd)
 {
     isOpen = 0;
     return;
@@ -95,36 +97,38 @@ int close_terminal()
 
 
 /*
- * read_kbd
+ * read_terminal
  * DESCRIPTION: gets pointer to input buffer
- * INPUT: none.
- * OUTPUTS: none.
- * RETURN VALUE: none.
- * SIDE EFFECTS: opens file to kbd inptut
+ * INPUT:   int fd - file descriptor to open fil 
+ *          void * buf - pointer to buf to copy to
+ *          size_t count - number of bytes to copy to user
+ * OUTPUTS: copy stdin to user buf
+ * RETURN VALUE: int copied - succes: the number of bytes copied  
+ *                            error: -1
+ * SIDE EFFECTS: user gets copy of the current stdin
 */
-ssize_t read_terminal()
+ssize_t read_terminal(int fd, void *buf, size_t count)
 {
-    if(isOpen)
-    {
-        
-    }
-    else
-    {
-        
-    }
+
 }
 
 /*
- * write_kbd
+ * write_terminal
  * DESCRIPTION: does nothing
- * INPUT: none.
- * OUTPUTS: none.
- * RETURN VALUE: none.
- * SIDE EFFECTS: does nothing
+ * INPUT:   int fd - file descriptor to open fil 
+ *          void * buf - pointer to buf to copy from
+ *          size_t count - number of bytes to copy from user
+ * OUTPUTS: copy stdin from user buf
+ * RETURN VALUE: int copied - succes: the number of bytes copied  
+ *                            error: -1
+ * SIDE EFFECTS: user outputs their string
 */
-ssize_t write_terminal()
+ssize_t write_terminal(int fd, const void *buf, size_t count)
 {
-
+    /*
+     * As design decision no bounds check will be performed on input 
+     * The user should know to null terminate their buffer
+     */
 }
 
 
@@ -178,7 +182,8 @@ unsigned long process_sent_scancode()
     
 	if(CONTROL_ON(keyboard_state)) {
 		if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
-			clear_and_reset();
+			shift_screen_up();
+            //clear_and_reset();
 		}
 	} else if(CAPS_LOCK_ON(keyboard_state) && !SHIFT_ON(keyboard_state)) {
 		if(IS_LETTER_SC(mapped)) {

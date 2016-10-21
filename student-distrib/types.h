@@ -22,6 +22,7 @@ typedef char int8_t;
 typedef unsigned char uint8_t;
 
 typedef int ssize_t;
+typedef unsigned int size_t;
 
 #endif /* ASM */
 
