@@ -10,20 +10,24 @@
 #define SHIFT_MASK 1
 #define CONTROL_MASK 2
 #define CAPS_LOCK_MASK 4
+#define BACKSPACE_MASK 8
 
 // keyboad buffer attributes
 #define KEYBOARD_BUFF_SIZE 128
-#define KEYBOARD_EMPTY_SPACE ' '
+#define EMPTY_SPACE ' '
 #define NULL_CHAR '\0'
+#define NEW_LINE '\n'
 
 // update state macros
 #define TOGGLE_SHIFT(state) (state = state ^ SHIFT_MASK)
 #define TOGGLE_CONTROL(state) (state = state ^ CONTROL_MASK)
+#define TOGGLE_BACKSPACE(state) (state = state ^ BACKSPACE_MASK)
 #define TOGGLE_CAPS(state) (state = state ^ CAPS_LOCK_MASK)
 
 // check state macros
 #define CAPS_LOCK_ON(state) (state & CAPS_LOCK_MASK)
 #define CONTROL_ON(state) (state & CONTROL_MASK)
+#define BACKSPACE_ON(state) (state & BACKSPACE_MASK)
 #define SHIFT_ON(state) (state & SHIFT_MASK)
 
 // initializer for a multibyte scancode sequence
@@ -55,6 +59,9 @@
 
 #define CAPS_LOCK_PRESS 0x3A
 #define CAPS_LOCK_RELEASE 0xBA
+
+#define BACKSPACE_PRESS 0x0E
+#define BACKSPACE_RELEASE 0x8E
 
 /* Process the sent scancode after an interrupt */
 extern unsigned long process_sent_scancode();

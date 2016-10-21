@@ -8,9 +8,8 @@
 #define NUM_ROWS 25
 #define ATTRIB 0x7
 
-//TODO:	make sure this isnt bad practice
-int screen_x;
-int screen_y;
+static int screen_x;
+static int screen_y;
 
 static char* video_mem = (char *)VIDEO;
 
@@ -64,6 +63,49 @@ void shift_screen_up(void)
         *(uint8_t *)(video_mem + ((i + (NUM_ROWS-1)*NUM_COLS) << 1) + 1) = ATTRIB;
     }
 }
+
+/*
+* int32_t put_t(int8_t* s);
+*   Inputs: int_8* s = pointer to a string of characters
+*   Return Value: Number of bytes written
+*	Function: Output a string to the console 
+*/
+
+int32_t
+put_t(uint8_t* s)
+{
+	register int32_t index = 0;
+
+	while(s[index] != '\0') {
+		putc(s[index]);
+		index++;
+	}
+
+	return index;
+}
+
+/*
+* void putc(uint8_t c);
+*   Inputs: uint_8* c = character to print
+*   Return Value: void
+*	Function: Output a character to the console 
+
+
+void
+putc(uint8_t c)
+{
+    if(c == '\n' || c == '\r') {
+        screen_y++;
+        screen_x=0;
+    } else {
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+        screen_x++;
+        screen_x %= NUM_COLS;
+        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+    }
+}
+*/
 
 /*
 * void change_atribute(void);
