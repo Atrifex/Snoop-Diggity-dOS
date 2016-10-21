@@ -8,8 +8,8 @@
 // bit 2 = caps lock
 uint8_t keyboard_state = 0;
 
-uint8_t keyboard_buffer[KEYBOARD_BUFF_SIZE];       // number of chars in a row is 80 ---> why do we want 128 then?
-uint8_t * keyboard_buff_ptr;
+uint8_t stdin[KEYBOARD_BUFF_SIZE];       // number of chars in a row is 80 ---> why do we want 128 then?
+uint8_t stdin_index;
 
 uint8_t isOpen = 0;
 
@@ -49,13 +49,13 @@ void init_kbd()
     init_scancode_table();
 
     // init keyboard buffer attributes 
-    keyboard_buff_ptr = keyboard_buffer;
+    stdin_index = 0; 
     int i;
     for(i = 0; i < KEYBOARD_BUFF_SIZE - 1; i++)
     {
-        keyboard_buffer[i] = KEYBOARD_EMPTY_SPACE;
+        stdin[i] = KEYBOARD_EMPTY_SPACE;
     }
-    keyboard_buffer[KEYBOARD_EMPTY_SPACE-1] = NULL_CHAR;
+    stdin[KEYBOARD_EMPTY_SPACE-1] = NULL_CHAR;
 
     //TODO: try to change the mode of the keyboard
 
