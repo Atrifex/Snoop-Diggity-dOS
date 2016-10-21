@@ -52,6 +52,7 @@ void init_kbd()
     // init keyboard buffer attributes 
     stdin_index = 0; 
     stdin[stdin_index] = NULL_CHAR;
+    stdin[KEYBOARD_BUFF_SIZE-1] = NULL_CHAR;        // for safety sake
 
     //TODO: try to change the mode of the keyboard
 
@@ -117,7 +118,10 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
         buffer[i] = stdin[i];
         // clear input if you see a new line---> however allow user to keep reading reset of buffer
         if(stdin[i] == NEW_LINE)
+        {
             stdin[0] = NULL_CHAR;
+            stdin_index = 0;
+        }
     }
 
     return nbytes;
@@ -171,6 +175,12 @@ unsigned long process_sent_scancode()
 
     // see if we need to update state
     switch(raw_scancode) {
+        case (ENTER_PRESS):
+            TOGGLE_ENTER(keyboard_state);
+            break;
+        case (ENTER_RELEASE):
+            TOGGLE_ENTER(keyboard_state);
+            break;
         case (BACKSPACE_PRESS):
             TOGGLE_BACKSPACE(keyboard_state);
             break;
@@ -199,15 +209,23 @@ unsigned long process_sent_scancode()
 
 	mapped = scancode_table[raw_scancode];
 
-    if(stdin_index >= KEYBOARD_BUFF_SIZE)
+    if(stdin_index < KEYBOARD_BUFF_SIZE-1 && ENTER_ON(keyboard_state))
+    {
+        stdin[stdin_index++] = NEW_LINE;
+        stdin[stdin_index] = NULL_CHAR;
+        return keyboard_state;
+    }
+
+    if(stdin_index >= KEYBOARD_BUFF_SIZE-NULL_NL_PADDING)
         return keyboard_state;
 
 	if(!IS_MAKE_SC(mapped)) {
 		return keyboard_state;
 	}
 
-    if(BACKSPACE_ON(keyboard_state)){
-        stdin[--stdin_index] = EMPTY_SPACE;
+    else if(BACKSPACE_ON(keyboard_state)){
+        if(stdin_index > 0)
+            stdin[--stdin_index] = EMPTY_SPACE;
     }
 	else if(CONTROL_ON(keyboard_state)) {
 		if(mapped.result == CLEAR_SCREEN_SHORTCUT) {

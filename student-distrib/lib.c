@@ -76,11 +76,10 @@ put_t(uint8_t* s)
 {
 	register int32_t index = 0;
 
-	while(s[index] != '\0') {
+	while(s[index] != '\0' && index < 80) {
 		putc(s[index]);
 		index++;
 	}
-
 	return index;
 }
 

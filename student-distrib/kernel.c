@@ -241,6 +241,12 @@ entry (unsigned long magic, unsigned long addr)
 	 * without showing you any output */
 	printf("Enabling Interrupts\n");
 	sti();
+
+	uint8_t buff[128];
+	while(1){
+		read_terminal(0, buff, 128);
+		write_terminal(1, buff, 128);
+	}
 	
 	/* Execute the first program (`shell') ... */
 

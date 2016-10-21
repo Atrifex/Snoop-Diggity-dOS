@@ -7,27 +7,30 @@
 #define CLEAR_SCREEN_SHORTCUT 'l' // control-L clears screen
 
 // state mask bits
-#define SHIFT_MASK 1
-#define CONTROL_MASK 2
-#define CAPS_LOCK_MASK 4
-#define BACKSPACE_MASK 8
+#define SHIFT_MASK 0x1
+#define CONTROL_MASK 0x2
+#define CAPS_LOCK_MASK 0x4
+#define BACKSPACE_MASK 0x8
+#define ENTER_MASK 0x10
 
 // keyboad buffer attributes
 #define KEYBOARD_BUFF_SIZE 128
 #define EMPTY_SPACE ' '
 #define NULL_CHAR '\0'
 #define NEW_LINE '\n'
-
+#define NULL_NL_PADDING 2
 // update state macros
 #define TOGGLE_SHIFT(state) (state = state ^ SHIFT_MASK)
 #define TOGGLE_CONTROL(state) (state = state ^ CONTROL_MASK)
 #define TOGGLE_BACKSPACE(state) (state = state ^ BACKSPACE_MASK)
+#define TOGGLE_ENTER(state) (state = state ^ ENTER_MASK)
 #define TOGGLE_CAPS(state) (state = state ^ CAPS_LOCK_MASK)
 
 // check state macros
 #define CAPS_LOCK_ON(state) (state & CAPS_LOCK_MASK)
 #define CONTROL_ON(state) (state & CONTROL_MASK)
 #define BACKSPACE_ON(state) (state & BACKSPACE_MASK)
+#define ENTER_ON(state) (state & ENTER_MASK)
 #define SHIFT_ON(state) (state & SHIFT_MASK)
 
 // initializer for a multibyte scancode sequence
@@ -63,9 +66,19 @@
 #define BACKSPACE_PRESS 0x0E
 #define BACKSPACE_RELEASE 0x8E
 
+#define ENTER_PRESS 0x1C
+#define ENTER_RELEASE 0x9C
+
 /* Process the sent scancode after an interrupt */
 extern unsigned long process_sent_scancode();
 /* Initialize the keyboard device */
 extern void init_kbd();
+
+/* Driver related functions */
+extern int32_t open_terminal(const uint8_t *pathname);
+extern int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes);
+extern int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes);
+extern int32_t close_terminal(int32_t fd);
+
 
 #endif
