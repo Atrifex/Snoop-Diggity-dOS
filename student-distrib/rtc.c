@@ -1,13 +1,15 @@
 #include "rtc.h"
 #include "lib.h"
 #include "i8259.h"
-#include "interrupt_handler.h"
 
 // TODO: Change open() and close() once we've loaded the filesystem.
 // And again for MP3.3
 
 // File-scope flag: is the RTC open?
 static int rtc_enable = 0;
+
+// Shared flag with interrupt_handler.c
+extern volatile int rtc_flag;
 
 /*
 # void init_rtc()
@@ -48,6 +50,7 @@ void init_rtc()
 
     // enable irqs so that we can get interrupts from the RTC
 	enable_irq(RTC_LINE_NO);
+	rtc_enable = 1;
 }
 
 /*

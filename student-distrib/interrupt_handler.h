@@ -2,7 +2,7 @@
 #define INTERRUPT_HANDLER_H
 
 // Flag cleared by the RTC interrupt handler
-extern volatile int rtc_flag;
+volatile int rtc_flag;
 
 /* 
  * Functions used by interrupt handlers to execute the core functionality 

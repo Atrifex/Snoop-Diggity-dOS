@@ -1,6 +1,8 @@
 #ifndef RTC_H
 #define RTC_H
 
+#include "types.h"
+
 /* port data */
 #define RTC_CONTROL_PORT 0x70
 #define RTC_DATA_PORT 0x71

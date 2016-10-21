@@ -250,7 +250,7 @@ entry (unsigned long magic, unsigned long addr)
 	
 	for(i = 0; i < 10; i++)
 	{
-		read_rtc(); // Should take 5 seconds- 10 messages should display
+		read_rtc(0, NULL, 0); // Should take 5 seconds- 10 messages should display
 	}
 
 	rtc_ret = write_rtc(10); // Should return -1 (invalid frequency)
@@ -261,7 +261,7 @@ entry (unsigned long magic, unsigned long addr)
 
 	for(i = 0; i < 512; i++)
 	{
-		read_rtc(); // Should take 1 second- 512 messages should display
+		read_rtc(0, NULL, 0); // Should take 1 second- 512 messages should display
 	}
 
 	rtc_ret = write_rtc(11412940); // Should return -1 (invalid frequency)
