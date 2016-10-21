@@ -31,4 +31,10 @@ extern int read_rtc(int32_t fd, void* buf, int32_t nbytes);
 // Called by write system call when RTC is specified
 extern int write_rtc(int freq);
 
+// Opens the RTC (allocates file descriptor)
+extern int open_rtc();
+
+// Closes the RTC (deallocates file descriptor)
+extern int close_rtc(int32_t fd);
+
 #endif

@@ -16,6 +16,7 @@ extern unsigned long* idt_jmp_table;
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
+#define TEST_RTC 1 // Set to 0 to take out RTC tests, 1 to keep them in
 
 /*
  * init_idt
@@ -241,6 +242,36 @@ entry (unsigned long magic, unsigned long addr)
 	 * without showing you any output */
 	printf("Enabling Interrupts\n");
 	sti();
+
+#if TEST_RTC
+	// Tests for RTC read, write
+	int i;
+	int rtc_ret = write_rtc(2); // Frequency 2 Hz
+	
+	for(i = 0; i < 10; i++)
+	{
+		read_rtc(); // Should take 5 seconds- 10 messages should display
+	}
+
+	rtc_ret = write_rtc(10); // Should return -1 (invalid frequency)
+	if(rtc_ret < 0)
+		printf("Invalid frequency request!\n");
+
+	rtc_ret = write_rtc(512);
+
+	for(i = 0; i < 512; i++)
+	{
+		read_rtc(); // Should take 1 second- 512 messages should display
+	}
+
+	rtc_ret = write_rtc(11412940); // Should return -1 (invalid frequency)
+	if(rtc_ret < 0)
+		printf("Invalid frequency request!\n");
+
+	rtc_ret = write_rtc(0); // Should return -1 (invalid frequency)
+	if(rtc_ret < 0)
+		printf("Invalid frequency request!\n");
+#endif
 	
 	/* Execute the first program (`shell') ... */
 
