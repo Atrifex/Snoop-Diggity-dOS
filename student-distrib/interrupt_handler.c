@@ -33,24 +33,8 @@ void ignore_int_sub()
 */
 void exception_handler_0_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	clear_and_reset();
 	printf("EXCEPTION: DIVIDE BY ZERO ERROR\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -64,23 +48,7 @@ void exception_handler_0_sub()
 */
 void exception_handler_2_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: NMI INTERRUPT\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -94,23 +62,7 @@ void exception_handler_2_sub()
 */
 void exception_handler_3_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: BREAKPOINT\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -124,23 +76,7 @@ void exception_handler_3_sub()
 */
 void exception_handler_4_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: OVERFLOW\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -154,23 +90,7 @@ void exception_handler_4_sub()
 */
 void exception_handler_5_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: BOUND RANGE EXCEEDED ERROR\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -184,23 +104,7 @@ void exception_handler_5_sub()
 */
 void exception_handler_6_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: INVALID OPCODE ERROR\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -214,23 +118,7 @@ void exception_handler_6_sub()
 */
 void exception_handler_7_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: DEVICE NOT AVAILABLE\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -244,23 +132,7 @@ void exception_handler_7_sub()
 */
 void exception_handler_8_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: DOUBLE FAULT\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -274,23 +146,7 @@ void exception_handler_8_sub()
 */
 void exception_handler_9_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: COPROCESSOR SEGMENT OVERRUN\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -304,23 +160,7 @@ void exception_handler_9_sub()
 */
 void exception_handler_10_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: INVALID TSS ERROR\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -334,23 +174,7 @@ void exception_handler_10_sub()
 */
 void exception_handler_11_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: SEGMENT NOT PRESENT ERROR\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -364,23 +188,7 @@ void exception_handler_11_sub()
 */
 void exception_handler_12_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: STACK-SEGMENT FAULT\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -394,23 +202,7 @@ void exception_handler_12_sub()
 */
 void exception_handler_13_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: GENERAL PROTECTION FAULT\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -424,23 +216,7 @@ void exception_handler_13_sub()
 */
 void exception_handler_14_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: PAGE FAULT ERROR\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -454,23 +230,7 @@ void exception_handler_14_sub()
 */
 void exception_handler_16_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: x87 FPU FLOATING-POINT ERROR\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -484,23 +244,7 @@ void exception_handler_16_sub()
 */
 void exception_handler_17_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: ALIGNMENT CHECK\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -514,23 +258,7 @@ void exception_handler_17_sub()
 */
 void exception_handler_18_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: MACHINE CHECK\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 
@@ -544,23 +272,7 @@ void exception_handler_18_sub()
 */
 void exception_handler_19_sub()
 {
-	unsigned long ret_address = 0;
-	long error_code = 0;
-
-	// When the handler is initially called, the error code is on top of the stack
-	// The return address is at ESP+4
-	// Since then, we pushed three caller-save, EIP, EBP, and two callee-save (due to C convention) - we also subtract 20 for local vars
-	// So we need to offset locations by 32
-	asm volatile(
-		"movl 60(%%esp), %0;"
-		"movl 64(%%esp), %1;"
-		:"=S"(ret_address), "=D"(error_code)
-		:"S"(ret_address), "D"(error_code)
-	);
-
 	printf("EXCEPTION: SIMD FLOATING-POINT EXCEPTION\n");
-	printf("Error code: %d\n", error_code);
-	printf("Exception occurred at address: %x\n", ret_address);
 	while(1);
 }
 

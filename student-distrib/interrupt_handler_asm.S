@@ -58,9 +58,6 @@ ignore_int:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_0:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
-
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -85,8 +82,6 @@ exception_handler_0:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_2:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -111,8 +106,6 @@ exception_handler_2:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_3:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -137,8 +130,6 @@ exception_handler_3:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_4:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -163,8 +154,6 @@ exception_handler_4:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_5:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -189,8 +178,6 @@ exception_handler_5:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_6:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -215,8 +202,6 @@ exception_handler_6:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_7:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -241,8 +226,6 @@ exception_handler_7:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_8:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -267,8 +250,6 @@ exception_handler_8:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_9:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -293,8 +274,6 @@ exception_handler_9:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_10:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -319,8 +298,6 @@ exception_handler_10:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_11:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -345,8 +322,6 @@ exception_handler_11:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_12:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -371,8 +346,6 @@ exception_handler_12:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_13:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -397,8 +370,6 @@ exception_handler_13:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_14:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -423,8 +394,6 @@ exception_handler_14:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_16:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -449,8 +418,6 @@ exception_handler_16:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_17:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -475,8 +442,6 @@ exception_handler_17:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_18:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
@@ -501,8 +466,6 @@ exception_handler_18:
 # RETURN VALUE: none
 # REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
 exception_handler_19:
-	# we are going to "BSOD" so stop interrupts from flooding screen afterwards
-	cli
 	# save caller registers
 	pushl %eax
 	pushl %ecx
