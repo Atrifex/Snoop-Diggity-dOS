@@ -676,8 +676,8 @@ void IRQ7_handler_sub()
 */
 void IRQ8_handler_sub()
 {
-	//printf("IRQ: Real Time Clock\n");			// comment when using test_interrupts()
-	test_interrupts();
+	//printf("IRQ: Real Time Clock\n");	// uncomment for simple test
+	//test_interrupts();                // uncomment for more their test
 	outb(RTC_CREG_C, RTC_CONTROL_PORT); // selects control register C of the RTC
 	inb(RTC_DATA_PORT);
 

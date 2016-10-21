@@ -7,6 +7,8 @@
 // bit 2 = caps lock
 uint8_t keyboard_state = 0;
 
+uint8_t keyboard_buffer[128];       // number of chars in a row is 80 on mac ---> need to check for windows
+
 /*
  * get_char
  * DESCRIPTION: Retrieves scancode(s) from control data port
@@ -39,6 +41,8 @@ void init_kbd()
 {
 	// set up the scancode table
     init_scancode_table();
+
+    //TODO: try to change the mode of the keyboard
 
     // enable the interrupt on the PIC
     enable_irq(KEYBOARD_LINE_NO);
