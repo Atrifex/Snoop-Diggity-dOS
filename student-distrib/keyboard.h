@@ -11,6 +11,11 @@
 #define CONTROL_MASK 2
 #define CAPS_LOCK_MASK 4
 
+// keyboad buffer attributes
+#define KEYBOARD_BUFF_SIZE 128
+#define KEYBOARD_EMPTY_SPACE ' '
+#define NULL_CHAR '\0'
+
 // update state macros
 #define TOGGLE_SHIFT(state) (state = state ^ SHIFT_MASK)
 #define TOGGLE_CONTROL(state) (state = state ^ CONTROL_MASK)

@@ -8,8 +8,10 @@
 #define NUM_ROWS 25
 #define ATTRIB 0x7
 
-static int screen_x;
-static int screen_y;
+//TODO:	make sure this isnt bad practice
+int screen_x;
+int screen_y;
+
 static char* video_mem = (char *)VIDEO;
 
 /*
@@ -41,6 +43,47 @@ void clear_and_reset(void)
 	screen_x = 0;
 	screen_y = 0;
 }
+
+/*
+* void shift_screen_up(void);
+*   Inputs: void
+*   Return Value: none
+*	Function: shifts everything in video memory up so that we can account for a new line
+*/
+void shift_screen_up(void)
+{
+	int32_t i;
+    for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + (i << 1)) = ' ';
+        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+    }
+}
+
+/*
+* void change_atribute(void);
+*   Inputs: void
+*   Return Value: none
+*	Function: change attribute byte for all of video memory
+*/
+void change_atribute(uint8_t attribute)
+{
+	int32_t i;
+    for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + (i << 1) + 1) = attribute;
+    }
+}
+
+/*
+* void change_atribute_specific(void);
+*   Inputs: void
+*   Return Value: none
+*	Function: change attribute at a specific location in video memory
+*/
+void change_atribute_specific(int32_t position, uint8_t attribute)
+{
+    *(uint8_t *)(video_mem + (position << 1) + 1) = attribute;
+}
+
 
 /* Standard printf().
  * Only supports the following format strings:

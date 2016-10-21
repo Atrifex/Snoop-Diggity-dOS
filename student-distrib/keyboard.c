@@ -1,13 +1,19 @@
 #include "keyboard.h"
 #include "lib.h"
 #include "i8259.h"
+#include "types.h"
 
 // bit 0 = shift
 // bit 1 = control
 // bit 2 = caps lock
 uint8_t keyboard_state = 0;
 
-uint8_t keyboard_buffer[128];       // number of chars in a row is 80 on mac ---> need to check for windows
+uint8_t keyboard_buffer[KEYBOARD_BUFF_SIZE];       // number of chars in a row is 80 ---> why do we want 128 then?
+uint8_t * keyboard_buff_ptr;
+
+uint8_t isOpen = 0;
+
+//TODO: make seperate drivers for keybord and terminal
 
 /*
  * get_char
@@ -42,11 +48,85 @@ void init_kbd()
 	// set up the scancode table
     init_scancode_table();
 
+    // init keyboard buffer attributes 
+    keyboard_buff_ptr = keyboard_buffer;
+    int i;
+    for(i = 0; i < KEYBOARD_BUFF_SIZE - 1; i++)
+    {
+        keyboard_buffer[i] = KEYBOARD_EMPTY_SPACE;
+    }
+    keyboard_buffer[KEYBOARD_EMPTY_SPACE-1] = NULL_CHAR;
+
     //TODO: try to change the mode of the keyboard
 
     // enable the interrupt on the PIC
     enable_irq(KEYBOARD_LINE_NO);
 }
+
+/*
+ * open_kbd
+ * DESCRIPTION: opens file to kbd
+ * INPUT: none.
+ * OUTPUTS: none.
+ * RETURN VALUE: none.
+ * SIDE EFFECTS: opens file to kbd inptut
+*/
+int open_terminal()
+{
+    isOpen = 1;
+    return 0;
+}
+
+
+
+/*
+ * close_kbd
+ * DESCRIPTION: opens file to kbd
+ * INPUT: none.
+ * OUTPUTS: none.
+ * RETURN VALUE: none.
+ * SIDE EFFECTS: opens file to kbd inptut
+*/
+int close_terminal()
+{
+    isOpen = 0;
+    return;
+}
+
+
+/*
+ * read_kbd
+ * DESCRIPTION: gets pointer to input buffer
+ * INPUT: none.
+ * OUTPUTS: none.
+ * RETURN VALUE: none.
+ * SIDE EFFECTS: opens file to kbd inptut
+*/
+ssize_t read_terminal()
+{
+    if(isOpen)
+    {
+        
+    }
+    else
+    {
+        
+    }
+}
+
+/*
+ * write_kbd
+ * DESCRIPTION: does nothing
+ * INPUT: none.
+ * OUTPUTS: none.
+ * RETURN VALUE: none.
+ * SIDE EFFECTS: does nothing
+*/
+ssize_t write_terminal()
+{
+
+}
+
 
 /*
  * display_char
@@ -95,6 +175,7 @@ unsigned long process_sent_scancode()
 		return keyboard_state;
 	}
 
+    
 	if(CONTROL_ON(keyboard_state)) {
 		if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
 			clear_and_reset();
@@ -106,7 +187,7 @@ unsigned long process_sent_scancode()
 			putc(mapped.result); // general printable characters unaffected by caps lock
 		}
 	} else if(SHIFT_ON(keyboard_state)) {
-		if(IS_LETTER_SC(mapped)) {
+		if(IS_LETTER_SC(mapped) && !CAPS_LOCK_ON(keyboard_state)) {
 			putc(mapped.result - ASCII_SHIFT_VAL); // shifting letters is simple
 		} else if(IS_PRINTABLE_SC(mapped)) {
 			if(non_alpha_shift_table[mapped.result] != 0) {
