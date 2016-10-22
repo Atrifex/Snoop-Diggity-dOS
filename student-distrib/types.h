@@ -11,6 +11,13 @@
 
 #ifndef ASM
 
+// globally necessary constants
+#define EMPTY_SPACE ' '
+#define NULL_CHAR '\0'
+#define NEW_LINE '\n'
+#define CARRIAGE_RETURN '\r' // mac os 7 compat
+#define BKSP_CHAR 8
+
 /* Types defined here just like in <stdint.h> */
 typedef int int32_t;
 typedef unsigned int uint32_t;
@@ -22,6 +29,7 @@ typedef char int8_t;
 typedef unsigned char uint8_t;
 
 typedef int ssize_t;
+typedef unsigned int size_t;
 
 #endif /* ASM */
 

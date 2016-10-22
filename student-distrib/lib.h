@@ -7,13 +7,18 @@
 
 #include "types.h"
 
-//TODO:	make sure this isnt bad practice
-extern int screen_x;
-extern int screen_y;
-
+#define VGA_CURSOR_LOW_BIT_REG  0x0F
+#define VGA_CURSOR_HIGH_BIT_REG 0x0E
+#define VGA_REG_SELECT_PORT     0x3D4
+#define VGA_REG_DATA_PORT       0x3D5
+#define CURSOR_LOC_SHIFT        8
+#define CURSOR_LOC_MASK         0xFF
+#define BACKSPACE_OFFSET        1
+#define FC_OFFSET               1
 
 int32_t printf(int8_t *format, ...);
 void putc(uint8_t c);
+int32_t put_t(uint8_t* s);
 int32_t puts(int8_t *s);
 int8_t *itoa(uint32_t value, int8_t* buf, int32_t radix);
 int8_t *strrev(int8_t* s);
@@ -21,8 +26,9 @@ uint32_t strlen(const int8_t* s);
 void clear(void);
 void clear_and_reset(void);
 void change_atribute(uint8_t attribute);
+void shift_screen_up(void);
 void change_atribute_specific(int32_t position, uint8_t attribute);
-
+void set_cursor_location(int x, int y);
 
 void* memset(void* s, int32_t c, uint32_t n);
 void* memset_word(void* s, int32_t c, uint32_t n);

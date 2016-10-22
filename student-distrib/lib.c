@@ -8,9 +8,10 @@
 #define NUM_ROWS 25
 #define ATTRIB 0x7
 
-//TODO:	make sure this isnt bad practice
-int screen_x;
-int screen_y;
+static int screen_x;
+static int screen_y;
+static int cursor_x;
+static int cursor_y;
 
 static char* video_mem = (char *)VIDEO;
 
@@ -28,6 +29,29 @@ clear(void)
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
+}
+
+/*
+* void set_cursor_location(int x, int y)
+*   Inputs: x and y coordinates for the cursor
+*   Return Value: none
+*	Side effects: Updates cursor location in VGA HW
+*/
+void set_cursor_location(int x, int y) {
+    if(x < 0 || y < 0 || x >= NUM_COLS || y >= NUM_ROWS) {
+        return;
+    }
+    
+    int cursor_location = y*NUM_COLS + x;
+    
+    outb(VGA_CURSOR_LOW_BIT_REG, VGA_REG_SELECT_PORT);
+    outb((uint8_t) (cursor_location & CURSOR_LOC_MASK), VGA_REG_DATA_PORT);
+    
+    outb(VGA_CURSOR_HIGH_BIT_REG, VGA_REG_SELECT_PORT);
+    outb((uint8_t) ( (cursor_location >> CURSOR_LOC_SHIFT ) & CURSOR_LOC_MASK ), VGA_REG_DATA_PORT);
+    
+    cursor_x = x;
+    cursor_y = y;
 }
 
 /*
@@ -53,10 +77,77 @@ void clear_and_reset(void)
 void shift_screen_up(void)
 {
 	int32_t i;
-    for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
-        *(uint8_t *)(video_mem + (i << 1)) = ' ';
-        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+    // shifts up NUM_ROWS - 1 rows
+    for(i=0; i<(NUM_ROWS-1)*NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + (i << 1)) = *(uint8_t *)(video_mem + ((i + NUM_COLS) << 1));
+        *(uint8_t *)(video_mem + (i << 1) + 1) = *(uint8_t *)(video_mem + ((i + NUM_COLS) << 1) + 1);
     }
+    // clears last row to be used
+    for(i=0; i<NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + ((i + (NUM_ROWS-1)*NUM_COLS) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((i + (NUM_ROWS-1)*NUM_COLS) << 1) + 1) = ATTRIB;
+    }
+    
+    screen_y--;
+}
+
+/*
+* int32_t put_t(int8_t* s);
+*   Inputs: int_8* s = pointer to a string of characters
+*   Return Value: Number of bytes written
+*	Function: Output a string to the console 
+*/
+
+int32_t
+put_t(uint8_t* s)
+{
+    int start_x;
+    int start_y;
+	int last_real_char_index = -FC_OFFSET;
+    register int32_t index = 0;
+    unsigned long flags;
+    
+    cli_and_save(flags);
+    start_x = screen_x;
+    start_y = screen_y;
+
+    while(s[index] != NULL_CHAR) {
+        if(s[index] == NEW_LINE || s[index] == CARRIAGE_RETURN) {
+            // handle newline
+            screen_x = 0;
+            screen_y++;
+            start_y++;
+            if(screen_y >= NUM_ROWS) {
+                shift_screen_up();
+                start_y--;
+            }
+            
+        } else if(index != 0 && index % NUM_COLS == 0) { // handle text wrapping
+            screen_y++;
+            screen_x = 0; // wrap text
+            if(screen_y >= NUM_ROWS) {
+                shift_screen_up();
+                start_y--;
+            }
+        }
+        
+        if(s[index] == BKSP_CHAR) {
+            putc(EMPTY_SPACE);
+        } else {
+            putc(s[index]);
+            last_real_char_index = index;   
+        }
+        
+        index++;
+    }
+    
+    set_cursor_location(start_x + ( ( FC_OFFSET + last_real_char_index ) % NUM_COLS), start_y + ( ( FC_OFFSET + last_real_char_index ) / NUM_COLS));
+    
+    screen_x = start_x;
+    screen_y = start_y;
+    restore_flags(flags);
+    
+	return index;
 }
 
 /*

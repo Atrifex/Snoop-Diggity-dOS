@@ -249,10 +249,13 @@ entry (unsigned long magic, unsigned long addr)
 	/* Do not enable the following until after you have set up your
 	 * IDT correctly otherwise QEMU will triple fault and simple close
 	 * without showing you any output */
-	printf("Enabling Interrupts\n");
+	// printf("Enabling Interrupts\n");
+    
+    //printf("Welcome to Snoop-Diggity-dOS 0.2\n");
+    //set_cursor_location(0, 1);
 	sti();
 
-#if TEST_RTC
+    #if TEST_RTC
 	// Tests for RTC read, write
 	int i;
 	int rtc_ret = write_rtc(2); // Frequency 2 Hz
@@ -280,11 +283,20 @@ entry (unsigned long magic, unsigned long addr)
 	rtc_ret = write_rtc(0); // Should return -1 (invalid frequency)
 	if(rtc_ret < 0)
 		printf("Invalid frequency request!\n");
-#endif
+    #endif
+
+    
+    
+	uint8_t buff[128];
+    
+	while(1){
+		read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
+		write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE);
+	}
 	
 	/* Execute the first program (`shell') ... */
 
 	/* Spin (nicely, so we don't chew up cycles) */
-	asm volatile(".1: hlt; jmp .1;");
+	// asm volatile(".1: hlt; jmp .1;");
 }
 
