@@ -13,6 +13,7 @@
 #include "filesystem.h"
 
 extern unsigned long* idt_jmp_table;
+extern int testVal;
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -282,8 +283,15 @@ entry (unsigned long magic, unsigned long addr)
 
 	uint8_t buff[128];
 	while(1){
-		read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
-		write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE);
+		//read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
+		//write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE);
+
+		switch() {
+			case ():
+				break;
+			case ():
+				break;
+		}
 	}
 	
 	/* Execute the first program (`shell') ... */

@@ -3,6 +3,9 @@
 #include "i8259.h"
 #include "types.h"
 
+// checkpoint 2
+int testVal;
+
 // bit 0 = shift
 // bit 1 = control
 // bit 2 = caps lock

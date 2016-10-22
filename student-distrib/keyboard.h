@@ -75,6 +75,9 @@
 #define ENTER_PRESS 0x1C
 #define ENTER_RELEASE 0x9C
 
+// checkpoint 2
+extern int testVal;
+
 /* Process the sent scancode after an interrupt */
 extern unsigned long process_sent_scancode();
 /* Initialize the keyboard device */
