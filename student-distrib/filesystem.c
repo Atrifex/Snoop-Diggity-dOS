@@ -36,6 +36,21 @@ void fs_debug() {
 	for(i = 0; i < bootblock->direntries; i++) {
 		printf("%s\n", bootblock->files[i].filename);
 	}
+
+	printf("We're going to try to read frame0.txt\n");
+	dentry_t* entry;
+	int32_t result = read_dentry_by_name((uint8_t*) "frame0.txt", entry);
+	if(result != SUCCESS) {
+		printf("Failure to read, abort.\n");
+		return;
+	}
+	
+	printf(
+		"sanity check: name - %s, type %u, inode %u\n", 
+		entry->filename,
+		entry->filetype,
+		entry->inode
+	);
 }
 
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry)
@@ -43,7 +58,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry)
 	int i;	// declare iterator
 	for(i = 0; i < NUM_FILES_CAP; i++)
 	{
-		if(strncmp((int8_t*) fname, (int8_t*) bootblock->files[i].filename, MAXBITS_TO_READ)) {
+		if(strncmp((int8_t*) fname, (int8_t*) bootblock->files[i].filename, MAXBITS_TO_READ) == 0) {
 			memcpy((void*) dentry, (const void*) &bootblock->files[i], sizeof(dentry_t));
 			return SUCCESS;
 		}
@@ -61,7 +76,7 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
 }
 
 int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length)
-{
+{
 	// Check the inode bounds.
 	if(inode >= bootblock->inodes)
 		return -1;
