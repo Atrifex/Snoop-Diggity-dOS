@@ -55,7 +55,10 @@ void init_kbd()
     // init keyboard buffer attributes and fill keyboard buffer w/ null bytes
     stdin_index = 0; 
     memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-    
+
+    // checkpoint 2 test
+    testVal = TEST_ZERO;
+
     //TODO: try to change the mode of the keyboard
 
     // enable the interrupt on the PIC
@@ -218,7 +221,45 @@ unsigned long process_sent_scancode()
             return keyboard_state;
         }
         // checkpoint 2 tests
-    } else if(BACKSPACE_ON(keyboard_state)){
+		switch(mapped.result) {
+			case (ASCII_ZERO):
+                set_cursor_location(0,0);
+                clear_and_reset();
+                testVal = TEST_ZERO;
+                return keyboard_state;
+				break;
+			case (ASCII_ONE):
+                set_cursor_location(0,0);
+                clear_and_reset();
+                testVal = TEST_ONE;
+                return keyboard_state;
+				break;
+			case (ASCII_TWO):
+                set_cursor_location(0,0);
+                clear_and_reset();
+                testVal = TEST_TWO;
+                return keyboard_state;
+				break;
+			case (ASCII_THREE):
+                set_cursor_location(0,0);
+                clear_and_reset();
+                testVal = TEST_THREE;
+                return keyboard_state;
+				break;
+			case (ASCII_FOUR):
+                set_cursor_location(0,0);
+                clear_and_reset();
+                testVal = TEST_FOUR;
+                return keyboard_state;
+				break;
+			case (ASCII_FIVE):
+                set_cursor_location(0,0);
+                clear_and_reset();
+                testVal = TEST_FIVE;
+                return keyboard_state;
+				break;
+		}
+	} else if(BACKSPACE_ON(keyboard_state)){
         if(stdin_index > 0) {
             stdin[--stdin_index] = BKSP_CHAR;
         }

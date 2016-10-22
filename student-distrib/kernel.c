@@ -283,13 +283,20 @@ entry (unsigned long magic, unsigned long addr)
 
 	uint8_t buff[128];
 	while(1){
-		//read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
-		//write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE);
-
-		switch() {
-			case ():
+			read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
+			write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE);
+		switch(testVal) {
+			case (TEST_ZERO):
 				break;
-			case ():
+			case (TEST_ONE):
+				break;
+			case (TEST_TWO):
+				break;
+			case (TEST_THREE):
+				break;
+			case (TEST_FOUR):
+				break;
+			case (TEST_FIVE):
 				break;
 		}
 	}

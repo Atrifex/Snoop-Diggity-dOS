@@ -12,7 +12,7 @@ static int screen_x;
 static int screen_y;
 static int cursor_x;
 static int cursor_y;
-static uint8_t isWrapping;
+static uint8_t isWrapping = 0;
 
 static char* video_mem = (char *)VIDEO;
 
@@ -150,7 +150,7 @@ put_t(uint8_t* s)
     screen_x = start_x;
     screen_y = start_y;
     restore_flags(flags);
-    
+
 	return index;
 }
 

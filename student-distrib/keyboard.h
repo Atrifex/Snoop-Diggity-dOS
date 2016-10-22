@@ -77,6 +77,20 @@
 
 // checkpoint 2
 extern int testVal;
+#define TEST_ZERO   0              // normal mode
+#define TEST_ONE    1              // ls emulation
+#define TEST_TWO    2              // read file by name
+#define TEST_THREE  3              // read file by index
+#define TEST_FOUR   4              // RTC Test
+#define TEST_FIVE   5              // Stop RTC
+
+#define ASCII_ZERO  48
+#define ASCII_ONE   49
+#define ASCII_TWO   50
+#define ASCII_THREE 51
+#define ASCII_FOUR  52
+#define ASCII_FIVE  53
+
 
 /* Process the sent scancode after an interrupt */
 extern unsigned long process_sent_scancode();
