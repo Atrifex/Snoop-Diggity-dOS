@@ -1,5 +1,10 @@
 #include "filesystem.h"
 
+// pointer to boot block, first inode (inode array), and first data block
+boot_block_t* bootblock;
+inode_t* inodes;
+data_block_t* datablocks;
+
 /*
  * void init_filesystem
  * DESCRIPTION: Initializes our kernel's structure for the filesystem
@@ -10,7 +15,7 @@
 */
 void init_filesystem(uint32_t start_addr, uint32_t size)
 {
-
+	
 }
 
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry)

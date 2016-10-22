@@ -13,7 +13,7 @@
 #define FILE_RES_LOC 40
 #define BYTE 8
 #define FILE_TYPE_MASK
-#define MEMORY_BLOCK 4000
+#define MEMORY_BLOCK 4096
 #define DIR_ENTRY 64
 #define BOOT_BLOCK_INDEX 0
 #define DIR_ENT_SIZE 4
@@ -26,6 +26,12 @@
 #define FILETYPE_SIZE 4
 #define NUM_FILES_CAP 62
 #define NUM_DIRECTORY_ENTRIES 63
+
+typedef unsigned char fs_data_t;
+
+typedef struct {
+	fs_data_t data[MEMORY_BLOCK];
+} data_block_t;
 
 typedef struct {
  unsigned char filename[FILE_NAME_SIZE];
@@ -40,13 +46,13 @@ typedef struct {
  unsigned long datablocks;
  unsigned char reserved[BOOT_RES_SIZE];
  dentry_t dir_entries[NUM_DIRECTORY_ENTRIES];
+ dentry_t files[NUM_FILES_CAP]; //up to 62 can either declare as static or dynamic
 } boot_block_t;
 
 typedef struct {
- boot_block_t boot;
- dentry_t self;
- dentry_t files[NUM_FILES_CAP]; //up to 62 can either declare as static or dynamic
-} file_system_t;
+	uint32_t length;
+	uint32_t* block_numbers;
+} inode_t;
 
 // Initializes our kernel's internal structure for the filesystem
 extern void init_filesystem(uint32_t start_addr, uint32_t size);
