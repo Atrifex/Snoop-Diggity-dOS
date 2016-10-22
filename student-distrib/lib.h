@@ -17,6 +17,7 @@
 #define FC_OFFSET               1
 
 int32_t printf(int8_t *format, ...);
+int32_t printf_t(int8_t *format, ...);
 void putc(uint8_t c);
 int32_t put_t(uint8_t* s, int32_t flag);
 int32_t puts(int8_t *s);

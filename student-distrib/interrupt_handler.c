@@ -394,7 +394,7 @@ void IRQ8_handler_sub()
 	inb(RTC_DATA_PORT);
 
 
-    //write_terminal(STDOUT, "1", 1, 1);
+    write_terminal(STDOUT, "1", 1, 1);
 
 	rtc_flag = 0; // Clear flag used in rtc_read()
 

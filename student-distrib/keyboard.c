@@ -252,9 +252,9 @@ unsigned long process_sent_scancode()
                 testVal = TEST_THREE;
                 return keyboard_state;
 			case (ASCII_FOUR):
+                clear_and_reset();
                 set_cursor_location(0,0);
                 enable_irq(RTC_LINE_NO);
-                clear_and_reset();
                 testVal = TEST_FOUR;
                 if(rtcTestNumber >= RTC_MODES)
                     rtcTestNumber = 0;

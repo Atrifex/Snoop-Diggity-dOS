@@ -285,6 +285,9 @@ entry (unsigned long magic, unsigned long addr)
     #endif
 
 	uint8_t buff[128];
+	int last_rtc_test = -1;
+	int lastTest = -1;
+
 	while(1){
 		switch(testVal) {
 			case (TEST_ZERO):
@@ -292,6 +295,16 @@ entry (unsigned long magic, unsigned long addr)
 				write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE, 0);
 				break;
 			case (TEST_ONE):
+				if(testVal == lastTest) break;
+				write_terminal(STDOUT, "whatever\n", strlen("whatever\n"), 1);
+				// directory listing
+				int entry_count, i;
+				dentry_t* entries = get_dir_entries_array(&entry_count);
+				for(i = 0; i < entry_count; i++) {
+					// entries[i]->filename;
+					// filetype inode
+					printf_t("this is a direcotry entry %s %d\n", "hi", 55);
+				}	
 				break;
 			case (TEST_TWO):
 				break;
@@ -299,11 +312,16 @@ entry (unsigned long magic, unsigned long addr)
 				break;
 			case (TEST_FOUR):
 				// rtcTestNumber 0-15
-				write_rtc(rtcTest);
+				if(rtcTest != last_rtc_test) {
+					write_rtc(rtcTest);
+					last_rtc_test = rtcTest;
+				}
 				break;
 			case (TEST_FIVE):
 				break;
 		}
+
+		lastTest = testVal;
 	}
 	
 	/* Execute the first program (`shell') ... */

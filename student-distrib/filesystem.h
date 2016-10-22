@@ -67,6 +67,6 @@ extern int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 // Reads data from a file given the inode and the offset into the file's data
 extern int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
 
-extern void fs_debug();
+extern dentry_t* get_dir_entries_array(int* entry_count);
 
 #endif

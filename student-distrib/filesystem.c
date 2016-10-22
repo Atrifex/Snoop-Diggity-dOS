@@ -26,6 +26,20 @@ void init_filesystem(uint32_t start_addr, uint32_t size)
 	datablocks = (data_block_t*) ( start_addr + MEMORY_BLOCK + MEMORY_BLOCK*bootblock->inodes);
 }
 
+/*
+ * dentry_t* get_dir_entries_array()
+ * DESCRIPTION: Gets directory entries
+ * INPUTS   :  none
+ * OUTPUTS  : entry_count - directory count
+ * RETURN VALUE: pointer to first entry of dir entries array
+ * SIDE EFFECTS: N/A
+*/
+dentry_t* get_dir_entries_array(int* entry_count)
+{
+	*entry_count = bootblock->direntries;
+	return bootblock->files;
+}
+
 void fs_debug() {
 	/*
 	printf(
@@ -67,6 +81,14 @@ void fs_debug() {
 	}*/
 }
 
+/*
+ * int32_t read_dentry_by_name
+ * DESCRIPTION: Reads directory entry by filename
+ * INPUTS   : fname - file name
+ * OUTPUTS  : dentry - the found directory entry
+ * RETURN VALUE: SUCCESS or FAILURE
+ * SIDE EFFECTS: N/A.
+*/
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry)
 {
 	int i;	// declare iterator
@@ -80,6 +102,14 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry)
 	return FAILURE;
 }
 
+/*
+ * int32_t read_dentry_by_index
+ * DESCRIPTION: Reads directory entry by index
+ * INPUTS   : index - file index in directory
+ * OUTPUTS  : dentry - the found directory entry
+ * RETURN VALUE: SUCCESS or FAILURE
+ * SIDE EFFECTS: N/A.
+*/
 int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
 {
 	if(index >= bootblock->direntries)
@@ -89,6 +119,14 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
 	return SUCCESS;
 }
 
+/*
+ * int32_t read_data
+ * DESCRIPTION: Reads data from file pointed to by given inode
+ * INPUTS   : inode - inode to read from, offset - offset in file to read, length - max amount bytes to read
+ * OUTPUTS  : buf - file data
+ * RETURN VALUE: number of bytes read into buffer
+ * SIDE EFFECTS: N/A.
+*/
 int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length)
 {
 	// Check the inode bounds.
