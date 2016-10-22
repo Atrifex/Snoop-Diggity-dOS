@@ -66,7 +66,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 	if(inode >= bootblock->inodes)
 		return -1;
 
-	int i, j, block_num_idx, block_numbers_idx;
+	int i, j, block_num, block_numbers_idx;
 
 	// Access the first block number
 	block_numbers_idx = 0;
@@ -98,7 +98,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 		}
 
 		i++;
-		j++;
+		j++;
 	}
 
 	int overall_byte_counter;
