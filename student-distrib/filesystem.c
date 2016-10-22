@@ -8,7 +8,22 @@
  * RETURN VALUE: none
  * SIDE EFFECTS: Constructs structure for the filesystem.
 */
-void init_filesystem(int start_addr, int size)
+void init_filesystem(uint32_t start_addr, uint32_t size)
 {
 
+}
+
+int32_t read_dentry_by_name(const uint8* fname, dentry_t* dentry)
+{
+	return 0;
+}
+
+int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
+{
+	return 0;
+}
+
+int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length)
+{
+	return 0;
 }

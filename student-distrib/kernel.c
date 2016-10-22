@@ -224,8 +224,8 @@ entry (unsigned long magic, unsigned long addr)
 	}
 
 	module_t* mod = (module_t*)mbi->mods_addr;
-	int filesys_start_addr = mod->mod_start; // Filesystem starting address
-	int filesys_size = mod->mod_end - mod->mod_start; // Filesystem size in bytes
+	int filesys_start_addr = (int)mod->mod_start; // Filesystem starting address
+	int filesys_size = (int)mod->mod_end - (int)mod->mod_start; // Filesystem size in bytes
 
 	/* Init paging */
 	init_paging();
