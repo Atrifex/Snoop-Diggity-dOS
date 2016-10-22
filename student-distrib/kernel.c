@@ -241,9 +241,10 @@ entry (unsigned long magic, unsigned long addr)
 	 * without showing you any output */
 	// printf("Enabling Interrupts\n");
     
-    printf("Welcome to Snoop-Diggity-dOS\n");
+    printf("Welcome to Snoop-Diggity-dOS 0.2\n");
 	sti();
-
+    set_cursor_location(0, 1);
+    
 	uint8_t buff[128];
     
 	while(1){
@@ -254,6 +255,6 @@ entry (unsigned long magic, unsigned long addr)
 	/* Execute the first program (`shell') ... */
 
 	/* Spin (nicely, so we don't chew up cycles) */
-	asm volatile(".1: hlt; jmp .1;");
+	// asm volatile(".1: hlt; jmp .1;");
 }
 

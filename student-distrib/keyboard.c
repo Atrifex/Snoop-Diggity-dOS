@@ -213,10 +213,12 @@ unsigned long process_sent_scancode()
     if(CONTROL_ON(keyboard_state)) {
         if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
             clear_and_reset();
+            return keyboard_state;
         }
     } else if(BACKSPACE_ON(keyboard_state)){
-        if(stdin_index > 0)
-            stdin[--stdin_index] = EMPTY_SPACE;
+        if(stdin_index > 0) {
+            stdin[--stdin_index] = BKSP_CHAR;
+        }
     } else if(mapped.result == NEW_LINE && stdin_index < KEYBOARD_BUFF_SIZE-1) {
         stdin[stdin_index++] = NEW_LINE;
         stdin[stdin_index] = NULL_CHAR;
@@ -229,33 +231,33 @@ unsigned long process_sent_scancode()
     if(CAPS_LOCK_ON(keyboard_state) && !SHIFT_ON(keyboard_state)) {
         if(IS_LETTER_SC(mapped)) {
             stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL);
-            if(stdin[stdin_index] != EMPTY_SPACE)
+            if(stdin[stdin_index] != BKSP_CHAR)
                 stdin[stdin_index] = NULL_CHAR;
         } else if(IS_PRINTABLE_SC(mapped)) {
             stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
-            if(stdin[stdin_index] != EMPTY_SPACE)
+            if(stdin[stdin_index] != BKSP_CHAR)
                 stdin[stdin_index] = NULL_CHAR;
         }
     } else if(SHIFT_ON(keyboard_state)) {
         if(IS_LETTER_SC(mapped) && !CAPS_LOCK_ON(keyboard_state)) {
             stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL); // shifting letters is simple
-            if(stdin[stdin_index] != EMPTY_SPACE)
+            if(stdin[stdin_index] != BKSP_CHAR)
                 stdin[stdin_index] = NULL_CHAR;
         } else if(IS_PRINTABLE_SC(mapped)) {
             if(non_alpha_shift_table[mapped.result] != 0) {
                 stdin[stdin_index++] = (non_alpha_shift_table[mapped.result]);
-                if(stdin[stdin_index] != EMPTY_SPACE)
+                if(stdin[stdin_index] != BKSP_CHAR)
                     stdin[stdin_index] = NULL_CHAR;
             } else {
                 stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
-                if(stdin[stdin_index] != EMPTY_SPACE)
+                if(stdin[stdin_index] != BKSP_CHAR)
                     stdin[stdin_index] = NULL_CHAR;
             }
         }
     } else {
         if(IS_PRINTABLE_SC(mapped)) {
             stdin[stdin_index++] = (mapped.result);
-            if(stdin[stdin_index] != EMPTY_SPACE)
+            if(stdin[stdin_index] != BKSP_CHAR)
                 stdin[stdin_index] = NULL_CHAR;
         }
     }

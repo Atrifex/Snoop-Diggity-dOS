@@ -18,9 +18,7 @@
 
 // keyboad buffer attributes
 #define KEYBOARD_BUFF_SIZE 128
-#define EMPTY_SPACE ' '
-#define NULL_CHAR '\0'
-#define NEW_LINE '\n'
+
 #define NULL_NL_PADDING 2
 // update state macros
 #define TURN_SHIFT_ON(state) (state = state | SHIFT_MASK)

@@ -10,6 +10,8 @@
 
 static int screen_x;
 static int screen_y;
+static int cursor_x;
+static int cursor_y;
 
 static char* video_mem = (char *)VIDEO;
 
@@ -27,6 +29,29 @@ clear(void)
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
+}
+
+/*
+* void set_cursor_location(int x, int y)
+*   Inputs: x and y coordinates for the cursor
+*   Return Value: none
+*	Side effects: Updates cursor location in VGA HW
+*/
+void set_cursor_location(int x, int y) {
+    if(x < 0 || y < 0 || x >= NUM_COLS || y >= NUM_ROWS) {
+        return;
+    }
+    
+    int cursor_location = y*NUM_COLS + x;
+    
+    outb(VGA_CURSOR_LOW_BIT_REG, VGA_REG_SELECT_PORT);
+    outb((uint8_t) (cursor_location & CURSOR_LOC_MASK), VGA_REG_DATA_PORT);
+    
+    outb(VGA_CURSOR_HIGH_BIT_REG, VGA_REG_SELECT_PORT);
+    outb((uint8_t) ( (cursor_location >> CURSOR_LOC_SHIFT ) & CURSOR_LOC_MASK ), VGA_REG_DATA_PORT);
+    
+    cursor_x = x;
+    cursor_y = y;
 }
 
 /*
@@ -78,16 +103,16 @@ put_t(uint8_t* s)
 {
     int start_x;
     int start_y;
-	register int32_t index = 0;
+	int last_real_char_index = -FC_OFFSET;
+    register int32_t index = 0;
     unsigned long flags;
     
     cli_and_save(flags);
     start_x = screen_x;
     start_y = screen_y;
 
-    while(s[index] != '\0') {
-        // || ( index != 0 && index % 80 == 0 )
-        if(s[index] == '\n' || s[index] == '\r') {
+    while(s[index] != NULL_CHAR) {
+        if(s[index] == NEW_LINE || s[index] == CARRIAGE_RETURN) {
             // handle newline
             screen_x = 0;
             screen_y++;
@@ -97,20 +122,26 @@ put_t(uint8_t* s)
                 start_y--;
             }
             
-        } else if(index != 0 && index % 80 == 0) {
+        } else if(index != 0 && index % NUM_COLS == 0) { // handle text wrapping
             screen_y++;
             screen_x = 0; // wrap text
             if(screen_y >= NUM_ROWS) {
                 shift_screen_up();
                 start_y--;
             }
-            putc(s[index]);
         }
-        else {
+        
+        if(s[index] == BKSP_CHAR) {
+            putc(EMPTY_SPACE);
+        } else {
             putc(s[index]);
+            last_real_char_index = index;   
         }
+        
         index++;
     }
+    
+    set_cursor_location(start_x + ( ( FC_OFFSET + last_real_char_index ) % NUM_COLS), start_y + ( ( FC_OFFSET + last_real_char_index ) / NUM_COLS));
     
     screen_x = start_x;
     screen_y = start_y;
