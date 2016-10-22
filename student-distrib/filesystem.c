@@ -27,11 +27,13 @@ void init_filesystem(uint32_t start_addr, uint32_t size)
 }
 
 void fs_debug() {
+
 	printf(
 		"There are %d dir entries, %d inodes and %d data blocks\n",
 		 bootblock->direntries, bootblock->inodes, bootblock->datablocks
 	);
 
+	
 	int i = 0;
 	for(i = 0; i < bootblock->direntries; i++) {
 		printf("%s\n", bootblock->files[i].filename);
@@ -39,18 +41,37 @@ void fs_debug() {
 
 	printf("We're going to try to read frame0.txt\n");
 	dentry_t* entry;
-	int32_t result = read_dentry_by_name((uint8_t*) "frame0.txt", entry);
+	int32_t bob;
+	printf("%x\n", &bob);
+	read_dentry_by_name((uint8_t*) "frame0.txt", entry);
+	/*
 	if(result != SUCCESS) {
 		printf("Failure to read, abort.\n");
 		return;
-	}
+	}*/
 	
+
 	printf(
 		"sanity check: name - %s, type %u, inode %u\n", 
 		entry->filename,
 		entry->filetype,
 		entry->inode
 	);
+
+	uint8_t  mybuf[4096];
+	printf("%x\n", &mybuf);
+
+	long borp;
+	printf("%x\n", &borp);
+	//printf("Address of inode: %x\n", &inodes[entry->inode]);
+	//printf("trying to read directly???: %u\n", inodes[entry->inode].length);
+
+	/*
+	printf("Length according to thing: %u\n", borp);
+	// int32_t bytes_read = read_data(entry->inode, 0, mybuf, 4096);
+	//printf("Read bytes: %d\n", bytes_read);
+	// mybuf[bytes_read] = '\0';
+	// put_t(mybuf); */
 }
 
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry)
@@ -81,7 +102,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 	if(inode >= bootblock->inodes)
 		return -1;
 
-	int i, j, k, block_num, block_numbers_idx;
+	int i, j, k, block_num, block_numbers_idx, overall_byte_counter;
 
 	// Access the first block number
 	block_numbers_idx = 0;
@@ -101,7 +122,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 
 	while(i != offset)
 	{
-		if(i && (i % MEMORY_BLOCK)) // If we've reached the end of this data block
+		if(i && (i % MEMORY_BLOCK == 0)) // If we've reached the end of this data block
 		{
 			block_num = (inodes[inode].block_numbers)[++block_numbers_idx]; // Move to the next data block
 
@@ -116,7 +137,6 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 		j++;
 	}
 
-	int overall_byte_counter;
 
 	// At the end of this while loop, block_num stores our data block index, and j stores index within that data block.
 
@@ -128,7 +148,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 	// Copy bytes over, one at a time
 	while((i < length) && (overall_byte_counter < inodes[inode].length))
 	{
-		if(k && (k % MEMORY_BLOCK)) // If we've reached the end of this data block
+		if(k && (k % MEMORY_BLOCK == 0)) // If we've reached the end of this data block
 		{
 			block_num = (inodes[inode].block_numbers)[++block_numbers_idx]; // Move to the next data block
 

@@ -52,7 +52,7 @@ typedef struct {
 
 typedef struct {
 	uint32_t length;
-	uint32_t* block_numbers;
+	uint32_t block_numbers[1023];
 } inode_t;
 
 // Initializes our kernel's internal structure for the filesystem

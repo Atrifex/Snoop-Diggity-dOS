@@ -720,7 +720,6 @@ void init_scancode_table()
     scancode_table[0xB9].result = 32;
     scancode_table[0xB9].flags = SCANCODE_BREAK | SCANCODE_PRINTABLE;
 
-
     // Key with multibyte scancodes - key "insert" - make "E0,52" - break "E0,D2"
     // Key with multibyte scancodes - key "home" - make "E0,47" - break "E0,97"
     // Key with multibyte scancodes - key "pg up" - make "E0,49" - break "E0,C9"
