@@ -16,7 +16,7 @@ const int rtcTestArray[RTC_MODES] = {0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1
 uint8_t keyboard_state = 0;
 
 uint8_t stdin[KEYBOARD_BUFF_SIZE];       // number of chars in a row is 80 ---> why do we want 128 then?
-uint8_t stdin_index;                     // points to current free spot in stdin
+int stdin_index;                     // points to current free spot in stdin
 
 
 uint8_t isOpen = 0;

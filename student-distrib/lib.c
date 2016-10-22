@@ -132,18 +132,10 @@ put_t(uint8_t* s, int32_t flag)
             }
 
         } else if((index+start_x) != 0 && (index+start_x) % NUM_COLS == 0 && s[index] != BKSP_CHAR) {
-          	//screen_y++;
-            //screen_x = 0; // wrap text
             wrapped_lines++;
-            /*if(screen_y >= NUM_ROWS) {
-                shift_screen_up();
-                start_y--;
-            }*/
         }
 
         if(s[index] == BKSP_CHAR) {
-			//if((index+start_x) != 0 && (index+start_x) % NUM_COLS == 0 && wrapped_lines != 0)
-				//wrapped_lines-=(screen_y-start_y);
             putc(EMPTY_SPACE);
 			num_backspc++;
         } else {
@@ -153,10 +145,6 @@ put_t(uint8_t* s, int32_t flag)
 
         index++;
     }
-
-    // start_y + ((FC_OFFSET + last_real_char_index ) / NUM_COLS)
-
-    // int yval = (screen_y < (start_y + wrapped_lines)) ? screen_y : start_y + wrapped_lines;
 
 	final_wrap_offset = ((FC_OFFSET + last_real_char_index ) / NUM_COLS);
 	final_wrap_offset = (final_wrap_offset > wrapped_lines)? final_wrap_offset : wrapped_lines;

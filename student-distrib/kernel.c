@@ -238,6 +238,7 @@ entry (unsigned long magic, unsigned long addr)
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
 	init_rtc();
+	disable_irq(RTC_LINE_NO);
 	
 	init_kbd();
 
@@ -250,7 +251,7 @@ entry (unsigned long magic, unsigned long addr)
     sti();
 
     // welcome!
-    const char* welcome_message = "Welcome to Snoop-Diggity-dOS 0.2";
+    const char* welcome_message = "Welcome to Snoop-Diggity-dOS 0.2\n";
     write_terminal(STDOUT, welcome_message, strlen(welcome_message), 1);
     // fs_debug();
 
@@ -284,7 +285,7 @@ entry (unsigned long magic, unsigned long addr)
 		printf("Invalid frequency request!\n");
     #endif
 
-	uint8_t buff[128];
+	uint8_t buff[KEYBOARD_BUFF_SIZE];
 	int last_rtc_test = -1;
 	int lastTest = -1;
 
