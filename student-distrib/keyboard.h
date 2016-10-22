@@ -6,6 +6,9 @@
 
 #define CLEAR_SCREEN_SHORTCUT 'l' // control-L clears screen
 
+#define STDIN 0
+#define STDOUT 1
+
 // state mask bits
 #define SHIFT_MASK 0x1
 #define CONTROL_MASK 0x2

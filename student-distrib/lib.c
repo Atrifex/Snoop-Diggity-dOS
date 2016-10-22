@@ -104,6 +104,7 @@ put_t(uint8_t* s)
                 shift_screen_up();
                 start_y--;
             }
+            putc(s[index]);
         }
         else {
             putc(s[index]);
@@ -117,29 +118,6 @@ put_t(uint8_t* s)
     
 	return index;
 }
-
-/*
-* void putc(uint8_t c);
-*   Inputs: uint_8* c = character to print
-*   Return Value: void
-*	Function: Output a character to the console 
-
-
-void
-putc(uint8_t c)
-{
-    if(c == '\n' || c == '\r') {
-        screen_y++;
-        screen_x=0;
-    } else {
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
-        screen_x++;
-        screen_x %= NUM_COLS;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
-    }
-}
-*/
 
 /*
 * void change_atribute(void);

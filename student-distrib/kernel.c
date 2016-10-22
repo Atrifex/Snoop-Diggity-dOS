@@ -239,14 +239,16 @@ entry (unsigned long magic, unsigned long addr)
 	/* Do not enable the following until after you have set up your
 	 * IDT correctly otherwise QEMU will triple fault and simple close
 	 * without showing you any output */
-	printf("Enabling Interrupts\n");
+	// printf("Enabling Interrupts\n");
+    
+    printf("Welcome to Snoop-Diggity-dOS\n");
 	sti();
 
 	uint8_t buff[128];
+    
 	while(1){
-		read_terminal(0, buff, 128);
-		write_terminal(1, buff, 128);
-        // memset(buff, '\0', 128);
+		read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
+		write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE);
 	}
 	
 	/* Execute the first program (`shell') ... */
