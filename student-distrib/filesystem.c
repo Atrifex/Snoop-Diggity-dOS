@@ -13,7 +13,7 @@ void init_filesystem(uint32_t start_addr, uint32_t size)
 
 }
 
-int32_t read_dentry_by_name(const uint8* fname, dentry_t* dentry)
+int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry)
 {
 	return 0;
 }

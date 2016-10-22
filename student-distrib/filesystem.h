@@ -25,6 +25,7 @@
 #define BOOT_RES_SIZE 52
 #define FILETYPE_SIZE 4
 #define NUM_FILES_CAP 62
+#define NUM_DIRECTORY_ENTRIES 63
 
 typedef struct {
  unsigned char filename[FILE_NAME_SIZE];
@@ -38,6 +39,7 @@ typedef struct {
  unsigned long inodes;
  unsigned long datablocks;
  unsigned char reserved[BOOT_RES_SIZE];
+ dentry_t dir_entries[NUM_DIRECTORY_ENTRIES];
 } boot_block_t;
 
 typedef struct {
