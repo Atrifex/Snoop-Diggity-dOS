@@ -149,7 +149,18 @@ put_t(uint8_t* s, int32_t flag)
         index++;
     }
 
-    set_cursor_location(((start_x + FC_OFFSET + last_real_char_index ) % NUM_COLS), start_y + ((FC_OFFSET + last_real_char_index ) / NUM_COLS));
+    // start_y + ((FC_OFFSET + last_real_char_index ) / NUM_COLS)
+
+    // int yval = (screen_y < (start_y + wrapped_lines)) ? screen_y : start_y + wrapped_lines;
+    
+    int yval = start_y + wrapped_lines + ((FC_OFFSET + last_real_char_index ) / NUM_COLS);
+    if(yval > screen_y) {
+    	yval = screen_y;
+    }
+    set_cursor_location(
+        ((start_x + FC_OFFSET + last_real_char_index ) % NUM_COLS),
+        yval
+    );
 
 	if(flag == 0)
 	{
