@@ -242,10 +242,10 @@ entry (unsigned long magic, unsigned long addr)
 	init_filesystem(filesys_start_addr, filesys_size);
 
 	clear_and_reset();
-	
+
 	/* Enable interrupts */
     sti();
-    
+
     // welcome!
     const char* welcome_message = "Welcome to Snoop-Diggity-dOS 0.2\n";
     write_terminal(STDOUT, welcome_message, strlen(welcome_message));
@@ -280,9 +280,7 @@ entry (unsigned long magic, unsigned long addr)
 		printf("Invalid frequency request!\n");
     #endif
 
-    
 	uint8_t buff[128];
-    
 	while(1){
 		read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
 		write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE);

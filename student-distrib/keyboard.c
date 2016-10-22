@@ -209,12 +209,12 @@ unsigned long process_sent_scancode()
         return keyboard_state;
     }
 
-    // 
     if(CONTROL_ON(keyboard_state)) {
         if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
             clear_and_reset();
             return keyboard_state;
         }
+        // checkpoint 2 tests
     } else if(BACKSPACE_ON(keyboard_state)){
         if(stdin_index > 0) {
             stdin[--stdin_index] = BKSP_CHAR;
@@ -222,12 +222,12 @@ unsigned long process_sent_scancode()
     } else if(mapped.result == NEW_LINE && stdin_index < KEYBOARD_BUFF_SIZE-1) {
         stdin[stdin_index++] = NEW_LINE;
         stdin[stdin_index] = NULL_CHAR;
-    } 
-    
+    }
+
     if(stdin_index >= KEYBOARD_BUFF_SIZE-NULL_NL_PADDING) {
         return keyboard_state;
     }
-    
+
     if(CAPS_LOCK_ON(keyboard_state) && !SHIFT_ON(keyboard_state)) {
         if(IS_LETTER_SC(mapped)) {
             stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL);
@@ -261,6 +261,6 @@ unsigned long process_sent_scancode()
                 stdin[stdin_index] = NULL_CHAR;
         }
     }
-    
+
     return keyboard_state; // return current kb state
 }

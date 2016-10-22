@@ -12,6 +12,7 @@ static int screen_x;
 static int screen_y;
 static int cursor_x;
 static int cursor_y;
+static uint8_t isWrapping;
 
 static char* video_mem = (char *)VIDEO;
 
@@ -106,7 +107,7 @@ put_t(uint8_t* s)
 	int last_real_char_index = -FC_OFFSET;
     register int32_t index = 0;
     unsigned long flags;
-    
+
     cli_and_save(flags);
     start_x = screen_x;
     start_y = screen_y;
@@ -117,12 +118,17 @@ put_t(uint8_t* s)
             screen_x = 0;
             screen_y++;
             start_y++;
+			if(isWrapping)
+			{
+				start_y++;
+				isWrapping = 0;
+			}
             if(screen_y >= NUM_ROWS) {
                 shift_screen_up();
                 start_y--;
             }
-            
         } else if(index != 0 && index % NUM_COLS == 0) { // handle text wrapping
+			isWrapping = 1;
             screen_y++;
             screen_x = 0; // wrap text
             if(screen_y >= NUM_ROWS) {
@@ -130,19 +136,17 @@ put_t(uint8_t* s)
                 start_y--;
             }
         }
-        
         if(s[index] == BKSP_CHAR) {
             putc(EMPTY_SPACE);
         } else {
             putc(s[index]);
-            last_real_char_index = index;   
+            last_real_char_index = index;
         }
-        
         index++;
     }
-    
+
     set_cursor_location(start_x + ( ( FC_OFFSET + last_real_char_index ) % NUM_COLS), start_y + ( ( FC_OFFSET + last_real_char_index ) / NUM_COLS));
-    
+
     screen_x = start_x;
     screen_y = start_y;
     restore_flags(flags);
