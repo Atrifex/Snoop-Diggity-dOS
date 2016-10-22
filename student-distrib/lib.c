@@ -120,7 +120,7 @@ put_t(uint8_t* s)
             start_y++;
 			if(isWrapping)
 			{
-				start_y++;
+				start_y += isWrapping;
 				isWrapping = 0;
 			}
             if(screen_y >= NUM_ROWS) {
@@ -128,7 +128,7 @@ put_t(uint8_t* s)
                 start_y--;
             }
         } else if(index != 0 && index % NUM_COLS == 0) { // handle text wrapping
-			isWrapping = 1;
+			isWrapping++;
             screen_y++;
             screen_x = 0; // wrap text
             if(screen_y >= NUM_ROWS) {
