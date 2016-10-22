@@ -224,9 +224,8 @@ entry (unsigned long magic, unsigned long addr)
 	}
 
 	module_t* mod = (module_t*)mbi->mods_addr;
-	int filesys_start_addr = mod->mod_start; // Filesystem starting address
-	int filesys_size = mod->mod_end - mod->mod_start; // Filesystem size in bytes
-
+	uint32_t filesys_start_addr = mod->mod_start; // Filesystem starting address
+	uint32_t filesys_size = mod->mod_end - mod->mod_start; // Filesystem size in bytes
 	/* Init paging */
 	init_paging();
 
@@ -240,19 +239,16 @@ entry (unsigned long magic, unsigned long addr)
 	init_kbd();
 
 	// Initialize filesystem
-
 	init_filesystem(filesys_start_addr, filesys_size);
 
 	clear_and_reset();
 	
 	/* Enable interrupts */
-        sti();
+    sti();
     
     // welcome!
     const char* welcome_message = "Welcome to Snoop-Diggity-dOS 0.2\n";
     write_terminal(STDOUT, welcome_message, strlen(welcome_message));
-    
-	
 
     #if TEST_RTC
 	// Tests for RTC read, write

@@ -27,7 +27,7 @@
 #define NUM_FILES_CAP 62
 
 // Initializes our kernel's internal structure for the filesystem
-extern void init_filesystem(int start_addr, int size);
+extern void init_filesystem(uint32_t start_addr, uint32_t size);
 
 typedef struct {
  unsigned char filename[FILE_NAME_SIZE];
