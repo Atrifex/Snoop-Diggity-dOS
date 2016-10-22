@@ -47,10 +47,10 @@ typedef struct {
 } file_system_t;
 
 // Initializes our kernel's internal structure for the filesystem
-extern void init_filesystem(int start_addr, int size);
+extern void init_filesystem(uint32_t start_addr, uint32_t size);
 
 // Reads a directory entry given the name of a file
-extern int32_t read_dentry_by_name(const uint8* fname, dentry_t* dentry);
+extern int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
 
 // Reads a directory given an index node number
 extern int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
