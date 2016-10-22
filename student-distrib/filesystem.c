@@ -1,4 +1,10 @@
 #include "filesystem.h"
+#include "lib.h"
+
+// pointer to boot block, first inode (inode array), and first data block
+boot_block_t* bootblock;
+inode_t* inodes;
+data_block_t* datablocks;
 
 /*
  * void init_filesystem
@@ -10,5 +16,138 @@
 */
 void init_filesystem(uint32_t start_addr, uint32_t size)
 {
+	// start_addr points to our boot block
+	bootblock = (boot_block_t*) start_addr;
 
+	// first inode will be start_addr + block_size
+	inodes = (inode_t*) ( start_addr + MEMORY_BLOCK );
+
+	// first data block will be start_addr + memory_block + (block_size*number of inodes)
+	datablocks = (data_block_t*) ( start_addr + MEMORY_BLOCK + MEMORY_BLOCK*bootblock->inodes);
+}
+
+void fs_debug() {
+	printf(
+		"There are %d dir entries, %d inodes and %d data blocks\n",
+		 bootblock->direntries, bootblock->inodes, bootblock->datablocks
+	);
+
+	int i = 0;
+	for(i = 0; i < bootblock->direntries; i++) {
+		printf("%s\n", bootblock->files[i].filename);
+	}
+
+	printf("We're going to try to read frame0.txt\n");
+	dentry_t* entry;
+	int32_t result = read_dentry_by_name((uint8_t*) "frame0.txt", entry);
+	if(result != SUCCESS) {
+		printf("Failure to read, abort.\n");
+		return;
+	}
+	
+	printf(
+		"sanity check: name - %s, type %u, inode %u\n", 
+		entry->filename,
+		entry->filetype,
+		entry->inode
+	);
+}
+
+int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry)
+{
+	int i;	// declare iterator
+	for(i = 0; i < NUM_FILES_CAP; i++)
+	{
+		if(strncmp((int8_t*) fname, (int8_t*) bootblock->files[i].filename, MAXBITS_TO_READ) == 0) {
+			memcpy((void*) dentry, (const void*) &bootblock->files[i], sizeof(dentry_t));
+			return SUCCESS;
+		}
+	}
+	return FAILURE;
+}
+
+int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
+{
+	if(index >= bootblock->direntries)
+		return FAILURE; 
+	
+	memcpy((void*) dentry, (const void*) &bootblock->files[index], sizeof(dentry_t));
+	return SUCCESS;
+}
+
+int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length)
+{
+	// Check the inode bounds.
+	if(inode >= bootblock->inodes)
+		return -1;
+
+	int i, j, k, block_num, block_numbers_idx;
+
+	// Access the first block number
+	block_numbers_idx = 0;
+	block_num = (inodes[inode].block_numbers)[block_numbers_idx];
+
+	// Error-checking on block_num
+	if(block_num < 0 || block_num >= bootblock->datablocks)
+		return -1;
+
+	// Return 0 if offset points at the end (or outside) of our file as there's nothing to read
+	if(offset >= inodes[inode].length)
+		return 0;
+
+	// Reach the point in the file corresponding to "offset"
+	i = 0; // Total number of bytes traversed
+	j = 0; // Index within data block
+
+	while(i != offset)
+	{
+		if(i && (i % MEMORY_BLOCK)) // If we've reached the end of this data block
+		{
+			block_num = (inodes[inode].block_numbers)[++block_numbers_idx]; // Move to the next data block
+
+			// Error-checking on block_num
+			if(block_num < 0 || block_num >= bootblock->datablocks)
+				return -1;
+
+			j = 0; // Reset data block index
+		}
+
+		i++;
+		j++;
+	}
+
+	int overall_byte_counter;
+
+	// At the end of this while loop, block_num stores our data block index, and j stores index within that data block.
+
+	// Loop/indexing variables
+	i = 0;
+	k = j;
+	overall_byte_counter = offset;
+
+	// Copy bytes over, one at a time
+	while((i < length) && (overall_byte_counter < inodes[inode].length))
+	{
+		if(k && (k % MEMORY_BLOCK)) // If we've reached the end of this data block
+		{
+			block_num = (inodes[inode].block_numbers)[++block_numbers_idx]; // Move to the next data block
+
+			// Error-checking on block_num
+			if(block_num < 0 || block_num >= bootblock->datablocks)
+				return -1;
+
+			k = 0; // reset data block index
+		}
+
+		// Check for EOF?
+
+		buf[i] = (datablocks[block_num]).data[k]; // Copy over data
+
+		// Increment loop/indexing variables
+		i++;
+		k++;
+		overall_byte_counter++;
+	}
+
+	return i; // This is the number of bytes we read
 }
