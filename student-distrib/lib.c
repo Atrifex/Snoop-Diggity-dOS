@@ -13,6 +13,8 @@ static int screen_x;
 static int screen_y;
 static int cursor_x;
 static int cursor_y;
+static int start_x;
+static int start_y;
 static char* video_mem = (char *)VIDEO;
 
 /*
@@ -100,12 +102,12 @@ void shift_screen_up(void)
 int32_t
 put_t(uint8_t* s, int32_t flag)
 {
-    int start_x;
-    int start_y;
 	int last_real_char_index = -FC_OFFSET;
 	int num_backspc = 0;
     register int32_t index = 0;
     unsigned long flags;
+	int yval;
+	int final_wrap_offset;
 
     cli_and_save(flags);
     start_x = screen_x;
@@ -129,17 +131,19 @@ put_t(uint8_t* s, int32_t flag)
                 start_y--;
             }
 
-        } else if((index+start_x) != 0 && (index+start_x) % NUM_COLS == 0) { // handle text wrapping
-            screen_y++;
-            screen_x = 0; // wrap text
+        } else if((index+start_x) != 0 && (index+start_x) % NUM_COLS == 0 && s[index] != BKSP_CHAR) {
+          	//screen_y++;
+            //screen_x = 0; // wrap text
             wrapped_lines++;
-            if(screen_y >= NUM_ROWS) {
+            /*if(screen_y >= NUM_ROWS) {
                 shift_screen_up();
                 start_y--;
-            }
+            }*/
         }
 
         if(s[index] == BKSP_CHAR) {
+			//if((index+start_x) != 0 && (index+start_x) % NUM_COLS == 0 && wrapped_lines != 0)
+				//wrapped_lines-=(screen_y-start_y);
             putc(EMPTY_SPACE);
 			num_backspc++;
         } else {
@@ -153,15 +157,14 @@ put_t(uint8_t* s, int32_t flag)
     // start_y + ((FC_OFFSET + last_real_char_index ) / NUM_COLS)
 
     // int yval = (screen_y < (start_y + wrapped_lines)) ? screen_y : start_y + wrapped_lines;
-    
-    int yval = start_y + wrapped_lines + ((FC_OFFSET + last_real_char_index ) / NUM_COLS);
+
+	final_wrap_offset = ((FC_OFFSET + last_real_char_index ) / NUM_COLS);
+	final_wrap_offset = (final_wrap_offset > wrapped_lines)? final_wrap_offset : wrapped_lines;
+    yval = start_y + final_wrap_offset;
     if(yval > screen_y) {
     	yval = screen_y;
     }
-    set_cursor_location(
-        ((start_x + FC_OFFSET + last_real_char_index ) % NUM_COLS),
-        yval
-    );
+    set_cursor_location(((start_x + FC_OFFSET + last_real_char_index ) % NUM_COLS), yval);
 
 	if(flag == 0)
 	{
@@ -503,9 +506,13 @@ putc(uint8_t c)
 		 * This basically made it have no effect and wasted hours of my time.
 		 */
         screen_x++;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        screen_y = (screen_y + (screen_x / NUM_COLS)); // % NUM_ROWS;
         screen_x %= NUM_COLS;
 		// TODO: need to shift screen up when out of bounds
+		if(screen_y >= NUM_ROWS) {
+			shift_screen_up();
+			start_y--;
+		}
     }
 }
 

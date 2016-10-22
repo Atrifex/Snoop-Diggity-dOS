@@ -267,6 +267,8 @@ unsigned long process_sent_scancode()
                 disable_irq(RTC_LINE_NO);
                 clear_and_reset();
                 testVal = TEST_FIVE;
+                rtcTestNumber = 1;
+                rtcTest = 1;
                 return keyboard_state;
 		}
 	} else if(BACKSPACE_ON(keyboard_state)){
