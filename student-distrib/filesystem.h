@@ -15,7 +15,6 @@
 #define DIR_ENTRY 64
 #define BOOT_BLOCK_INDEX 0
 #define DIR_ENT_SIZE 4
-#define DIR_ENT_SIZE 0
 #define NUM_INODE_SIZE 4
 #define NUM_INODE_LOC 4
 #define DATA_BLOCK_SIZE 4
@@ -23,29 +22,29 @@
 #define BOOT_RES_LOC 12
 #define BOOT_RES_SIZE 52
 #define FILETYPE_SIZE 4
-#define NUM_FILES_CAP = 62
+#define NUM_FILES_CAP 62
+
 // Initializes our kernel's internal structure for the filesystem
 extern void init_filesystem(int start_addr, int size);
 
-struct dentry_t{
+typedef struct {
  unsigned char filename[FILE_NAME_SIZE];
  unsigned long filetype;
  unsigned long inode;
  unsigned char reserved[FILE_RES_SIZE];
- 
-};
-struct boot_block{
+} dentry_t;
+
+typedef struct {
  unsigned long direntries;
  unsigned long inodes;
  unsigned long datablocks;
  unsigned char reserved[BOOT_RES_SIZE];
- 
-};
-struct file_system{
- boot_block boot;
+} boot_block_t;
+
+typedef struct {
+ boot_block_t boot;
  dentry_t self;
  dentry_t files[NUM_FILES_CAP]; //up to 62 can either declare as static or dynamic
-};
-
+} file_system_t;
 
 #endif

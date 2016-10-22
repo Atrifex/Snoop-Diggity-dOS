@@ -246,7 +246,7 @@ entry (unsigned long magic, unsigned long addr)
 	clear_and_reset();
 	
 	/* Enable interrupts */
-    sti();
+        sti();
     
     // welcome!
     const char* welcome_message = "Welcome to Snoop-Diggity-dOS 0.2\n";
