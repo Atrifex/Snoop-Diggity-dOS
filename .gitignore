@@ -1,5 +1,5 @@
 *~
 *.o
-*img
+bootimg
 macNoWait
 macWait

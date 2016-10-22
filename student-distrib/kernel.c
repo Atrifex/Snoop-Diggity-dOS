@@ -17,7 +17,7 @@ extern unsigned long* idt_jmp_table;
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
-#define TEST_RTC 1 // Set to 0 to take out RTC tests, 1 to keep them in
+#define TEST_RTC 0 // Set to 0 to take out RTC tests, 1 to keep them in
 
 /*
  * init_idt
@@ -246,14 +246,13 @@ entry (unsigned long magic, unsigned long addr)
 	clear_and_reset();
 	
 	/* Enable interrupts */
-	/* Do not enable the following until after you have set up your
-	 * IDT correctly otherwise QEMU will triple fault and simple close
-	 * without showing you any output */
-	// printf("Enabling Interrupts\n");
+    sti();
     
-    //printf("Welcome to Snoop-Diggity-dOS 0.2\n");
-    //set_cursor_location(0, 1);
-	sti();
+    // welcome!
+    const char* welcome_message = "Welcome to Snoop-Diggity-dOS 0.2\n";
+    write_terminal(STDOUT, welcome_message, strlen(welcome_message));
+    
+	
 
     #if TEST_RTC
 	// Tests for RTC read, write
@@ -285,7 +284,6 @@ entry (unsigned long magic, unsigned long addr)
 		printf("Invalid frequency request!\n");
     #endif
 
-    
     
 	uint8_t buff[128];
     
