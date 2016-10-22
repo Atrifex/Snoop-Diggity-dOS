@@ -25,6 +25,11 @@
 #define BOOT_RES_SIZE 52
 #define FILETYPE_SIZE 4
 #define NUM_FILES_CAP 63
+#define SUCCESS 0
+#define FAILURE -1
+#define STANDARD_LOOP_INCREMENT_IE_INCREMENT_BY_1_YES 1
+#define START_LOOP 0
+#define MAXBITS_TO_READ 32
 
 typedef unsigned char fs_data_t;
 
