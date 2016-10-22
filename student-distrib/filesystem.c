@@ -8,7 +8,7 @@
  * RETURN VALUE: none
  * SIDE EFFECTS: Constructs structure for the filesystem.
 */
-void init_filesystem(int start_addr, int size)
+void init_filesystem(uint32_t start_addr, uint32_t size)
 {
 
 }

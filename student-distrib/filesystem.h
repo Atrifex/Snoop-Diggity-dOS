@@ -1,6 +1,8 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
+#include "types.h"
+
 #define FILE_NAME_SIZE 32
 #define FILE_NAME_LOC 0
 #define FILE_TYPE_SIZE 4
