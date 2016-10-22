@@ -12,8 +12,6 @@ static int screen_x;
 static int screen_y;
 static int cursor_x;
 static int cursor_y;
-static uint8_t isWrapping = 0;
-
 static char* video_mem = (char *)VIDEO;
 
 /*
@@ -98,7 +96,6 @@ void shift_screen_up(void)
 *   Return Value: Number of bytes written
 *	Function: Output a string to the console 
 */
-
 int32_t
 put_t(uint8_t* s)
 {
@@ -107,10 +104,11 @@ put_t(uint8_t* s)
 	int last_real_char_index = -FC_OFFSET;
     register int32_t index = 0;
     unsigned long flags;
-
+    
     cli_and_save(flags);
     start_x = screen_x;
     start_y = screen_y;
+    int32_t wrapped_lines = 0;
 
     while(s[index] != NULL_CHAR) {
         if(s[index] == NEW_LINE || s[index] == CARRIAGE_RETURN) {
@@ -118,39 +116,42 @@ put_t(uint8_t* s)
             screen_x = 0;
             screen_y++;
             start_y++;
-			if(isWrapping)
-			{
-				start_y += isWrapping;
-				isWrapping = 0;
-			}
+            // handle previously wrapped text
+            if(wrapped_lines > 0) {
+            	start_y = screen_y;
+            }
+
             if(screen_y >= NUM_ROWS) {
                 shift_screen_up();
                 start_y--;
             }
+            
         } else if(index != 0 && index % NUM_COLS == 0) { // handle text wrapping
-			isWrapping++;
             screen_y++;
             screen_x = 0; // wrap text
+            wrapped_lines++;
             if(screen_y >= NUM_ROWS) {
                 shift_screen_up();
                 start_y--;
             }
         }
+        
         if(s[index] == BKSP_CHAR) {
             putc(EMPTY_SPACE);
         } else {
             putc(s[index]);
-            last_real_char_index = index;
+            last_real_char_index = index;   
         }
+        
         index++;
     }
-
+    
     set_cursor_location(start_x + ( ( FC_OFFSET + last_real_char_index ) % NUM_COLS), start_y + ( ( FC_OFFSET + last_real_char_index ) / NUM_COLS));
-
+    
     screen_x = start_x;
     screen_y = start_y;
     restore_flags(flags);
-
+    
 	return index;
 }
 
