@@ -61,12 +61,12 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
 }
 
 int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length)
-{
+{
 	// Check the inode bounds.
 	if(inode >= bootblock->inodes)
 		return -1;
 
-	int i, j, block_num_idx, block_numbers_idx;
+	int i, j, k, block_num_idx, block_numbers_idx;
 
 	// Access the first block number
 	block_numbers_idx = 0;
@@ -105,10 +105,15 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 
 	// At the end of this while loop, block_num stores our data block index, and j stores index within that data block.
 
+	// Loop/indexing variables
+	i = 0;
+	k = j;
+	overall_byte_counter = offset;
+
 	// Copy bytes over, one at a time
-	for(i = 0, j, overall_byte_counter = offset; i < length, overall_byte_counter < inodes[inode].length; i++, j++, overall_byte_counter++)
+	while((i < length) && (overall_byte_counter < inodes[inode].length))
 	{
-		if(j && (j % MEMORY_BLOCK)) // If we've reached the end of this data block
+		if(k && (k % MEMORY_BLOCK)) // If we've reached the end of this data block
 		{
 			block_num = (inodes[inode].block_numbers)[++block_numbers_idx]; // Move to the next data block
 
@@ -116,13 +121,17 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 			if(block_num < 0 || block_num >= bootblock->datablocks)
 				return -1;
 
-			j = 0; // reset data block index
+			k = 0; // reset data block index
 		}
 
 		// Check for EOF?
 
-		buf[i] = (datablocks[block_num]).data[j]; // Copy over data
+		buf[i] = (datablocks[block_num]).data[k]; // Copy over data
 
+		// Increment loop/indexing variables
+		i++;
+		k++;
+		overall_byte_counter++;
 	}
 
 	return i; // This is the number of bytes we read
