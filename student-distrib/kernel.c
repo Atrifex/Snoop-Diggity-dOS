@@ -252,7 +252,7 @@ entry (unsigned long magic, unsigned long addr)
     // welcome!
     const char* welcome_message = "Welcome to Snoop-Diggity-dOS 0.2\n";
     write_terminal(STDOUT, welcome_message, strlen(welcome_message));
-    // fs_debug();
+    fs_debug();
 
     #if TEST_RTC
 	// Tests for RTC read, write
