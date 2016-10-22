@@ -4,7 +4,11 @@
 #include "types.h"
 
 // checkpoint 2
+#define RTC_LINE_NO 8
 int testVal;
+int rtcTest = 0;
+int rtcTestNumber = 0;
+const int rtcTestArray[RTC_MODES] = {0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384};
 
 // bit 0 = shift
 // bit 1 = control
@@ -141,12 +145,13 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
  * INPUT:   int32_t fd - file descriptor to open fil 
  *          void * buf - pointer to buf to copy from
  *          int32_t nbytes - number of bytes to copy from user
+ *          int32_t flag  - tells us if we are trying to redirect stdin
  * OUTPUTS: copy stdin from user buf
  * RETURN VALUE: int copied - succes: the number of bytes copied  
  *                            error: -1
  * SIDE EFFECTS: user outputs their string
 */
-int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
+int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes, int32_t flag)
 {
     /*
      * As design decision no bounds check will be performed on input 
@@ -156,7 +161,7 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
     if(nbytes < 0)
         return -1;
 
-    put_t((uint8_t *)buf);
+    put_t((uint8_t *)buf, flag);
 
     return nbytes;
 }
@@ -224,40 +229,45 @@ unsigned long process_sent_scancode()
 		switch(mapped.result) {
 			case (ASCII_ZERO):
                 set_cursor_location(0,0);
+                disable_irq(RTC_LINE_NO);
                 clear_and_reset();
                 testVal = TEST_ZERO;
                 return keyboard_state;
-				break;
 			case (ASCII_ONE):
                 set_cursor_location(0,0);
+                disable_irq(RTC_LINE_NO);
                 clear_and_reset();
                 testVal = TEST_ONE;
                 return keyboard_state;
-				break;
 			case (ASCII_TWO):
                 set_cursor_location(0,0);
+                disable_irq(RTC_LINE_NO);
                 clear_and_reset();
                 testVal = TEST_TWO;
                 return keyboard_state;
-				break;
 			case (ASCII_THREE):
                 set_cursor_location(0,0);
+                disable_irq(RTC_LINE_NO);
                 clear_and_reset();
                 testVal = TEST_THREE;
                 return keyboard_state;
-				break;
 			case (ASCII_FOUR):
                 set_cursor_location(0,0);
+                enable_irq(RTC_LINE_NO);
                 clear_and_reset();
                 testVal = TEST_FOUR;
+                if(rtcTestNumber >= RTC_MODES)
+                    rtcTestNumber = 0;
+                else
+                    rtcTestNumber++;
+                rtcTest = rtcTestArray[rtcTestNumber];
                 return keyboard_state;
-				break;
 			case (ASCII_FIVE):
                 set_cursor_location(0,0);
+                disable_irq(RTC_LINE_NO);
                 clear_and_reset();
                 testVal = TEST_FIVE;
                 return keyboard_state;
-				break;
 		}
 	} else if(BACKSPACE_ON(keyboard_state)){
         if(stdin_index > 0) {

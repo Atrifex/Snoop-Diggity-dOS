@@ -40,15 +40,15 @@ void set_cursor_location(int x, int y) {
     if(x < 0 || y < 0 || x >= NUM_COLS || y >= NUM_ROWS) {
         return;
     }
-    
+
     int cursor_location = y*NUM_COLS + x;
-    
+
     outb(VGA_CURSOR_LOW_BIT_REG, VGA_REG_SELECT_PORT);
     outb((uint8_t) (cursor_location & CURSOR_LOC_MASK), VGA_REG_DATA_PORT);
-    
+
     outb(VGA_CURSOR_HIGH_BIT_REG, VGA_REG_SELECT_PORT);
     outb((uint8_t) ( (cursor_location >> CURSOR_LOC_SHIFT ) & CURSOR_LOC_MASK ), VGA_REG_DATA_PORT);
-    
+
     cursor_x = x;
     cursor_y = y;
 }
@@ -86,7 +86,7 @@ void shift_screen_up(void)
         *(uint8_t *)(video_mem + ((i + (NUM_ROWS-1)*NUM_COLS) << 1)) = ' ';
         *(uint8_t *)(video_mem + ((i + (NUM_ROWS-1)*NUM_COLS) << 1) + 1) = ATTRIB;
     }
-    
+
     screen_y--;
 }
 
@@ -94,17 +94,18 @@ void shift_screen_up(void)
 * int32_t put_t(int8_t* s);
 *   Inputs: int_8* s = pointer to a string of characters
 *   Return Value: Number of bytes written
-*	Function: Output a string to the console 
+*	Function: Output a string to the console
 */
 int32_t
-put_t(uint8_t* s)
+put_t(uint8_t* s, int32_t flag)
 {
     int start_x;
     int start_y;
 	int last_real_char_index = -FC_OFFSET;
+	int num_backspc = 0;
     register int32_t index = 0;
     unsigned long flags;
-    
+
     cli_and_save(flags);
     start_x = screen_x;
     start_y = screen_y;
@@ -114,6 +115,7 @@ put_t(uint8_t* s)
         if(s[index] == NEW_LINE || s[index] == CARRIAGE_RETURN) {
             // handle newline
             screen_x = 0;
+			start_x = 0;
             screen_y++;
             start_y++;
             // handle previously wrapped text
@@ -125,8 +127,8 @@ put_t(uint8_t* s)
                 shift_screen_up();
                 start_y--;
             }
-            
-        } else if(index != 0 && index % NUM_COLS == 0) { // handle text wrapping
+
+        } else if((index+start_x) != 0 && (index+start_x) % NUM_COLS == 0) { // handle text wrapping
             screen_y++;
             screen_x = 0; // wrap text
             wrapped_lines++;
@@ -135,23 +137,26 @@ put_t(uint8_t* s)
                 start_y--;
             }
         }
-        
+
         if(s[index] == BKSP_CHAR) {
             putc(EMPTY_SPACE);
+			num_backspc++;
         } else {
             putc(s[index]);
-            last_real_char_index = index;   
+            last_real_char_index = index;
         }
-        
+
         index++;
     }
-    
-    set_cursor_location(start_x + ( ( FC_OFFSET + last_real_char_index ) % NUM_COLS), start_y + ( ( FC_OFFSET + last_real_char_index ) / NUM_COLS));
-    
-    screen_x = start_x;
-    screen_y = start_y;
+
+    set_cursor_location(((start_x + FC_OFFSET + last_real_char_index ) % NUM_COLS), start_y + ((FC_OFFSET + last_real_char_index ) / NUM_COLS));
+
+	if(flag == 0)
+	{
+		screen_x = start_x;
+		screen_y = start_y;
+	}
     restore_flags(flags);
-    
 	return index;
 }
 
@@ -314,7 +319,7 @@ format_char_switch:
 * int32_t puts(int8_t* s);
 *   Inputs: int_8* s = pointer to a string of characters
 *   Return Value: Number of bytes written
-*	Function: Output a string to the console 
+*	Function: Output a string to the console
 */
 
 int32_t
@@ -333,7 +338,7 @@ puts(int8_t* s)
 * void putc(uint8_t c);
 *   Inputs: uint_8* c = character to print
 *   Return Value: void
-*	Function: Output a character to the console 
+*	Function: Output a character to the console
 */
 
 void
@@ -627,11 +632,11 @@ memmove(void* dest, const void* src, uint32_t n)
 *   Inputs: const int8_t* s1 = first string to compare
 *			const int8_t* s2 = second string to compare
 *			uint32_t n = number of bytes to compare
-*	Return Value: A zero value indicates that the characters compared 
+*	Return Value: A zero value indicates that the characters compared
 *					in both strings form the same string.
-*				A value greater than zero indicates that the first 
-*					character that does not match has a greater value 
-*					in str1 than in str2; And a value less than zero 
+*				A value greater than zero indicates that the first
+*					character that does not match has a greater value
+*					in str1 than in str2; And a value less than zero
 *					indicates the opposite.
 *	Function: compares string 1 and string 2 for equality
 */

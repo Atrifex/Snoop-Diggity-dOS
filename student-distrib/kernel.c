@@ -250,8 +250,8 @@ entry (unsigned long magic, unsigned long addr)
     sti();
 
     // welcome!
-    const char* welcome_message = "Welcome to Snoop-Diggity-dOS 0.2\n";
-    write_terminal(STDOUT, welcome_message, strlen(welcome_message));
+    const char* welcome_message = "Welcome to Snoop-Diggity-dOS 0.2";
+    write_terminal(STDOUT, welcome_message, strlen(welcome_message), 1);
     // fs_debug();
 
     #if TEST_RTC
@@ -286,10 +286,10 @@ entry (unsigned long magic, unsigned long addr)
 
 	uint8_t buff[128];
 	while(1){
-			read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
-			write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE);
 		switch(testVal) {
 			case (TEST_ZERO):
+				read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
+				write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE, 0);
 				break;
 			case (TEST_ONE):
 				break;
@@ -298,6 +298,8 @@ entry (unsigned long magic, unsigned long addr)
 			case (TEST_THREE):
 				break;
 			case (TEST_FOUR):
+				// rtcTestNumber 0-15
+				write_rtc(rtcTest);
 				break;
 			case (TEST_FIVE):
 				break;

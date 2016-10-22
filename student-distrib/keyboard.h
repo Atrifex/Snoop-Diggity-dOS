@@ -76,6 +76,7 @@
 #define ENTER_RELEASE 0x9C
 
 // checkpoint 2
+extern int rtcTest;
 extern int testVal;
 #define TEST_ZERO   0              // normal mode
 #define TEST_ONE    1              // ls emulation
@@ -90,7 +91,7 @@ extern int testVal;
 #define ASCII_THREE 51
 #define ASCII_FOUR  52
 #define ASCII_FIVE  53
-
+#define RTC_MODES   16
 
 /* Process the sent scancode after an interrupt */
 extern unsigned long process_sent_scancode();
@@ -100,7 +101,7 @@ extern void init_kbd();
 /* Driver related functions */
 extern int32_t open_terminal(const uint8_t *pathname);
 extern int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes);
-extern int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes);
+extern int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes, int32_t flags);
 extern int32_t close_terminal(int32_t fd);
 
 

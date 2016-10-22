@@ -71,7 +71,7 @@ int read_rtc(int32_t fd, void* buf, int32_t nbytes)
 
 	while(rtc_flag != 0);
 
-	printf("Read RTC\n");
+	// printf("Read RTC\n");
 
 	return 0; // 0 bytes were read
 }
