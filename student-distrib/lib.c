@@ -497,9 +497,15 @@ putc(uint8_t c)
     } else {
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+
+		/*
+		 * I am very angry because in their code the had the assignment of screen_y after screen_x %= NUM_COLS
+		 * This basically made it have no effect and wasted hours of my time.
+		 */
         screen_x++;
-        screen_x %= NUM_COLS;
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        screen_x %= NUM_COLS;
+		// TODO: need to shift screen up when out of bounds
     }
 }
 
