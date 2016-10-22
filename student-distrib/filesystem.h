@@ -44,7 +44,7 @@ typedef struct {
  unsigned long inodes;
  unsigned long datablocks;
  unsigned char reserved[BOOT_RES_SIZE];
- dentry_t files[NUM_FILES_CAP]; //up to 62 can either declare as static or dynamic
+ dentry_t files[NUM_FILES_CAP]; //up to 63 can either declare as static or dynamic
 } boot_block_t;
 
 typedef struct {
@@ -63,5 +63,7 @@ extern int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 
 // Reads data from a file given the inode and the offset into the file's data
 extern int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
+
+extern void fs_debug();
 
 #endif

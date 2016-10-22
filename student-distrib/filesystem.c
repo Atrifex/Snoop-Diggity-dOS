@@ -1,4 +1,5 @@
 #include "filesystem.h"
+#include "lib.h"
 
 // pointer to boot block, first inode (inode array), and first data block
 boot_block_t* bootblock;
@@ -15,10 +16,29 @@ data_block_t* datablocks;
 */
 void init_filesystem(uint32_t start_addr, uint32_t size)
 {
-	
+	// start_addr points to our boot block
+	bootblock = (boot_block_t*) start_addr;
+
+	// first inode will be start_addr + block_size
+	inodes = (inode_t*) ( start_addr + MEMORY_BLOCK );
+
+	// first data block will be start_addr + memory_block + (block_size*number of inodes)
+	datablocks = (data_block_t*) ( start_addr + MEMORY_BLOCK + MEMORY_BLOCK*bootblock->inodes);
 }
 
-int32_t read_dentry_by_name(const uint8* fname, dentry_t* dentry)
+void fs_debug() {
+	printf(
+		"There are %d dir entries, %d inodes and %d data blocks\n",
+		 bootblock->direntries, bootblock->inodes, bootblock->datablocks
+	);
+
+	int i = 0;
+	for(i = 0; i < bootblock->direntries; i++) {
+		printf("%s\n", bootblock->files[i].filename);
+	}
+}
+
+int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry)
 {
 	return 0;
 }
