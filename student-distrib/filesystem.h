@@ -72,6 +72,6 @@ extern int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t
 
 extern dentry_t* get_dir_entries_array(int* entry_count);
 
-extern int32_t get_file_length(dentry_t entry);
+extern int32_t get_file_length(dentry_t* entry);
 
 #endif
