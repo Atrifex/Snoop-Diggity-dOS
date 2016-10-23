@@ -2,6 +2,7 @@
 #include "lib.h"
 #include "i8259.h"
 #include "types.h"
+#include "filesystem.h"
 
 // checkpoint 2
 #define RTC_LINE_NO 8
@@ -235,6 +236,8 @@ unsigned long process_sent_scancode()
                 clear_and_reset();
                 set_cursor_location(0,0);
                 testVal = TEST_ZERO;
+                rtcTestNumber = 0;
+                rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_ONE):
                 if(can_ls)
@@ -243,6 +246,8 @@ unsigned long process_sent_scancode()
                     set_cursor_location(0,0);
                 }
                 testVal = TEST_ONE;
+                rtcTestNumber = 0;
+                rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_TWO):
                 if(can_print_by_name)
@@ -251,15 +256,21 @@ unsigned long process_sent_scancode()
                     set_cursor_location(0,0);
                 }
                 testVal = TEST_TWO;
+                rtcTestNumber = 0;
+                rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_THREE):
                 clear_and_reset();
                 set_cursor_location(0,0);
+                int num_files;
+                get_dir_entries_array(&num_files);
+                readByIndex++;
                 testVal = TEST_THREE;
-                if(readByIndex >= NUM_FILES_CAP)
+                if(readByIndex >= num_files) {
                     readByIndex = 0;
-                else
-                    readByIndex++;
+                }
+                rtcTestNumber = 0;
+                rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_FOUR):
                 first_rtc_disable = 1;

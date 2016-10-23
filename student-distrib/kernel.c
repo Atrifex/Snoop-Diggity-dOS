@@ -286,7 +286,7 @@ entry (unsigned long magic, unsigned long addr)
 
 	uint8_t buff[KEYBOARD_BUFF_SIZE];
 	int last_rtc_test = -1;
-	int last_read_file = -1;
+	int last_read_file = -2;
 
 	// For CTL-2 test
 	dentry_t entry;
@@ -299,7 +299,7 @@ entry (unsigned long magic, unsigned long addr)
 
 
 	while(1){
-	    if(first_rtc_disable && testVal != TEST_FOUR)
+	    if((first_rtc_disable && testVal != TEST_FOUR))
         {
             disable_irq(RTC_LINE_NO);
 			clear_and_reset();
@@ -312,6 +312,7 @@ entry (unsigned long magic, unsigned long addr)
 				write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE, STDIN);
                 can_print_by_name = 1;
                 can_ls = 1;
+                readByIndex = -1;
 				break;
 			case (TEST_ONE):
                 if(can_ls == 0) break;
@@ -334,6 +335,7 @@ entry (unsigned long magic, unsigned long addr)
 				}
                 can_ls = 0;
                 can_print_by_name = 1;
+                readByIndex = -1;
 				break;
 			case (TEST_TWO):
 				// Read file by name
@@ -347,7 +349,7 @@ entry (unsigned long magic, unsigned long addr)
 				if(result != SUCCESS)
 				{
 					printf_t("Failure to read, abort.\n");
-					return;
+					break;
 				}
 
 				length_in_bytes = get_file_length(&entry);
@@ -355,7 +357,7 @@ entry (unsigned long magic, unsigned long addr)
 				if(length_in_bytes == FAILURE)
 				{
 					printf_t("Failure to read, abort.\n");
-					return;
+					break;
 				}
 
 				uint8_t mybuf[MYBUF_SIZE]; // Assume this is enough
@@ -364,7 +366,7 @@ entry (unsigned long magic, unsigned long addr)
 				if(bytes_read != length_in_bytes)
 				{
 					printf_t("Failure to read entire file, abort.\n");
-					return;
+					break;
 				}
 
 				write_terminal(STDOUT, mybuf, length_in_bytes, 1);
@@ -372,30 +374,32 @@ entry (unsigned long magic, unsigned long addr)
 					
 				can_print_by_name = 0;
                 can_ls = 1;
-
+                readByIndex = -1;
 				break;
 			case (TEST_THREE):
 				// 
 				if(readByIndex != last_read_file)
 				{
 					// Actually get the data and print the file
-
+					if(readByIndex < 0) {
+						readByIndex = 0;
+					}
 					char fn[FILE_NAME_BUF_SIZE];
 
 					result = read_dentry_by_index(readByIndex, &entry); // Read directory entry
 
 					if(result != SUCCESS)
 					{
-						printf_t("Failure to read, abort.\n");
-						return;
+						printf_t("1 Failure to read %d, abort.\n", readByIndex);
+						break;
 					}
 
-					length_in_bytes = get_file_length(entry);
+					length_in_bytes = get_file_length(&entry);
 
 					if(length_in_bytes == FAILURE)
 					{
-						printf_t("Failure to read, abort.\n");
-						return;
+						printf_t("2 Failure to read %d, abort.\n", readByIndex);
+						break;
 					}
 
 					uint8_t mybuf[MYBUF_SIZE]; // Assume this is enough
@@ -404,13 +408,14 @@ entry (unsigned long magic, unsigned long addr)
 					if(bytes_read != length_in_bytes)
 					{
 						printf_t("Failure to read entire file, abort.\n");
-						return;
+						break;
 					}
 
 					write_terminal(STDOUT, mybuf, length_in_bytes, 1);
+					printf_t("%s", "\n");
 					strncpy(fn, (int8_t*) entry.filename, FILE_NAME_SIZE);
 					fn[FILE_NAME_SIZE] = '\0';
-					printf_t("Filename: %s\n", fn);
+					printf_t("Filename: %s, index %d\n", fn, readByIndex);
 
 					last_read_file = readByIndex;
 				}
@@ -425,12 +430,15 @@ entry (unsigned long magic, unsigned long addr)
 					last_rtc_test = rtcTest;
 				}
 
+                first_rtc_disable = 1;
                 can_print_by_name = 1;
                 can_ls = 1;
+                readByIndex = -1;
 				break;
 			case (TEST_FIVE):
                 can_print_by_name = 1;
                 can_ls = 1;
+                readByIndex = -1;
 				break;
 		}
 	}
