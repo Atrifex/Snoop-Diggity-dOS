@@ -316,7 +316,7 @@ entry (unsigned long magic, unsigned long addr)
 		switch(testVal) {
 			case (TEST_ZERO):
 				read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
-				write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE, STDIN);
+				//write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE, STDIN);
                 can_print_by_name = 1;
                 can_ls = 1;
                 readByIndex = -1;
