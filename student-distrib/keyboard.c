@@ -8,7 +8,9 @@
 int testVal;
 int rtcTest = 0;
 int rtcTestNumber = 0;
-const int rtcTestArray[RTC_MODES] = {0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384};
+int first_rtc_disable = 1;
+const int rtcTestArray[RTC_MODES] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+
 
 // bit 0 = shift
 // bit 1 = control
@@ -17,7 +19,6 @@ uint8_t keyboard_state = 0;
 
 uint8_t stdin[KEYBOARD_BUFF_SIZE];       // number of chars in a row is 80 ---> why do we want 128 then?
 int stdin_index;                     // points to current free spot in stdin
-
 
 uint8_t isOpen = 0;
 
@@ -57,7 +58,7 @@ void init_kbd()
     init_scancode_table();
 
     // init keyboard buffer attributes and fill keyboard buffer w/ null bytes
-    stdin_index = 0; 
+    stdin_index = 0;
     memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
 
     // checkpoint 2 test
@@ -87,7 +88,7 @@ int32_t open_terminal(const uint8_t *pathname)
  * close_terminal
  * DESCRIPTION: close file access to the stdout to the terminal
  * INPUT:   int32_t fd - file descriptor to the file being closed
- * OUTPUTS: error state  
+ * OUTPUTS: error state
  * RETURN VALUE: int error - 0 if success and -1 if error
  * SIDE EFFECTS: uses gives up access to std out
 */
@@ -101,11 +102,11 @@ int32_t close_terminal(int32_t fd)
 /*
  * read_terminal
  * DESCRIPTION: gets pointer to input buffer
- * INPUT:   int32_t fd - file descriptor to open fil 
+ * INPUT:   int32_t fd - file descriptor to open fil
  *          void * buf - pointer to buf to copy to
  *          int32_t nbytes - number of bytes to copy to user (stops at null or this number)
  * OUTPUTS: copy stdin to user buf
- * RETURN VALUE: int copied - succes: the number of bytes copied  
+ * RETURN VALUE: int copied - succes: the number of bytes copied
  *                            error: -1
  * SIDE EFFECTS: user gets copy of the current stdin
 */
@@ -142,19 +143,19 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
 /*
  * write_terminal
  * DESCRIPTION: does nothing
- * INPUT:   int32_t fd - file descriptor to open fil 
+ * INPUT:   int32_t fd - file descriptor to open fil
  *          void * buf - pointer to buf to copy from
  *          int32_t nbytes - number of bytes to copy from user
  *          int32_t flag  - tells us if we are trying to redirect stdin
  * OUTPUTS: copy stdin from user buf
- * RETURN VALUE: int copied - succes: the number of bytes copied  
+ * RETURN VALUE: int copied - succes: the number of bytes copied
  *                            error: -1
  * SIDE EFFECTS: user outputs their string
 */
 int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes, int32_t flag)
 {
     /*
-     * As design decision no bounds check will be performed on input 
+     * As design decision no bounds check will be performed on input
      * The user should know to null terminate their buffer
      */
 
@@ -181,7 +182,7 @@ unsigned long process_sent_scancode()
 {
     scancode_t mapped;
     uint8_t raw_scancode = get_char();
-    
+
     /*determines map to use either controlmap, shiftmap, or normal map
     control has highest priority, and therefore goes to control map
     */
@@ -226,32 +227,29 @@ unsigned long process_sent_scancode()
             return keyboard_state;
         }
         // checkpoint 2 tests
-		switch(mapped.result) {
-			case (ASCII_ZERO):
-                set_cursor_location(0,0);
-                disable_irq(RTC_LINE_NO);
+        switch(mapped.result) {
+          	case (ASCII_ZERO):
                 clear_and_reset();
+                set_cursor_location(0,0);
                 testVal = TEST_ZERO;
                 return keyboard_state;
 			case (ASCII_ONE):
-                set_cursor_location(0,0);
-                disable_irq(RTC_LINE_NO);
                 clear_and_reset();
+                set_cursor_location(0,0);
                 testVal = TEST_ONE;
                 return keyboard_state;
 			case (ASCII_TWO):
-                set_cursor_location(0,0);
-                disable_irq(RTC_LINE_NO);
                 clear_and_reset();
+                set_cursor_location(0,0);
                 testVal = TEST_TWO;
                 return keyboard_state;
 			case (ASCII_THREE):
-                set_cursor_location(0,0);
-                disable_irq(RTC_LINE_NO);
                 clear_and_reset();
+                set_cursor_location(0,0);
                 testVal = TEST_THREE;
                 return keyboard_state;
 			case (ASCII_FOUR):
+                first_rtc_disable = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
                 enable_irq(RTC_LINE_NO);
@@ -263,11 +261,10 @@ unsigned long process_sent_scancode()
                 rtcTest = rtcTestArray[rtcTestNumber];
                 return keyboard_state;
 			case (ASCII_FIVE):
-                set_cursor_location(0,0);
-                disable_irq(RTC_LINE_NO);
                 clear_and_reset();
+                set_cursor_location(0,0);
                 testVal = TEST_FIVE;
-                rtcTestNumber = 1;
+                rtcTestNumber = 0;
                 rtcTest = 1;
                 return keyboard_state;
 		}

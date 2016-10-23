@@ -37,7 +37,7 @@ void init_idt()
 
 	// for all values in IDT
 	for(i=0; i < NUM_VEC; i++)
-	{	
+	{
 		// if referring to a valid exception, then init handler
 		if(i < VALID_EXCEPTION_RANGE && i != RESERVED_EXCEP_1 && i != RESERVED_EXCEP_15)
 		{
@@ -239,7 +239,7 @@ entry (unsigned long magic, unsigned long addr)
 	 * PIC, any other initialization stuff... */
 	init_rtc();
 	disable_irq(RTC_LINE_NO);
-	
+
 	init_kbd();
 
 	// Initialize filesystem
@@ -259,7 +259,7 @@ entry (unsigned long magic, unsigned long addr)
 	// Tests for RTC read, write
 	int i;
 	int rtc_ret = write_rtc(2); // Frequency 2 Hz
-	
+
 	for(i = 0; i < 10; i++)
 	{
 		read_rtc(0, NULL, 0); // Should take 5 seconds- 10 messages should display
@@ -290,6 +290,13 @@ entry (unsigned long magic, unsigned long addr)
 	int lastTest = -1;
 
 	while(1){
+	    if(first_rtc_disable && testVal != TEST_FOUR)
+        {
+            disable_irq(RTC_LINE_NO);
+			clear_and_reset();
+			set_cursor_location(0,0);
+            first_rtc_disable = 0;
+        }
 		switch(testVal) {
 			case (TEST_ZERO):
 				read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
@@ -305,7 +312,7 @@ entry (unsigned long magic, unsigned long addr)
 					// entries[i]->filename;
 					// filetype inode
 					printf_t("this is a direcotry entry %s %d\n", "hi", 55);
-				}	
+				}
 				break;
 			case (TEST_TWO):
 				break;
@@ -324,7 +331,7 @@ entry (unsigned long magic, unsigned long addr)
 
 		lastTest = testVal;
 	}
-	
+
 	/* Execute the first program (`shell') ... */
 
 	/* Spin (nicely, so we don't chew up cycles) */
