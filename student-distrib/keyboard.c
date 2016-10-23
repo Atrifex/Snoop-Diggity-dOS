@@ -132,14 +132,14 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
 
     // if we haven't seen a new line then keep waiting
     while(allowed_to_read == 0);
-  
+
     cli_and_save(flags);
     while(stdin[i] != NULL_CHAR && i < KEYBOARD_BUFF_SIZE)
     {
         buffer[i] = stdin[i];
         i++;
     }
-    
+
     memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
     stdin_index = 0;
     allowed_to_read = 0;
@@ -251,9 +251,6 @@ unsigned long process_sent_scancode()
                 rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_ONE):
-                memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-                stdin_index = 0;
-                allowed_to_read = 0;
                 interrupt_seen = 0;
                 if(can_ls)
                 {
@@ -265,9 +262,6 @@ unsigned long process_sent_scancode()
                 rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_TWO):
-                memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-                stdin_index = 0;
-                allowed_to_read = 0;
                 interrupt_seen = 0;
                 if(can_print_by_name)
                 {
@@ -279,9 +273,6 @@ unsigned long process_sent_scancode()
                 rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_THREE):
-                memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-                stdin_index = 0;
-                allowed_to_read = 0;
                 interrupt_seen = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
@@ -296,9 +287,6 @@ unsigned long process_sent_scancode()
                 rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_FOUR):
-                memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-                stdin_index = 0;
-                allowed_to_read = 0;
                 interrupt_seen = 1;
                 first_rtc_disable = 1;
                 clear_and_reset();
@@ -312,9 +300,6 @@ unsigned long process_sent_scancode()
                 rtcTest = rtcTestArray[rtcTestNumber];
                 return keyboard_state;
 			case (ASCII_FIVE):
-                memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-                stdin_index = 0;
-                allowed_to_read = 0;
                 interrupt_seen = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
