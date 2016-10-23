@@ -95,12 +95,12 @@ void shift_screen_up(void)
 
 /*
 * int32_t put_t(int8_t* s);
-*   Inputs: int_8* s = pointer to a string of characters
+*   Inputs: int_8* s = pointer to a string of characters, uint32_t size, int32_t flag
 *   Return Value: Number of bytes written
 *	Function: Output a string to the console
 */
 int32_t
-put_t(uint8_t* s, int32_t flag)
+put_t(uint8_t* s, uint32_t size, int32_t flag)
 {
 	int last_real_char_index = -FC_OFFSET;
     register int32_t index = 0;
@@ -113,7 +113,7 @@ put_t(uint8_t* s, int32_t flag)
     start_y = screen_y;
     int32_t wrapped_lines = 0;
 
-    while(s[index] != NULL_CHAR) {
+    while(s[index] != NULL_CHAR && index < size) {
         if(s[index] == NEW_LINE || s[index] == CARRIAGE_RETURN) {
             // handle newline
             screen_x = 0;
@@ -316,7 +316,7 @@ format_char_switch:
 	return (buf - format);
 }
 
-/* Standard printf() - but writes to our terminal driver
+/* Standard printf_t() - but writes to our terminal driver
  * Only supports the following format strings:
  * %%  - print a literal '%' character
  * %x  - print a number in hexadecimal
@@ -338,7 +338,6 @@ int32_t printf_t(int8_t *format, ...)
 {
 	/* Pointer to the format string */
 	int8_t* buf = format;
-	int8_t c;
 	
 	/* Stack pointer for the other parameters */
 	int32_t* esp = (void *)&format;
@@ -421,8 +420,7 @@ format_char_switch:
 
 						/* Print a single character */
 						case 'c':
-							c = (uint8_t) *((int32_t *)esp);
-							write_terminal(STDOUT, &c, 1, 1);
+							write_terminal(STDOUT, ((uint8_t *)esp), 1, 1);
 							esp++;
 							break;
 
@@ -441,8 +439,8 @@ format_char_switch:
 				break;
 
 			default:
-				c = *buf;
-				write_terminal(STDOUT, &c, 1, 1);
+				// c = *buf;
+				write_terminal(STDOUT, buf, 1, 1);
 				break;
 		}
 		buf++;

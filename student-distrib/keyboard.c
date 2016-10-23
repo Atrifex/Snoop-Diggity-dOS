@@ -162,7 +162,7 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes, int32_t flag
     if(nbytes < 0)
         return -1;
 
-    put_t((uint8_t *)buf, flag);
+    put_t((uint8_t *)buf, nbytes, flag);
 
     return nbytes;
 }
