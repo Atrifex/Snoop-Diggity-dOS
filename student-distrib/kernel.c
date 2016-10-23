@@ -250,7 +250,7 @@ entry (unsigned long magic, unsigned long addr)
     sti();
 
     // welcome!
-    printf("Welcome to Snoop-Diggity-dOS 0.2\n");
+    printf_t("Welcome to Snoop-Diggity-dOS 0.2\n");
 
     // fs_debug();
 
@@ -296,9 +296,16 @@ entry (unsigned long magic, unsigned long addr)
 	first_rtc_disable = 0;
 	can_print_by_name = 1;
 	can_ls = 1;
+	interrupt_seen = 0;
 
 
 	while(1){
+		if(interrupt_seen)
+		{
+			clear_and_reset();
+			set_cursor_location(0,0);
+			interrupt_seen = 0;
+		}
 	    if((first_rtc_disable && testVal != TEST_FOUR))
         {
             disable_irq(RTC_LINE_NO);

@@ -13,6 +13,7 @@ int readByIndex = 0;
 int first_rtc_disable = 1;
 int can_print_by_name;
 int can_ls;
+int interrupt_seen;
 const int rtcTestArray[RTC_MODES] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
 
 
@@ -233,6 +234,7 @@ unsigned long process_sent_scancode()
         // checkpoint 2 tests
         switch(mapped.result) {
           	case (ASCII_ZERO):
+                interrupt_seen = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
                 testVal = TEST_ZERO;
@@ -240,6 +242,7 @@ unsigned long process_sent_scancode()
                 rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_ONE):
+                interrupt_seen = 0;
                 if(can_ls)
                 {
                     clear_and_reset();
@@ -250,6 +253,7 @@ unsigned long process_sent_scancode()
                 rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_TWO):
+                interrupt_seen = 0;
                 if(can_print_by_name)
                 {
                     clear_and_reset();
@@ -260,6 +264,7 @@ unsigned long process_sent_scancode()
                 rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_THREE):
+                interrupt_seen = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
                 int num_files;
@@ -273,6 +278,7 @@ unsigned long process_sent_scancode()
                 rtcTest = 1;
                 return keyboard_state;
 			case (ASCII_FOUR):
+                interrupt_seen = 1;
                 first_rtc_disable = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
@@ -285,6 +291,7 @@ unsigned long process_sent_scancode()
                 rtcTest = rtcTestArray[rtcTestNumber];
                 return keyboard_state;
 			case (ASCII_FIVE):
+                interrupt_seen = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
                 testVal = TEST_FIVE;

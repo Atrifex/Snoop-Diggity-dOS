@@ -144,12 +144,13 @@ put_t(uint8_t* s, uint32_t size, int32_t flag)
         index++;
     }
 
-	final_wrap_offset = ((FC_OFFSET + last_real_char_index ) / NUM_COLS);
+	final_wrap_offset = ((FC_OFFSET + last_real_char_index + start_x) / NUM_COLS);
 	final_wrap_offset = (final_wrap_offset > wrapped_lines)? final_wrap_offset : wrapped_lines;
     yval = start_y + final_wrap_offset;
     if(yval > screen_y) {
     	yval = screen_y;
     }
+
     set_cursor_location(((start_x + FC_OFFSET + last_real_char_index ) % NUM_COLS), yval);
 
 	if(flag == 0)

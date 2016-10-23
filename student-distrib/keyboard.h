@@ -82,6 +82,7 @@ extern volatile int testVal;
 extern int first_rtc_disable;
 extern int can_print_by_name;
 extern int can_ls;
+extern int interrupt_seen;
 #define TEST_ZERO   0              // normal mode
 #define TEST_ONE    1              // ls emulation
 #define TEST_TWO    2              // read file by name
