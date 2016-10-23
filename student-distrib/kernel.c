@@ -411,12 +411,14 @@ entry (unsigned long magic, unsigned long addr)
 					}
 
 					uint8_t mybuf[MEMORY_BLOCK]; // buffer, read 4k at a time
-                                        int32_t bytes_read;
+                    int32_t bytes_read;
+                    uint32_t offset = 0;
 
                                         // Read data from the file
-					while((bytes_read = read_data(entry.inode, FILE_BEGINNING_OFFSET, mybuf, sizeof(mybuf))) != 0) {
-                                            write_terminal(STDOUT, mybuf, bytes_read, 1);
-                                        }
+					while((bytes_read = read_data(entry.inode, offset, mybuf, sizeof(mybuf))) != 0) {
+                        write_terminal(STDOUT, mybuf, bytes_read, 1);
+                        offset += bytes_read;
+                    }
 
 
 					printf_t("%c", NEW_LINE);
