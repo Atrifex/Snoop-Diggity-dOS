@@ -289,6 +289,11 @@ entry (unsigned long magic, unsigned long addr)
 	int last_rtc_test = -1;
 	int lastTest = -1;
 
+	// For CTL-2 test
+	dentry_t entry;
+	int32_t result;
+	int32_t length_in_bytes;
+
 	while(1){
 	    if(first_rtc_disable && testVal != TEST_FOUR)
         {
@@ -300,7 +305,7 @@ entry (unsigned long magic, unsigned long addr)
 		switch(testVal) {
 			case (TEST_ZERO):
 				read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
-				write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE, 0);
+				write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE, STDIN);
 				break;
 			case (TEST_ONE):
 				if(testVal == lastTest) break;
@@ -315,6 +320,32 @@ entry (unsigned long magic, unsigned long addr)
 				}
 				break;
 			case (TEST_TWO):
+				// Read file by name
+				// Assumption for now: We only have to read a single file.
+
+				if(testVal == lastTest) break;
+
+				result = read_dentry_by_name((uint8_t*) "frame0.txt", &entry); // Read directory entry
+
+				if(result != SUCCESS)
+				{
+					printf_t("Failure to read, abort.\n");
+					return;
+				}
+
+				length_in_bytes = get_file_length(entry);
+
+				if(length_in_bytes == FAILURE)
+				{
+					printf_t("Failure to read, abort.\n");
+					return;
+				}
+
+				uint8_t mybuf[MYBUF_SIZE]; // Assume this is enough
+				int32_t bytes_read = read_data(entry.inode, FILE_BEGINNING_OFFSET, mybuf, length_in_bytes); // Read data from the file
+
+				write_terminal(STDOUT, mybuf, length_in_bytes, 1);
+
 				break;
 			case (TEST_THREE):
 				break;

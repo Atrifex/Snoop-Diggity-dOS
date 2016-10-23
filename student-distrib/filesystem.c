@@ -120,6 +120,22 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
 }
 
 /*
+ * int32_t get_file_length
+ * DESCRIPTION: Returns the length of a file given its directory entry
+ * INPUTS   : entry - directory entry for a file
+ * OUTPUTS  : None
+ * RETURN VALUE: The length of the file in bytes if successsful, FAILURE if unsuccessful
+ * SIDE EFFECTS: N/A.
+*/
+int32_t get_file_length(dentry_t entry)
+{
+	if(entry.inode < 0 || entry.inode >= bootblock->inodes) // Input checking
+		return FAILURE;
+
+	return inodes[entry.inode].length;
+}
+
+/*
  * int32_t read_data
  * DESCRIPTION: Reads data from file pointed to by given inode
  * INPUTS   : inode - inode to read from, offset - offset in file to read, length - max amount bytes to read

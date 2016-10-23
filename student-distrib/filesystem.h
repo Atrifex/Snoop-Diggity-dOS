@@ -28,6 +28,9 @@
 #define SUCCESS 0
 #define FAILURE -1
 #define MAXBITS_TO_READ 32
+#define FILE_BEGINNING_OFFSET 0
+#define MAX_BLOCKS 1023
+#define MYBUF_SIZE 36864
 
 typedef unsigned char fs_data_t;
 
@@ -52,7 +55,7 @@ typedef struct {
 
 typedef struct {
 	uint32_t length;
-	uint32_t block_numbers[1023];
+	uint32_t block_numbers[MAX_BLOCKS];
 } inode_t;
 
 // Initializes our kernel's internal structure for the filesystem
@@ -68,5 +71,7 @@ extern int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 extern int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
 
 extern dentry_t* get_dir_entries_array(int* entry_count);
+
+extern int32_t get_file_length(dentry_t entry);
 
 #endif
