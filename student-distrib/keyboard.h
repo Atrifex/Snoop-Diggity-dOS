@@ -77,9 +77,10 @@
 
 // checkpoint 2
 extern int rtcTest;
-extern int testVal;
+extern volatile int testVal;
 extern int first_rtc_disable;
-extern int first_print_file_by_name;
+extern int can_print_by_name;
+extern int can_ls;
 #define TEST_ZERO   0              // normal mode
 #define TEST_ONE    1              // ls emulation
 #define TEST_TWO    2              // read file by name

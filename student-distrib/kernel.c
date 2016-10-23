@@ -13,7 +13,6 @@
 #include "filesystem.h"
 
 extern unsigned long* idt_jmp_table;
-extern int testVal;
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -251,14 +250,7 @@ entry (unsigned long magic, unsigned long addr)
     sti();
 
     // welcome!
-    int tempcheck  = 64;
-    unsigned int tempcheck2  = 64;
-    signed int tempcheck3  = -123;
-    char casdh  = 'r';
-    const char* welcome_message = "Welcome to Snoop-Diggity-dOS 0.2\n";
-    //write_terminal(STDOUT, welcome_message, strlen(welcome_message), 1);
-    printf_t("%s = %% %x %u %d %c %#x\n\n", welcome_message, tempcheck, tempcheck2, tempcheck3,	casdh, tempcheck);
-    printf("%s = %% %x %u %d %c %#x\n\n", welcome_message, tempcheck, tempcheck2, tempcheck3,	casdh, tempcheck);
+    printf("Welcome to Snoop-Diggity-dOS 0.2\n");
 
     // fs_debug();
 
@@ -294,7 +286,6 @@ entry (unsigned long magic, unsigned long addr)
 
 	uint8_t buff[KEYBOARD_BUFF_SIZE];
 	int last_rtc_test = -1;
-	int lastTest = -1;
 
 	// For CTL-2 test
 	dentry_t entry;
@@ -302,7 +293,9 @@ entry (unsigned long magic, unsigned long addr)
 	int32_t length_in_bytes;
 
 	first_rtc_disable = 0;
-	first_print_file_by_name = 1;
+	can_print_by_name = 1;
+	can_ls = 1;
+
 
 	while(1){
 	    if(first_rtc_disable && testVal != TEST_FOUR)
@@ -316,9 +309,13 @@ entry (unsigned long magic, unsigned long addr)
 			case (TEST_ZERO):
 				read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE);
 				write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE, STDIN);
+                can_print_by_name = 1;
+                can_ls = 1;
 				break;
 			case (TEST_ONE):
-				if(testVal == lastTest) break;
+                if(can_print_by_name == 0) break;
+
+				
 				write_terminal(STDOUT, "whatever\n", strlen("whatever\n"), 1);
 				// directory listing
 				int entry_count, i;
@@ -328,12 +325,15 @@ entry (unsigned long magic, unsigned long addr)
 					// filetype inode
 					printf_t("this is a direcotry entry %s %d\n", "hi", 55);
 				}
+                can_ls = 0;
+                can_print_by_name = 1;
 				break;
 			case (TEST_TWO):
 				// Read file by name
 				// Assumption for now: We only have to read a single file.
 
-				if(!first_print_file_by_name) break;
+                if(can_print_by_name == 0) break;
+
 
 				result = read_dentry_by_name((uint8_t*) "frame0.txt", &entry); // Read directory entry
 
@@ -361,9 +361,15 @@ entry (unsigned long magic, unsigned long addr)
 				}
 
 				write_terminal(STDOUT, mybuf, length_in_bytes, 1);
+				printf_t("Filename: frame0.txt\n");
+					
+				can_print_by_name = 0;
+                can_ls = 1;
 
 				break;
 			case (TEST_THREE):
+                can_print_by_name = 1;
+                can_ls = 1;
 				break;
 			case (TEST_FOUR):
 				// rtcTestNumber 0-15
@@ -371,12 +377,15 @@ entry (unsigned long magic, unsigned long addr)
 					write_rtc(rtcTest);
 					last_rtc_test = rtcTest;
 				}
+
+                can_print_by_name = 1;
+                can_ls = 1;
 				break;
 			case (TEST_FIVE):
+                can_print_by_name = 1;
+                can_ls = 1;
 				break;
 		}
-
-		lastTest = testVal;
 	}
 
 	/* Execute the first program (`shell') ... */

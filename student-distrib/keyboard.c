@@ -5,11 +5,12 @@
 
 // checkpoint 2
 #define RTC_LINE_NO 8
-int testVal;
+volatile int testVal;
 int rtcTest = 0;
 int rtcTestNumber = 0;
 int first_rtc_disable = 1;
-int first_print_file_by_name = 1;
+int can_print_by_name;
+int can_ls;
 const int rtcTestArray[RTC_MODES] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
 
 
@@ -230,31 +231,29 @@ unsigned long process_sent_scancode()
         // checkpoint 2 tests
         switch(mapped.result) {
           	case (ASCII_ZERO):
-                first_print_file_by_name = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
                 testVal = TEST_ZERO;
                 return keyboard_state;
 			case (ASCII_ONE):
-                first_print_file_by_name = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
                 testVal = TEST_ONE;
                 return keyboard_state;
 			case (ASCII_TWO):
-                first_print_file_by_name = 0;
-                clear_and_reset();
-                set_cursor_location(0,0);
+                if(can_print_by_name)
+                {
+                    clear_and_reset();
+                    set_cursor_location(0,0);
+                }
                 testVal = TEST_TWO;
                 return keyboard_state;
 			case (ASCII_THREE):
-                first_print_file_by_name = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
                 testVal = TEST_THREE;
                 return keyboard_state;
 			case (ASCII_FOUR):
-                first_print_file_by_name = 1;
                 first_rtc_disable = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
@@ -267,7 +266,6 @@ unsigned long process_sent_scancode()
                 rtcTest = rtcTestArray[rtcTestNumber];
                 return keyboard_state;
 			case (ASCII_FIVE):
-                first_print_file_by_name = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
                 testVal = TEST_FIVE;
