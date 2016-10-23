@@ -305,8 +305,6 @@ entry (unsigned long magic, unsigned long addr)
 			clear_and_reset();
 			set_cursor_location(0,0);
 			interrupt_seen = 0;
-			if(testVal == TEST_ZERO)
-                printf_t("%s",stdin);
 		}
 	    if((first_rtc_disable && testVal != TEST_FOUR))
         {
