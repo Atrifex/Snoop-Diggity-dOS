@@ -129,9 +129,9 @@ putc_kbd(uint8_t c)
         screen_y = (screen_y + (screen_x / NUM_COLS)); // % NUM_ROWS;
         screen_x %= NUM_COLS;
 		// TODO: need to shift screen up when out of bounds
-		
+
     }
-    
+
     if(screen_y >= NUM_ROWS) {
 			shift_screen_up();
 			start_y--;
@@ -198,13 +198,17 @@ put_t(uint8_t* s, uint32_t size, int32_t flag)
     	yval = screen_y;
     }
 
-    set_cursor_location(((start_x + FC_OFFSET + last_real_char_index ) % NUM_COLS), yval);
 
 	if(flag == 0)
 	{
+        set_cursor_location(((start_x + FC_OFFSET + last_real_char_index ) % NUM_COLS), yval);
 		screen_x = start_x;
 		screen_y = start_y;
 	}
+    else
+    {
+        set_cursor_location(screen_x, screen_y);
+    }
     restore_flags(flags);
 	return index;
 }
@@ -386,7 +390,7 @@ int32_t printf_t(int8_t *format, ...)
 {
 	/* Pointer to the format string */
 	int8_t* buf = format;
-	
+
 	/* Stack pointer for the other parameters */
 	int32_t* esp = (void *)&format;
 	esp++;
