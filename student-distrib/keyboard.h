@@ -79,6 +79,7 @@
 extern int rtcTest;
 extern int testVal;
 extern int first_rtc_disable;
+extern int first_print_file_by_name;
 #define TEST_ZERO   0              // normal mode
 #define TEST_ONE    1              // ls emulation
 #define TEST_TWO    2              // read file by name

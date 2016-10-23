@@ -302,6 +302,7 @@ entry (unsigned long magic, unsigned long addr)
 	int32_t length_in_bytes;
 
 	first_rtc_disable = 0;
+	first_print_file_by_name = 1;
 
 	while(1){
 	    if(first_rtc_disable && testVal != TEST_FOUR)
@@ -332,7 +333,7 @@ entry (unsigned long magic, unsigned long addr)
 				// Read file by name
 				// Assumption for now: We only have to read a single file.
 
-				if(testVal == lastTest) break;
+				if(!first_print_file_by_name) break;
 
 				result = read_dentry_by_name((uint8_t*) "frame0.txt", &entry); // Read directory entry
 
@@ -352,6 +353,12 @@ entry (unsigned long magic, unsigned long addr)
 
 				uint8_t mybuf[MYBUF_SIZE]; // Assume this is enough
 				int32_t bytes_read = read_data(entry.inode, FILE_BEGINNING_OFFSET, mybuf, length_in_bytes); // Read data from the file
+
+				if(bytes_read != length_in_bytes)
+				{
+					printf_t("Failure to read entire file, abort.\n");
+					return;
+				}
 
 				write_terminal(STDOUT, mybuf, length_in_bytes, 1);
 
