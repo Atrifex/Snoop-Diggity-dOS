@@ -380,6 +380,8 @@ entry (unsigned long magic, unsigned long addr)
 				{
 					// Actually get the data and print the file
 
+					char fn[FILE_NAME_BUF_SIZE];
+
 					result = read_dentry_by_index(readByIndex, &entry); // Read directory entry
 
 					if(result != SUCCESS)
@@ -406,7 +408,9 @@ entry (unsigned long magic, unsigned long addr)
 					}
 
 					write_terminal(STDOUT, mybuf, length_in_bytes, 1);
-					printf_t("Filename: %s\n", entry.filename);
+					strncpy(fn, (int8_t*) entry.filename, FILE_NAME_SIZE);
+					fn[FILE_NAME_SIZE] = '\0';
+					printf_t("Filename: %s\n", fn);
 
 					last_read_file = readByIndex;
 				}
