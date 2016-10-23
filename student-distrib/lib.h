@@ -30,7 +30,7 @@ void change_atribute(uint8_t attribute);
 void shift_screen_up(void);
 void change_atribute_specific(int32_t position, uint8_t attribute);
 void set_cursor_location(int x, int y);
-
+void putc_kbd(uint8_t c);
 void* memset(void* s, int32_t c, uint32_t n);
 void* memset_word(void* s, int32_t c, uint32_t n);
 void* memset_dword(void* s, int32_t c, uint32_t n);

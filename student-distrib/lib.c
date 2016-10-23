@@ -129,11 +129,13 @@ putc_kbd(uint8_t c)
         screen_y = (screen_y + (screen_x / NUM_COLS)); // % NUM_ROWS;
         screen_x %= NUM_COLS;
 		// TODO: need to shift screen up when out of bounds
-		if(screen_y >= NUM_ROWS) {
+		
+    }
+    
+    if(screen_y >= NUM_ROWS) {
 			shift_screen_up();
 			start_y--;
-		}
-    }
+	}
     set_cursor_location(screen_x, screen_y);
 }
 

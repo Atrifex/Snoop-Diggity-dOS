@@ -233,6 +233,8 @@ unsigned long process_sent_scancode()
     if(CONTROL_ON(keyboard_state)) {
         if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
             clear_and_reset();
+            set_cursor_location(0,0);
+            printf_t("%s",stdin);
             return keyboard_state;
         }
         // checkpoint 2 tests
@@ -302,16 +304,30 @@ unsigned long process_sent_scancode()
                 rtcTestNumber = 0;
                 rtcTest = 1;
                 return keyboard_state;
+            default:
+                return keyboard_state;
 		}
-	} else if(BACKSPACE_ON(keyboard_state)){
+	} else if(testVal != TEST_ZERO)
+    {
+        return keyboard_state;
+    } else if(BACKSPACE_ON(keyboard_state)){
         if(stdin_index > 0) {
             putc_kbd(BKSP_CHAR);
-            stdin[--stdin_index] = BKSP_CHAR;
+            stdin[--stdin_index] = NULL_CHAR;
         }
     } else if(mapped.result == NEW_LINE && stdin_index < KEYBOARD_BUFF_SIZE-1) {
         putc_kbd(NEW_LINE);
         stdin[stdin_index++] = NEW_LINE;
         stdin[stdin_index] = NULL_CHAR;
+        if(read_waiting == 1){
+            allowed_to_read = 1;
+        }
+        else{
+            memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
+            stdin_index = 0;
+            allowed_to_read = 0;
+        }
+        return keyboard_state;
     }
 
     if(stdin_index >= KEYBOARD_BUFF_SIZE-NULL_NL_PADDING) {
