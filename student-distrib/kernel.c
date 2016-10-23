@@ -284,11 +284,12 @@ entry (unsigned long magic, unsigned long addr)
 		printf("Invalid frequency request!\n");
     #endif
 
-	uint8_t buff[KEYBOARD_BUFF_SIZE];
+	// For CTL-2 test
+	//uint8_t buff[KEYBOARD_BUFF_SIZE];
 	int last_rtc_test = -1;
 	int last_read_file = -2;
 
-	// For CTL-2 test
+
 	dentry_t entry;
 	int32_t result;
 	int32_t length_in_bytes;
@@ -305,6 +306,7 @@ entry (unsigned long magic, unsigned long addr)
 			clear_and_reset();
 			set_cursor_location(0,0);
 			interrupt_seen = 0;
+			last_read_file = -2;
 		}
 	    if((first_rtc_disable && testVal != TEST_FOUR))
         {
@@ -377,13 +379,13 @@ entry (unsigned long magic, unsigned long addr)
 
 				write_terminal(STDOUT, mybuf, length_in_bytes, 1);
 				printf_t("Filename: frame0.txt\n");
-					
+
 				can_print_by_name = 0;
                 can_ls = 1;
                 readByIndex = -1;
 				break;
 			case (TEST_THREE):
-				// 
+				//
 				if(readByIndex != last_read_file)
 				{
 					// Actually get the data and print the file
@@ -410,13 +412,13 @@ entry (unsigned long magic, unsigned long addr)
 
 					uint8_t mybuf[MEMORY_BLOCK]; // buffer, read 4k at a time
                                         int32_t bytes_read;
-                                        
+
                                         // Read data from the file
 					while((bytes_read = read_data(entry.inode, FILE_BEGINNING_OFFSET, mybuf, sizeof(mybuf))) != 0) {
                                             write_terminal(STDOUT, mybuf, bytes_read, 1);
                                         }
-					
-                                        
+
+
 					printf_t("%c", NEW_LINE);
 					strncpy(fn, (int8_t*) entry.filename, FILE_NAME_SIZE);
 					fn[FILE_NAME_SIZE] = NULL_CHAR;
