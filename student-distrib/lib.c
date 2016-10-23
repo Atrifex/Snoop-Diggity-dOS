@@ -103,7 +103,6 @@ int32_t
 put_t(uint8_t* s, int32_t flag)
 {
 	int last_real_char_index = -FC_OFFSET;
-	int num_backspc = 0;
     register int32_t index = 0;
     unsigned long flags;
 	int yval;
@@ -118,8 +117,8 @@ put_t(uint8_t* s, int32_t flag)
         if(s[index] == NEW_LINE || s[index] == CARRIAGE_RETURN) {
             // handle newline
             screen_x = 0;
-			start_x = 0;
             screen_y++;
+			start_x = 0;
             start_y++;
             // handle previously wrapped text
             if(wrapped_lines > 0) {
@@ -137,8 +136,7 @@ put_t(uint8_t* s, int32_t flag)
 
         if(s[index] == BKSP_CHAR) {
             putc(EMPTY_SPACE);
-			num_backspc++;
-        } else {
+        } else if(s[index] != NEW_LINE) {
             putc(s[index]);
             last_real_char_index = index;
         }
