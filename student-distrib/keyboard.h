@@ -77,6 +77,7 @@
 
 // checkpoint 2
 extern int rtcTest;
+extern int readByIndex;
 extern volatile int testVal;
 extern int first_rtc_disable;
 extern int can_print_by_name;

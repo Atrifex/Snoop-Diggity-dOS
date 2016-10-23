@@ -8,6 +8,7 @@
 volatile int testVal;
 int rtcTest = 0;
 int rtcTestNumber = 0;
+int readByIndex = 0;
 int first_rtc_disable = 1;
 int can_print_by_name;
 int can_ls;
@@ -252,6 +253,10 @@ unsigned long process_sent_scancode()
                 clear_and_reset();
                 set_cursor_location(0,0);
                 testVal = TEST_THREE;
+                if(readByIndex >= NUM_FILES_CAP)
+                    readByIndex = 0;
+                else
+                    readByIndex++;
                 return keyboard_state;
 			case (ASCII_FOUR):
                 first_rtc_disable = 1;

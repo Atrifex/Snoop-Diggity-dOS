@@ -286,6 +286,7 @@ entry (unsigned long magic, unsigned long addr)
 
 	uint8_t buff[KEYBOARD_BUFF_SIZE];
 	int last_rtc_test = -1;
+	int last_read_file = -1;
 
 	// For CTL-2 test
 	dentry_t entry;
@@ -368,6 +369,42 @@ entry (unsigned long magic, unsigned long addr)
 
 				break;
 			case (TEST_THREE):
+				// 
+				if(readByIndex != last_read_file)
+				{
+					// Actually get the data and print the file
+
+					result = read_dentry_by_index(readByIndex, &entry); // Read directory entry
+
+					if(result != SUCCESS)
+					{
+						printf_t("Failure to read, abort.\n");
+						return;
+					}
+
+					length_in_bytes = get_file_length(entry);
+
+					if(length_in_bytes == FAILURE)
+					{
+						printf_t("Failure to read, abort.\n");
+						return;
+					}
+
+					uint8_t mybuf[MYBUF_SIZE]; // Assume this is enough
+					int32_t bytes_read = read_data(entry.inode, FILE_BEGINNING_OFFSET, mybuf, length_in_bytes); // Read data from the file
+
+					if(bytes_read != length_in_bytes)
+					{
+						printf_t("Failure to read entire file, abort.\n");
+						return;
+					}
+
+					write_terminal(STDOUT, mybuf, length_in_bytes, 1);
+					printf_t("Filename: %s\n", entry.filename);
+
+					last_read_file = readByIndex;
+				}
+
                 can_print_by_name = 1;
                 can_ls = 1;
 				break;
