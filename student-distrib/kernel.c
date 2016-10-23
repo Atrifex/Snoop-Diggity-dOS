@@ -314,17 +314,23 @@ entry (unsigned long magic, unsigned long addr)
                 can_ls = 1;
 				break;
 			case (TEST_ONE):
-                if(can_print_by_name == 0) break;
+                if(can_ls == 0) break;
 
-				
-				write_terminal(STDOUT, "whatever\n", strlen("whatever\n"), 1);
 				// directory listing
 				int entry_count, i;
+				char fn[33];
 				dentry_t* entries = get_dir_entries_array(&entry_count);
 				for(i = 0; i < entry_count; i++) {
 					// entries[i]->filename;
 					// filetype inode
-					printf_t("this is a direcotry entry %s %d\n", "hi", 55);
+					strncpy(fn, (int8_t*) entries[i].filename, 32);
+					fn[32] = '\0';
+					printf_t(
+						"file_name: %s, file_type: %u, file_size: %u \n",
+						 fn,
+						 entries[i].filetype,
+						 get_file_length(&entries[i])
+					);
 				}
                 can_ls = 0;
                 can_print_by_name = 1;
@@ -344,7 +350,7 @@ entry (unsigned long magic, unsigned long addr)
 					return;
 				}
 
-				length_in_bytes = get_file_length(entry);
+				length_in_bytes = get_file_length(&entry);
 
 				if(length_in_bytes == FAILURE)
 				{

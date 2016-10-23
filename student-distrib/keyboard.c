@@ -237,8 +237,11 @@ unsigned long process_sent_scancode()
                 testVal = TEST_ZERO;
                 return keyboard_state;
 			case (ASCII_ONE):
-                clear_and_reset();
-                set_cursor_location(0,0);
+                if(can_ls)
+                {
+                    clear_and_reset();
+                    set_cursor_location(0,0);
+                }
                 testVal = TEST_ONE;
                 return keyboard_state;
 			case (ASCII_TWO):
