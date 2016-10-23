@@ -346,7 +346,7 @@ unsigned long process_sent_scancode()
         }
     }
 
-    put_t((uint8_t *)buf, nbytes, STDIN);
+    put_t((uint8_t *)stdin, KEYBOARD_BUFF_SIZE, STDIN);
 
     return keyboard_state; // return current kb state
 }
