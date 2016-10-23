@@ -94,6 +94,51 @@ void shift_screen_up(void)
 }
 
 /*
+* void putc_kbd(uint8_t c);
+*   Inputs: uint_8* c = character to print
+*   Return Value: void
+*	Function: Output a character to the console
+*/
+
+void
+putc_kbd(uint8_t c)
+{
+    if(c == '\n' || c == '\r') {
+        screen_y++;
+        screen_x=0;
+    } else if(c == BKSP_CHAR){
+    	screen_x--;
+    	if(screen_x < 0)
+    	{
+    		screen_x = NUM_COLS -1;
+    		screen_y--;
+    		if(screen_y < 0)
+    			screen_y = 0;
+    	}
+    	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = EMPTY_SPACE;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+    } else {
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+
+		/*
+		 * I am very angry because in their code the had the assignment of screen_y after screen_x %= NUM_COLS
+		 * This basically made it have no effect and wasted hours of my time.
+		 */
+        screen_x++;
+        screen_y = (screen_y + (screen_x / NUM_COLS)); // % NUM_ROWS;
+        screen_x %= NUM_COLS;
+		// TODO: need to shift screen up when out of bounds
+		if(screen_y >= NUM_ROWS) {
+			shift_screen_up();
+			start_y--;
+		}
+    }
+    set_cursor_location(screen_x, screen_y);
+}
+
+
+/*
 * int32_t put_t(int8_t* s);
 *   Inputs: int_8* s = pointer to a string of characters, uint32_t size, int32_t flag
 *   Return Value: Number of bytes written

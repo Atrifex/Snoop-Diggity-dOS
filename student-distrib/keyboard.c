@@ -16,6 +16,8 @@ int can_ls;
 int interrupt_seen;
 const int rtcTestArray[RTC_MODES] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
 
+volatile int allowed_to_read = 0;          // allows read to stop blocking
+volatile int read_waiting = 0;
 
 // bit 0 = shift
 // bit 1 = control
@@ -118,29 +120,31 @@ int32_t close_terminal(int32_t fd)
 int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
 {
     int i;
+    unsigned long flags;
 
     uint8_t * buffer = (uint8_t*) buf;
 
-    if(nbytes > KEYBOARD_BUFF_SIZE)
-        return -1;
-    else if(nbytes < 0)
+    if(nbytes < 0)
         return -1;
 
-    for(i = 0; i < nbytes; i++)
+    //read waiting
+    read_waiting = 1;
+
+    // if we haven't seen a new line then keep waiting
+    while(allowed_to_read == 0);
+  
+    cli_and_save(flags);
+    while(stdin[i] != NULL_CHAR && i < KEYBOARD_BUFF_SIZE)
     {
         buffer[i] = stdin[i];
-        // clear input if you see a new line---> however allow user to keep reading reset of buffer
-        if(stdin[i] == NEW_LINE)
-        {
-            stdin_index = 0;
-            memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-            buffer[i+1] = NULL_CHAR;
-            break;
-        }
-        if(stdin[i] == NULL_CHAR) {
-            break;
-        }
+        i++;
     }
+    
+    memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
+    stdin_index = 0;
+    allowed_to_read = 0;
+    read_waiting = 0;
+    restore_flags(flags);
 
     return i;
 }
@@ -301,9 +305,11 @@ unsigned long process_sent_scancode()
 		}
 	} else if(BACKSPACE_ON(keyboard_state)){
         if(stdin_index > 0) {
+            putc_kbd(BKSP_CHAR);
             stdin[--stdin_index] = BKSP_CHAR;
         }
     } else if(mapped.result == NEW_LINE && stdin_index < KEYBOARD_BUFF_SIZE-1) {
+        putc_kbd(NEW_LINE);
         stdin[stdin_index++] = NEW_LINE;
         stdin[stdin_index] = NULL_CHAR;
     }
@@ -314,25 +320,30 @@ unsigned long process_sent_scancode()
 
     if(CAPS_LOCK_ON(keyboard_state) && !SHIFT_ON(keyboard_state)) {
         if(IS_LETTER_SC(mapped)) {
+            putc_kbd(mapped.result - ASCII_SHIFT_VAL);
             stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL);
             if(stdin[stdin_index] != BKSP_CHAR)
                 stdin[stdin_index] = NULL_CHAR;
         } else if(IS_PRINTABLE_SC(mapped)) {
+            putc_kbd(mapped.result);
             stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
             if(stdin[stdin_index] != BKSP_CHAR)
                 stdin[stdin_index] = NULL_CHAR;
         }
     } else if(SHIFT_ON(keyboard_state)) {
         if(IS_LETTER_SC(mapped) && !CAPS_LOCK_ON(keyboard_state)) {
+            putc_kbd(mapped.result - ASCII_SHIFT_VAL);
             stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL); // shifting letters is simple
             if(stdin[stdin_index] != BKSP_CHAR)
                 stdin[stdin_index] = NULL_CHAR;
         } else if(IS_PRINTABLE_SC(mapped)) {
             if(non_alpha_shift_table[mapped.result] != 0) {
+                putc_kbd(non_alpha_shift_table[mapped.result]);
                 stdin[stdin_index++] = (non_alpha_shift_table[mapped.result]);
                 if(stdin[stdin_index] != BKSP_CHAR)
                     stdin[stdin_index] = NULL_CHAR;
             } else {
+                putc_kbd(mapped.result);
                 stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
                 if(stdin[stdin_index] != BKSP_CHAR)
                     stdin[stdin_index] = NULL_CHAR;
@@ -340,13 +351,12 @@ unsigned long process_sent_scancode()
         }
     } else {
         if(IS_PRINTABLE_SC(mapped)) {
+            putc_kbd(mapped.result);
             stdin[stdin_index++] = (mapped.result);
             if(stdin[stdin_index] != BKSP_CHAR)
                 stdin[stdin_index] = NULL_CHAR;
         }
     }
-
-    put_t((uint8_t *)stdin, KEYBOARD_BUFF_SIZE, STDIN);
 
     return keyboard_state; // return current kb state
 }
