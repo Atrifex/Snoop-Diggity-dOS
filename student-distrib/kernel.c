@@ -396,7 +396,7 @@ entry (unsigned long magic, unsigned long addr)
 
 					if(result != SUCCESS)
 					{
-						printf_t("1 Failure to read %d, abort.\n", readByIndex);
+						printf_t("Failure to read directory entry %d, abort.\n", readByIndex);
 						break;
 					}
 
@@ -404,23 +404,22 @@ entry (unsigned long magic, unsigned long addr)
 
 					if(length_in_bytes == FAILURE)
 					{
-						printf_t("2 Failure to read %d, abort.\n", readByIndex);
+						printf_t("Failure to get length of %d, abort.\n", readByIndex);
 						break;
 					}
 
-					uint8_t mybuf[MYBUF_SIZE]; // Assume this is enough
-					int32_t bytes_read = read_data(entry.inode, FILE_BEGINNING_OFFSET, mybuf, length_in_bytes); // Read data from the file
-
-					if(bytes_read != length_in_bytes)
-					{
-						printf_t("Failure to read entire file, abort.\n");
-						break;
-					}
-
-					write_terminal(STDOUT, mybuf, length_in_bytes, 1);
-					printf_t("%s", "\n");
+					uint8_t mybuf[MEMORY_BLOCK]; // buffer, read 4k at a time
+                                        int32_t bytes_read;
+                                        
+                                        // Read data from the file
+					while((bytes_read = read_data(entry.inode, FILE_BEGINNING_OFFSET, mybuf, sizeof(mybuf))) != 0) {
+                                            write_terminal(STDOUT, mybuf, bytes_read, 1);
+                                        }
+					
+                                        
+					printf_t("%c", NEW_LINE);
 					strncpy(fn, (int8_t*) entry.filename, FILE_NAME_SIZE);
-					fn[FILE_NAME_SIZE] = '\0';
+					fn[FILE_NAME_SIZE] = NULL_CHAR;
 					printf_t("Filename: %s, index %d\n", fn, readByIndex);
 
 					last_read_file = readByIndex;
