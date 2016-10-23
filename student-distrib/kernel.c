@@ -252,38 +252,6 @@ entry (unsigned long magic, unsigned long addr)
     // welcome!
     printf_t("Welcome to Snoop-Diggity-dOS 0.2\n");
 
-    // fs_debug();
-
-    #if TEST_RTC
-	// Tests for RTC read, write
-	int i;
-	int rtc_ret = write_rtc(2); // Frequency 2 Hz
-
-	for(i = 0; i < 10; i++)
-	{
-		read_rtc(0, NULL, 0); // Should take 5 seconds- 10 messages should display
-	}
-
-	rtc_ret = write_rtc(10); // Should return -1 (invalid frequency)
-	if(rtc_ret < 0)
-		printf("Invalid frequency request!\n");
-
-	rtc_ret = write_rtc(512);
-
-	for(i = 0; i < 512; i++)
-	{
-		read_rtc(0, NULL, 0); // Should take 1 second- 512 messages should display
-	}
-
-	rtc_ret = write_rtc(11412940); // Should return -1 (invalid frequency)
-	if(rtc_ret < 0)
-		printf("Invalid frequency request!\n");
-
-	rtc_ret = write_rtc(0); // Should return -1 (invalid frequency)
-	if(rtc_ret < 0)
-		printf("Invalid frequency request!\n");
-    #endif
-
 	uint8_t buff[KEYBOARD_BUFF_SIZE];
 	int last_rtc_test = -1;
 	int last_read_file = -2;
@@ -378,13 +346,13 @@ entry (unsigned long magic, unsigned long addr)
 
 				write_terminal(STDOUT, mybuf, length_in_bytes, 1);
 				printf_t("Filename: frame0.txt\n");
-					
+
 				can_print_by_name = 0;
                 can_ls = 1;
                 readByIndex = -1;
 				break;
 			case (TEST_THREE):
-				// 
+				//
 				if(readByIndex != last_read_file)
 				{
 					// Actually get the data and print the file
