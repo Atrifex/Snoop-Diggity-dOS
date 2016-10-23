@@ -251,8 +251,15 @@ entry (unsigned long magic, unsigned long addr)
     sti();
 
     // welcome!
+    int tempcheck  = 64;
+    unsigned int tempcheck2  = 64;
+    signed int tempcheck3  = -123;
+    char casdh  = 'r';
     const char* welcome_message = "Welcome to Snoop-Diggity-dOS 0.2\n";
-    write_terminal(STDOUT, welcome_message, strlen(welcome_message), 1);
+    //write_terminal(STDOUT, welcome_message, strlen(welcome_message), 1);
+    printf_t("%s = %% %x %u %d %c %#x\n\n", welcome_message, tempcheck, tempcheck2, tempcheck3,	casdh, tempcheck);
+    printf("%s = %% %x %u %d %c %#x\n\n", welcome_message, tempcheck, tempcheck2, tempcheck3,	casdh, tempcheck);
+
     // fs_debug();
 
     #if TEST_RTC
@@ -289,6 +296,7 @@ entry (unsigned long magic, unsigned long addr)
 	int last_rtc_test = -1;
 	int lastTest = -1;
 
+	first_rtc_disable = 0;
 	while(1){
 	    if(first_rtc_disable && testVal != TEST_FOUR)
         {

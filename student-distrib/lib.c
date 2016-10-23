@@ -316,7 +316,7 @@ format_char_switch:
 	return (buf - format);
 }
 
-/* Standard printf() - but writes to our terminal driver
+/* Standard printf_t() - but writes to our terminal driver
  * Only supports the following format strings:
  * %%  - print a literal '%' character
  * %x  - print a number in hexadecimal
