@@ -40,47 +40,6 @@ dentry_t* get_dir_entries_array(int* entry_count)
 	return bootblock->files;
 }
 
-void fs_debug() {
-	/*
-	printf(
-		"There are %d dir entries, %d inodes and %d data blocks\n",
-		 bootblock->direntries, bootblock->inodes, bootblock->datablocks
-	);
-
-	
-	int i = 0;
-	for(i = 0; i < bootblock->direntries; i++) {
-		printf("%s\n", bootblock->files[i].filename);
-	}
-
-	dentry_t entry;
-	int32_t result = read_dentry_by_name((uint8_t*) "fish", &entry);
-
-	if(result != SUCCESS) {
-		printf("Failure to read, abort.\n");
-		return;
-	}
-	
-	printf(
-		"sanity check: name - %s, type %u, inode %u\n", 
-		entry.filename,
-		entry.filetype,
-		entry.inode
-	);
-
-
-	printf("Length: %u\n", inodes[entry.inode].length);
-
-	uint8_t  mybuf[4096];
-	
-	int32_t offset = 0;
-	int32_t bytes_read = read_data(entry.inode, 0xFFF, mybuf, 4096);
-
-	for(offset = 0; offset < 25; offset++) {
-		printf("%x ", mybuf[offset]);
-	}*/
-}
-
 /*
  * int32_t read_dentry_by_name
  * DESCRIPTION: Reads directory entry by filename

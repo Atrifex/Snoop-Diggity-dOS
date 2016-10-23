@@ -317,13 +317,13 @@ entry (unsigned long magic, unsigned long addr)
 
 				// directory listing
 				int entry_count, i;
-				char fn[33];
+				char fn[FILE_NAME_BUF_SIZE];
 				dentry_t* entries = get_dir_entries_array(&entry_count);
 				for(i = 0; i < entry_count; i++) {
 					// entries[i]->filename;
 					// filetype inode
-					strncpy(fn, (int8_t*) entries[i].filename, 32);
-					fn[32] = '\0';
+					strncpy(fn, (int8_t*) entries[i].filename, FILE_NAME_SIZE);
+					fn[FILE_NAME_SIZE] = NULL_CHAR;
 					printf_t(
 						"file_name: %s, file_type: %u, file_size: %u \n",
 						 fn,

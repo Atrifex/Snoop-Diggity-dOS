@@ -4,6 +4,7 @@
 #include "types.h"
 
 #define FILE_NAME_SIZE 32
+#define FILE_NAME_BUF_SIZE FILE_NAME_SIZE + 1
 #define FILE_NAME_LOC 0
 #define FILE_TYPE_SIZE 4
 #define FILE_TYPE_LOC 32
