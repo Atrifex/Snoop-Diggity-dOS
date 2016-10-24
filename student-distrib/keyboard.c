@@ -14,6 +14,8 @@ int first_rtc_disable = 1;
 int can_print_by_name;
 int can_ls;
 int interrupt_seen;
+
+// RTC powers of two
 const int rtcTestArray[RTC_MODES] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
 
 volatile int allowed_to_read = 0;          // allows read to stop blocking
@@ -41,6 +43,7 @@ uint8_t isOpen = 0;
 */
 uint8_t get_char()
 {
+    // get first byte of data
     uint8_t data = inb(KEYBOARD_DATA_PORT);
 
     // get second byte of multi-byte sequences
@@ -87,6 +90,7 @@ void init_kbd()
 */
 int32_t open_terminal(const uint8_t *pathname)
 {
+    // declare file to be open
     isOpen = 1;
     return 0;
 }
@@ -101,6 +105,7 @@ int32_t open_terminal(const uint8_t *pathname)
 */
 int32_t close_terminal(int32_t fd)
 {
+    // declare file to be closed
     isOpen = 0;
     return 0;
 }
@@ -122,30 +127,39 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
     int i = 0;
     unsigned long flags;
 
+    // fixes type confussion
     uint8_t * buffer = (uint8_t*) buf;
 
+    // checks for error condition
     if(nbytes < 0)
         return -1;
 
-    //read waiting
+    // tells interrupt that there is a read waiting
     read_waiting = 1;
 
-    // if we haven't seen a new line then keep waiting
+    // if we haven't seen a new line then not allowed to read
     while(allowed_to_read == 0);
 
+    // critical section
     cli_and_save(flags);
+
+    // copy all information uptil the null char char
     while(stdin[i] != NULL_CHAR && i < KEYBOARD_BUFF_SIZE)
     {
         buffer[i] = stdin[i];
         i++;
     }
 
+    // flush buffer and set stdin_index to 0
     memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
     stdin_index = 0;
+
+    // disallow reading
     allowed_to_read = 0;
     read_waiting = 0;
     restore_flags(flags);
 
+    // return number of bytes read
     return i;
 }
 
@@ -163,16 +177,14 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
 */
 int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes, int32_t flag)
 {
-    /*
-     * As design decision no bounds check will be performed on input
-     * The user should know to null terminate their buffer
-     */
-
+    // error condition handling
     if(nbytes < 0)
         return -1;
 
+    // print buf to the screen
     put_t((uint8_t *)buf, nbytes, flag);
 
+    // return number of bytes read
     return nbytes;
 }
 
@@ -190,13 +202,11 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes, int32_t flag
 unsigned long process_sent_scancode()
 {
     scancode_t mapped;
+
+    // get scancode
     uint8_t raw_scancode = get_char();
 
-    /*determines map to use either controlmap, shiftmap, or normal map
-    control has highest priority, and therefore goes to control map
-    */
-
-    // see if we need to update state
+    // see if we need to update keyboard_state
     switch(raw_scancode) {
         case (BACKSPACE_PRESS):
             TURN_BACKSPACE_ON(keyboard_state);
@@ -224,108 +234,154 @@ unsigned long process_sent_scancode()
             break;
     }
 
+    // get mapped value of scancode
     mapped = scancode_table[raw_scancode];
 
+    // if not a make scancode then return
     if(!IS_MAKE_SC(mapped)) {
         return keyboard_state;
     }
 
+    // check if control is pressed
     if(CONTROL_ON(keyboard_state)) {
+
+        // ctrl + l is pressed then clear screen
         if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
             clear_and_reset();
             set_cursor_location(0,0);
-            printf_t("%s",stdin);
+            printf_t("%s",stdin);           // print current buffered value
             return keyboard_state;
         }
-        // checkpoint 2 tests
+
+        // Run checkpoint 2 test checks
         switch(mapped.result) {
-          	case (ASCII_ZERO):
+          	case (ASCII_ZERO):              // normal use mode
+                // clear the value of stdin buffer and associated attributes
                 memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
                 stdin_index = 0;
                 allowed_to_read = 0;
+
+                // set interrupt seen flag and prep screen
                 interrupt_seen = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
+
+                // set test val to current test and reset RTC test vals
                 testVal = TEST_ZERO;
                 rtcTestNumber = 0;
                 rtcTest = 1;
                 return keyboard_state;
-			case (ASCII_ONE):
+			case (ASCII_ONE):                // ls test
+                // clear flag for special handling in kernel.c
                 interrupt_seen = 0;
+
+                // prevention from clearing screen once you have already lsed
                 if(can_ls)
                 {
                     clear_and_reset();
                     set_cursor_location(0,0);
                 }
+
+                // set test val to current test and reset RTC test vals
                 testVal = TEST_ONE;
                 rtcTestNumber = 0;
                 rtcTest = 1;
                 return keyboard_state;
-			case (ASCII_TWO):
+			case (ASCII_TWO):                // read file by name test
+                // clear flag for special handling in kernel.c
                 interrupt_seen = 0;
+
+                // prevention from clearing screen once you have already printed by name
                 if(can_print_by_name)
                 {
                     clear_and_reset();
                     set_cursor_location(0,0);
                 }
+
+                // set test val to current test and reset RTC test vals
                 testVal = TEST_TWO;
                 rtcTestNumber = 0;
                 rtcTest = 1;
                 return keyboard_state;
-			case (ASCII_THREE):
+			case (ASCII_THREE):              // read file by index test
+                // set interrupt seen flag and prep screen
                 interrupt_seen = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
+
+                // get number of files
                 int num_files;
                 get_dir_entries_array(&num_files);
+
+                // increment read index
                 readByIndex++;
-                testVal = TEST_THREE;
+
+                // if index is greater than num_files, then set readByIndex to 0
                 if(readByIndex >= num_files) {
                     readByIndex = 0;
                 }
+
+                // set test val to current test and reset RTC test vals
+                testVal = TEST_THREE;
                 rtcTestNumber = 0;
                 rtcTest = 1;
                 return keyboard_state;
-			case (ASCII_FOUR):
+			case (ASCII_FOUR):               // RTC test
+                // set interrupt seen flag and prep screen
                 interrupt_seen = 1;
-                first_rtc_disable = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
+
+                // enable rtc and allow disabling of it
                 enable_irq(RTC_LINE_NO);
+                first_rtc_disable = 1;
+
+                // set test valu to current test
                 testVal = TEST_FOUR;
+
+                // increament test number and if greater then RTC modes, then reset
                 if(rtcTestNumber >= RTC_MODES)
                     rtcTestNumber = 0;
                 else
                     rtcTestNumber++;
                 rtcTest = rtcTestArray[rtcTestNumber];
                 return keyboard_state;
-			case (ASCII_FIVE):
+			case (ASCII_FIVE):               // Stop RTC
+                // set interrupt seen flag and prep screen
                 interrupt_seen = 1;
                 clear_and_reset();
                 set_cursor_location(0,0);
+
+                // set test val to current test and reset RTC test vals
                 testVal = TEST_FIVE;
                 rtcTestNumber = 0;
                 rtcTest = 1;
                 return keyboard_state;
-            default:
+            default:                        // do nothing for all other conbinations
                 return keyboard_state;
 		}
-	} else if(testVal != TEST_ZERO)
-    {
+	} else if(testVal != TEST_ZERO){
+        // don't allow typing unless in test_0
         return keyboard_state;
     } else if(BACKSPACE_ON(keyboard_state)){
+        // if there are values in stdin BKSP_CHAR is seen, then delete last char
         if(stdin_index > 0) {
             putc_kbd(BKSP_CHAR);
             stdin[--stdin_index] = NULL_CHAR;
         }
     } else if(mapped.result == NEW_LINE && stdin_index < KEYBOARD_BUFF_SIZE-1) {
+        // play new line on screen
         putc_kbd(NEW_LINE);
+        // place NEW_LINE in buffer followed by a NULL_CHAR
         stdin[stdin_index++] = NEW_LINE;
         stdin[stdin_index] = NULL_CHAR;
+
         if(read_waiting == 1){
+            // if shell is trying to read, then allow reading
             allowed_to_read = 1;
         }
         else{
+            //else clear stdin and disallow reading
             memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
             stdin_index = 0;
             allowed_to_read = 0;
@@ -333,17 +389,21 @@ unsigned long process_sent_scancode()
         return keyboard_state;
     }
 
+    // stop user from adding greater than 128 keyboard inputs
     if(stdin_index >= KEYBOARD_BUFF_SIZE-NULL_NL_PADDING) {
         return keyboard_state;
     }
 
+    //if caps lock is on and shift is not then
     if(CAPS_LOCK_ON(keyboard_state) && !SHIFT_ON(keyboard_state)) {
         if(IS_LETTER_SC(mapped)) {
+            // if letter, then print capital version
             putc_kbd(mapped.result - ASCII_SHIFT_VAL);
             stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL);
             if(stdin[stdin_index] != BKSP_CHAR)
                 stdin[stdin_index] = NULL_CHAR;
         } else if(IS_PRINTABLE_SC(mapped)) {
+            // if not letter but printable, then print the car directly
             putc_kbd(mapped.result);
             stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
             if(stdin[stdin_index] != BKSP_CHAR)
@@ -351,17 +411,21 @@ unsigned long process_sent_scancode()
         }
     } else if(SHIFT_ON(keyboard_state)) {
         if(IS_LETTER_SC(mapped) && !CAPS_LOCK_ON(keyboard_state)) {
+            // if shift and caps is not on, then print the capital version of the letter
             putc_kbd(mapped.result - ASCII_SHIFT_VAL);
             stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL); // shifting letters is simple
             if(stdin[stdin_index] != BKSP_CHAR)
                 stdin[stdin_index] = NULL_CHAR;
         } else if(IS_PRINTABLE_SC(mapped)) {
+            // if printable, then check futher characteristics
             if(non_alpha_shift_table[mapped.result] != 0) {
+                // if it as char like '1', then print its shited value
                 putc_kbd(non_alpha_shift_table[mapped.result]);
                 stdin[stdin_index++] = (non_alpha_shift_table[mapped.result]);
                 if(stdin[stdin_index] != BKSP_CHAR)
                     stdin[stdin_index] = NULL_CHAR;
             } else {
+                // if its not shiftable, then just print directly
                 putc_kbd(mapped.result);
                 stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
                 if(stdin[stdin_index] != BKSP_CHAR)
@@ -370,6 +434,7 @@ unsigned long process_sent_scancode()
         }
     } else {
         if(IS_PRINTABLE_SC(mapped)) {
+            // if no spcial conditions and input is printable, then print the input.
             putc_kbd(mapped.result);
             stdin[stdin_index++] = (mapped.result);
             if(stdin[stdin_index] != BKSP_CHAR)
