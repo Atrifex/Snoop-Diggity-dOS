@@ -17,6 +17,16 @@
 #define FC_OFFSET               1
 #define ATTRIB 					0x7
 
+// return codes
+#define SUCCESS 0
+#define FAILURE -1
+
+
+
+// checkpoint 2 test defines
+#define LAST_RTC_TEST_INIT -1
+#define LAST_READ_FILE_INIT -2
+#define READ_BY_INDEX_INIT -1
 
 int32_t printf(int8_t *format, ...);
 int32_t printf_t(int8_t *format, ...);

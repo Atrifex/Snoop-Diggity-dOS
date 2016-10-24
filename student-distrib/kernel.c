@@ -254,8 +254,8 @@ entry (unsigned long magic, unsigned long addr)
 
 	// CTL-2 test constants
 	uint8_t buff[KEYBOARD_BUFF_SIZE];
-	int last_rtc_test = -1;
-	int last_read_file = -2;
+	int last_rtc_test = LAST_RTC_TEST_INIT;
+	int last_read_file = LAST_READ_FILE_INIT;
 	dentry_t entry;
 	int32_t result;
 	int32_t length_in_bytes;
@@ -280,7 +280,7 @@ entry (unsigned long magic, unsigned long addr)
 			clear_and_reset();
 			set_cursor_location(0,0);
 			interrupt_seen = 0;
-			last_read_file = -2;
+			last_read_file = LAST_READ_FILE_INIT;
 		}
 		// special case so that we only disable rtc once
 	    if((first_rtc_disable && testVal != TEST_FOUR))
@@ -297,7 +297,7 @@ entry (unsigned long magic, unsigned long addr)
 				// initialize all test flags
                 can_print_by_name = 1;
                 can_ls = 1;
-                readByIndex = -1;
+                readByIndex = READ_BY_INDEX_INIT;
 				break;
 			case (TEST_ONE):				// ls test
 				// checks to make sure that we are only performing ls once
@@ -322,7 +322,7 @@ entry (unsigned long magic, unsigned long addr)
 				// initialize all test flags
                 can_ls = 0;
                 can_print_by_name = 1;
-                readByIndex = -1;
+                readByIndex = READ_BY_INDEX_INIT;
 				break;
 			case (TEST_TWO):				// Read file by name
 
@@ -368,7 +368,7 @@ entry (unsigned long magic, unsigned long addr)
 				// initialize all test flags
 				can_print_by_name = 0;
                 can_ls = 1;
-                readByIndex = -1;
+                readByIndex = READ_BY_INDEX_INIT;
 				break;
 			case (TEST_THREE):				// print file data by index iteration
 				// make sure we don't print the same file twice
@@ -436,13 +436,13 @@ entry (unsigned long magic, unsigned long addr)
                 first_rtc_disable = 1;			// allow interrupts to disable RTC
                 can_print_by_name = 1;			// allow printing file by name
                 can_ls = 1;						// allow performing ls
-                readByIndex = -1;				// allow read by index
+                readByIndex = READ_BY_INDEX_INIT;				// allow read by index
 				break;
 			case (TEST_FIVE):					// stop rtc test
 				// initialize all test flags
                 can_print_by_name = 1;
                 can_ls = 1;
-                readByIndex = -1;
+                readByIndex = READ_BY_INDEX_INIT;
 				break;
 		}
 	}

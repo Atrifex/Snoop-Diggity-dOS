@@ -98,6 +98,25 @@ extern int interrupt_seen;
 #define ASCII_FIVE  53
 #define RTC_MODES   16
 
+
+#define RTC_TEST_0 1
+#define RTC_TEST_1 2
+#define RTC_TEST_2 4
+#define RTC_TEST_3 8
+#define RTC_TEST_4 16
+#define RTC_TEST_5 32
+#define RTC_TEST_6 64
+#define RTC_TEST_7 128
+#define RTC_TEST_8 256
+#define RTC_TEST_9 512
+#define RTC_TEST_10 1024
+#define RTC_TEST_11 2048
+#define RTC_TEST_12 4096
+#define RTC_TEST_13 8192
+#define RTC_TEST_14 16384
+#define RTC_TEST_15 32768
+
+
 // attribute related defines
 #define ASCII_SIX  54
 #define MAX_ATTRIB 0x0F

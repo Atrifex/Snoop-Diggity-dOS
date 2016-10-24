@@ -6,6 +6,7 @@
 
 // checkpoint 2 and future mixed ---> will need to parse through
 #define RTC_LINE_NO 8
+
 volatile int testVal;
 int rtcTest = 0;
 int rtcTestNumber = 0;
@@ -17,7 +18,7 @@ int interrupt_seen;
 int curr_attribute = ATTRIB;
 
 // RTC powers of two
-const int rtcTestArray[RTC_MODES] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+const int rtcTestArray[RTC_MODES] = {RTC_TEST_0, RTC_TEST_1, RTC_TEST_2, RTC_TEST_3, RTC_TEST_4, RTC_TEST_5, RTC_TEST_6, RTC_TEST_7, RTC_TEST_8, RTC_TEST_9, RTC_TEST_10, RTC_TEST_11, RTC_TEST_12, RTC_TEST_13, RTC_TEST_14, RTC_TEST_15};
 
 volatile int allowed_to_read = 0;          // allows read to stop blocking
 volatile int read_waiting = 0;
@@ -133,7 +134,7 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
 
     // checks for error condition
     if(nbytes < 0)
-        return -1;
+        return FAILURE;
 
     // tells interrupt that there is a read waiting
     read_waiting = 1;
@@ -180,7 +181,7 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes, int32_t flag
 {
     // error condition handling
     if(nbytes < 0)
-        return -1;
+        return FAILURE;
 
     // print buf to the screen
     put_t((uint8_t *)buf, nbytes, flag);

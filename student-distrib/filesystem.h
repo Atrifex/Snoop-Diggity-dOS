@@ -21,10 +21,6 @@
 // max number of files
 #define NUM_FILES_CAP 63
 
-// return codes
-#define SUCCESS 0
-#define FAILURE -1
-
 // ofset for beginning of a file
 #define FILE_BEGINNING_OFFSET 0
 

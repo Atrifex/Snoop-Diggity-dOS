@@ -124,7 +124,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t lengt
 
     // Error-checking on block_num
     if (block_num < 0 || block_num >= bootblock->datablocks)
-        return -1;
+        return FAILURE;
 
     // Return 0 if offset points at the end (or outside) of our file as there's nothing to read
     if (offset >= inodes[inode].length)
@@ -140,7 +140,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t lengt
 
             // Error-checking on block_num
             if (block_num < 0 || block_num >= bootblock->datablocks)
-                return -1;
+                return FAILURE;
 
             j = 0; // Reset data block index
         }
@@ -163,7 +163,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t lengt
 
             // Error-checking on block_num
             if (block_num < 0 || block_num >= bootblock->datablocks)
-                return -1;
+                return FAILURE;
 
             k = 0; // reset data block index
         }
