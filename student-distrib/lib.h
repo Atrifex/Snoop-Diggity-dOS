@@ -15,6 +15,8 @@
 #define CURSOR_LOC_MASK         0xFF
 #define BACKSPACE_OFFSET        1
 #define FC_OFFSET               1
+#define ATTRIB 					0x7
+
 
 int32_t printf(int8_t *format, ...);
 int32_t printf_t(int8_t *format, ...);
@@ -54,12 +56,12 @@ static inline uint32_t inb(port)
 {
 	uint32_t val;
 	asm volatile("xorl %0, %0\n \
-			inb   (%w1), %b0" 
+			inb   (%w1), %b0"
 			: "=a"(val)
 			: "d"(port)
 			: "memory" );
 	return val;
-} 
+}
 
 /* Reads two bytes from two consecutive ports, starting at "port",
  * concatenates them little-endian style, and returns them zero-extended
@@ -93,7 +95,7 @@ static inline uint32_t inl(port)
 static inline void io_wait(void)
 {
     asm volatile (
-        "outb %%al, $0x80" : : "a"(0) 
+        "outb %%al, $0x80" : : "a"(0)
     );
 }
 

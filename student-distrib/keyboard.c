@@ -14,6 +14,7 @@ int first_rtc_disable = 1;
 int can_print_by_name;
 int can_ls;
 int interrupt_seen;
+int curr_attribute = ATTRIB;
 
 // RTC powers of two
 const int rtcTestArray[RTC_MODES] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
@@ -356,6 +357,12 @@ unsigned long process_sent_scancode()
                 testVal = TEST_FIVE;
                 rtcTestNumber = 0;
                 rtcTest = 1;
+                return keyboard_state;
+            case (ASCII_SIX):
+                curr_attribute++;
+                if(curr_attribute > MAX_ATTRIB)
+                    curr_attribute = MIN_ATTRIB;
+                change_atribute(curr_attribute);
                 return keyboard_state;
             default:                        // do nothing for all other conbinations
                 return keyboard_state;

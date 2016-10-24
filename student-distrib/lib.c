@@ -7,7 +7,6 @@
 #define VIDEO 0xB8000
 #define NUM_COLS 80
 #define NUM_ROWS 25
-#define ATTRIB 0x7
 
 static int screen_x;
 static int screen_y;
@@ -16,6 +15,7 @@ static int cursor_y;
 static int start_x;
 static int start_y;
 static char* video_mem = (char *)VIDEO;
+static int curr_attribute = ATTRIB;
 
 /*
 * void clear(void);
@@ -29,7 +29,7 @@ clear(void)
     int32_t i;
     for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
-        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem + (i << 1) + 1) = curr_attribute;
     }
 }
 
@@ -87,7 +87,7 @@ void shift_screen_up(void)
     // clears last row to be used
     for(i=0; i<NUM_COLS; i++) {
         *(uint8_t *)(video_mem + ((i + (NUM_ROWS-1)*NUM_COLS) << 1)) = ' ';
-        *(uint8_t *)(video_mem + ((i + (NUM_ROWS-1)*NUM_COLS) << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem + ((i + (NUM_ROWS-1)*NUM_COLS) << 1) + 1) = curr_attribute;
     }
 
     screen_y--;
@@ -122,11 +122,11 @@ putc_kbd(uint8_t c)
     	}
         // place EMPTY_SPACE char at correct position in memory
     	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = EMPTY_SPACE;
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = curr_attribute;
     } else {
         // place given character on screen with its specific attribute
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = curr_attribute;
 
 		/*
 		 * I am very angry because in their code the had the assignment of screen_y after screen_x %= NUM_COLS
@@ -249,6 +249,7 @@ void change_atribute(uint8_t attribute)
         // assign provided attribute value to all of video memory
         *(uint8_t *)(video_mem + (i << 1) + 1) = attribute;
     }
+    curr_attribute = attribute;
 }
 
 /*
@@ -560,7 +561,7 @@ putc(uint8_t c)
         screen_x=0;
     } else {
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = curr_attribute;
 
 		/*
 		 * I am very angry because in their code the had the assignment of screen_y after screen_x %= NUM_COLS

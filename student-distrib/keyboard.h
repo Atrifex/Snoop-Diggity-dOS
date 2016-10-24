@@ -98,6 +98,11 @@ extern int interrupt_seen;
 #define ASCII_FIVE  53
 #define RTC_MODES   16
 
+// attribute related defines
+#define ASCII_SIX  54
+#define MAX_ATTRIB 0x0F
+#define MIN_ATTRIB 0x01
+
 /* Process the sent scancode after an interrupt */
 extern unsigned long process_sent_scancode();
 /* Initialize the keyboard device */
