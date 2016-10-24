@@ -114,7 +114,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t lengt
 {
     // Check the inode bounds.
     if (inode >= bootblock->inodes)
-        return -1;
+        return FAILURE;
 
     int i, j, k, block_num, block_numbers_idx, overall_byte_counter;
 
