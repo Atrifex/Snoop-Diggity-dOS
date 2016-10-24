@@ -1,8 +1,8 @@
 #include "scancodes.h"
 #include "lib.h"
 
-scancode_t scancode_table[256];
-char non_alpha_shift_table[256];
+scancode_t scancode_table[SCANCODE_TABLE_SIZE];
+char non_alpha_shift_table[SCANCODE_TABLE_SIZE];
 
 /*
  * init_scancode_table()

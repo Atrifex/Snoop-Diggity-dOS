@@ -260,7 +260,13 @@ entry (unsigned long magic, unsigned long addr)
     // welcome!
     printf_t("Welcome to Snoop-Diggity-dOS 0.2\n");
 
-	// CTL-2 test constants
+	// CP2 test constants
+	int entry_count, i;
+	char fn[FILE_NAME_BUF_SIZE];
+	dentry_t* entries;
+	uint8_t mybuf[FS_BLOCK_LENGTH];
+    int32_t bytes_read;
+    uint32_t offset;
 	uint8_t buff[KEYBOARD_BUFF_SIZE];
 	int last_rtc_test = LAST_RTC_TEST_INIT;
 	int last_read_file = LAST_READ_FILE_INIT;
@@ -273,11 +279,11 @@ entry (unsigned long magic, unsigned long addr)
 	interrupt_seen = 0;
 
 	// Scanf like test
-	printf_t("scanf Test:\n");
+	printf_t("Read Terminal Test:\n");
 	int32_t read_terminal_bytes;
 	while((read_terminal_bytes = read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE)) <= 0);
 	// print the scanned in value
-	printf_t("printf Test:\n");
+	printf_t("Write Terminal Test:\n");
 	write_terminal(STDOUT, buff, read_terminal_bytes);
 
 	// main loop to test checkpoint 2
@@ -312,9 +318,7 @@ entry (unsigned long magic, unsigned long addr)
                 if(can_ls == 0) break;
 
 				// directory listing
-				int entry_count, i;
-				char fn[FILE_NAME_BUF_SIZE];
-				dentry_t* entries = get_dir_entries_array(&entry_count);
+				entries = get_dir_entries_array(&entry_count);
 				// iterates through all of the files and prints their details
 				for(i = 0; i < entry_count; i++) {
 					strncpy(fn, (int8_t*) entries[i].filename, FILE_NAME_SIZE);
@@ -357,21 +361,18 @@ entry (unsigned long magic, unsigned long addr)
 					break;
 				}
 
-				// copy data from the file into local buffer while there the file has information left
-				uint8_t mybuf[FS_BLOCK_LENGTH];
-				int32_t bytes_read = read_data(entry.inode, FILE_BEGINNING_OFFSET, mybuf, length_in_bytes);
+				// Initially read from beginning of file
+                offset = 0;
 
-				// if bytes_read is an error value
-				if(bytes_read != length_in_bytes)
-				{
-					printf_t("Failure to read entire file, abort.\n");
-					break;
-				}
+				// read data 4K at a time into local buffer and output while file is not empty
+				while((bytes_read = read_data(entry.inode, offset, mybuf, sizeof(mybuf))) != 0) {
+                    write_terminal(STDOUT, mybuf, bytes_read);
+                    offset += bytes_read;
+                }
+				printf_t("%c", NEW_LINE);
 
-				// print file data to the screen
-				write_terminal(STDOUT, mybuf, length_in_bytes);
+				// print file name to the screen
 				printf_t("Filename: frame0.txt\n");
-
 
 				// initialize all test flags
 				can_print_by_name = 0;
@@ -386,8 +387,6 @@ entry (unsigned long magic, unsigned long addr)
 					if(readByIndex < 0) {
 						readByIndex = 0;
 					}
-
-					char fn[FILE_NAME_BUF_SIZE];
 
 					// read dentry
 					result = read_dentry_by_index(readByIndex, &entry);
@@ -409,10 +408,8 @@ entry (unsigned long magic, unsigned long addr)
 						break;
 					}
 
-					// printing file local vars
-					uint8_t mybuf[FS_BLOCK_LENGTH];
-                    int32_t bytes_read;
-                    uint32_t offset = 0;
+					// Initially read from beginning of file
+                	offset = 0;
 
 					// read data 4K at a time into local buffer and output while file is not empty
 					while((bytes_read = read_data(entry.inode, offset, mybuf, sizeof(mybuf))) != 0) {

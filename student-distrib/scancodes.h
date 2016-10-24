@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+#define SCANCODE_TABLE_SIZE 256
+
 /* scancode constants */
 #define SCANCODE_MAKE 0
 #define SCANCODE_BREAK 1

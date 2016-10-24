@@ -107,7 +107,7 @@ int write_rtc(int freq)
 
 	while(i != 1)
 	{
-		i /= 2;
+		i >>= 1;
 		rate++; // At the end of the while loop, "rate" will store our desired rate
 	}
 
@@ -142,7 +142,7 @@ int write_rtc(int freq)
 */
 int open_rtc()
 {
-	// TODO: After loading filesystem, allocate the file descriptor
+	// TODO: For CP3, allocate the file descriptor
 
 	init_rtc(); // Set interrupt rate to 2 Hz by default
 	rtc_enable = 1; // Open and close will work now
@@ -159,7 +159,7 @@ int open_rtc()
 */
 int close_rtc(int32_t fd)
 {
-	// TODO: After loading filesystem, close the file descriptor
+	// TODO: For CP3, close the file descriptor
 
 	rtc_enable = 0;
 	return 0;
