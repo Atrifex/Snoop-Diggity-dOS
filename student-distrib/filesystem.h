@@ -3,75 +3,81 @@
 
 #include "types.h"
 
+// size of filenames in bytes
 #define FILE_NAME_SIZE 32
+
+// and buffers need one more char since filenames might not be null-terminated (verylarge.......tx)
 #define FILE_NAME_BUF_SIZE FILE_NAME_SIZE + 1
-#define FILE_NAME_LOC 0
-#define FILE_TYPE_SIZE 4
-#define FILE_TYPE_LOC 32
-#define FILE_INODE_SIZE 4
-#define FILE_INODE_LOC 36
+
+// reserved space in dir entries
 #define FILE_RES_SIZE 24
-#define FILE_RES_LOC 40
-#define BYTE 8
-#define FILE_TYPE_MASK
-#define MEMORY_BLOCK 4096
-#define DIR_ENTRY 64
-#define BOOT_BLOCK_INDEX 0
-#define DIR_ENT_SIZE 4
-#define NUM_INODE_SIZE 4
-#define NUM_INODE_LOC 4
-#define DATA_BLOCK_SIZE 4
-#define DATA_BLOCK_LOC 8
-#define BOOT_RES_LOC 12
+
+// size of a block in bytes
+#define FS_BLOCK_LENGTH 4096
+
+// size of bootblock reserved, in bytes
 #define BOOT_RES_SIZE 52
-#define FILETYPE_SIZE 4
+
+// max number of files
 #define NUM_FILES_CAP 63
+
+// return codes
 #define SUCCESS 0
 #define FAILURE -1
-#define FILE_BEGINNING_OFFSET 0
-#define MAX_BLOCKS 1023
-#define MYBUF_SIZE 36864
 
+// ofset for beginning of a file
+#define FILE_BEGINNING_OFFSET 0
+
+// maximum amount of data blocks composing a file
+#define MAX_BLOCKS 1023
+
+// for code clarity.
 typedef unsigned char fs_data_t;
 
+// data block (BLOCK_LENGTH bytes)
 typedef struct {
-	fs_data_t data[MEMORY_BLOCK];
+    fs_data_t data[FS_BLOCK_LENGTH];
 } data_block_t;
 
+// directory entry structure
 typedef struct {
- unsigned char filename[FILE_NAME_SIZE];
- unsigned long filetype;
- unsigned long inode;
- unsigned char reserved[FILE_RES_SIZE];
+    unsigned char filename[FILE_NAME_SIZE];
+    unsigned long filetype;
+    unsigned long inode;
+    unsigned char reserved[FILE_RES_SIZE];
 } dentry_t;
 
+// FS boot block structure
 typedef struct {
- unsigned long direntries;
- unsigned long inodes;
- unsigned long datablocks;
- unsigned char reserved[BOOT_RES_SIZE];
- dentry_t files[NUM_FILES_CAP]; //up to 63 can either declare as static or dynamic
+    unsigned long direntries;
+    unsigned long inodes;
+    unsigned long datablocks;
+    unsigned char reserved[BOOT_RES_SIZE];
+    dentry_t      files[NUM_FILES_CAP]; // up to 63 can either declare as static or dynamic
 } boot_block_t;
 
+// inode structure
 typedef struct {
-	uint32_t length;
-	uint32_t block_numbers[MAX_BLOCKS];
+    uint32_t length;
+    uint32_t block_numbers[MAX_BLOCKS];
 } inode_t;
 
 // Initializes our kernel's internal structure for the filesystem
 extern void init_filesystem(uint32_t start_addr, uint32_t size);
 
 // Reads a directory entry given the name of a file
-extern int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
+extern int32_t read_dentry_by_name(const uint8_t * fname, dentry_t * dentry);
 
 // Reads a directory given an index node number
-extern int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
+extern int32_t read_dentry_by_index(uint32_t index, dentry_t * dentry);
 
 // Reads data from a file given the inode and the offset into the file's data
-extern int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
+extern int32_t read_data(uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t length);
 
-extern dentry_t* get_dir_entries_array(int* entry_count);
+// Returns a pointer to the directory entry array
+extern dentry_t * get_dir_entries_array(int * entry_count);
 
-extern int32_t get_file_length(dentry_t* entry);
+// Returns the length of a file in bytes
+extern int32_t get_file_length(dentry_t * entry);
 
-#endif
+#endif /* ifndef FILESYSTEM_H */

@@ -20,10 +20,10 @@ void init_filesystem(uint32_t start_addr, uint32_t size)
     bootblock = (boot_block_t *) start_addr;
 
     // first inode will be start_addr + block_size
-    inodes = (inode_t *) ( start_addr + MEMORY_BLOCK );
+    inodes = (inode_t *) ( start_addr + FS_BLOCK_LENGTH );
 
     // first data block will be start_addr + memory_block + (block_size*number of inodes)
-    datablocks = (data_block_t *) ( start_addr + MEMORY_BLOCK + MEMORY_BLOCK * bootblock->inodes);
+    datablocks = (data_block_t *) ( start_addr + FS_BLOCK_LENGTH + FS_BLOCK_LENGTH * bootblock->inodes);
 }
 
 /*
@@ -135,7 +135,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t lengt
     j = 0; // Index within data block
 
     while (i != offset) {
-        if (i && (i % MEMORY_BLOCK == 0)) {                                 // If we've reached the end of this data block
+        if (i && (i % FS_BLOCK_LENGTH == 0)) {                                 // If we've reached the end of this data block
             block_num = (inodes[inode].block_numbers)[++block_numbers_idx]; // Move to the next data block
 
             // Error-checking on block_num
@@ -158,7 +158,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t lengt
 
     // Copy bytes over, one at a time
     while ((i < length) && (overall_byte_counter < inodes[inode].length)) {
-        if (k && (k % MEMORY_BLOCK == 0)) {                                 // If we've reached the end of this data block
+        if (k && (k % FS_BLOCK_LENGTH == 0)) {                                 // If we've reached the end of this data block
             block_num = (inodes[inode].block_numbers)[++block_numbers_idx]; // Move to the next data block
 
             // Error-checking on block_num
