@@ -290,7 +290,7 @@ entry (unsigned long magic, unsigned long addr)
 			set_cursor_location(0,0);
             first_rtc_disable = 0;
         }
-		
+
 		// apply test features based on testVal
 		switch(testVal) {
 			case (TEST_ZERO):				// regular mode test
@@ -350,7 +350,7 @@ entry (unsigned long magic, unsigned long addr)
 				}
 
 				// copy data from the file into local buffer while there the file has information left
-				uint8_t mybuf[MYBUF_SIZE];
+				uint8_t mybuf[FS_BLOCK_LENGTH];
 				int32_t bytes_read = read_data(entry.inode, FILE_BEGINNING_OFFSET, mybuf, length_in_bytes);
 
 				// if bytes_read is an error value
@@ -381,7 +381,7 @@ entry (unsigned long magic, unsigned long addr)
 
 					char fn[FILE_NAME_BUF_SIZE];
 
-					// read dentry 
+					// read dentry
 					result = read_dentry_by_index(readByIndex, &entry);
 
 					// if result is error value
@@ -402,7 +402,7 @@ entry (unsigned long magic, unsigned long addr)
 					}
 
 					// printing file local vars
-					uint8_t mybuf[MEMORY_BLOCK]; 
+					uint8_t mybuf[FS_BLOCK_LENGTH];
                     int32_t bytes_read;
                     uint32_t offset = 0;
 
@@ -452,4 +452,3 @@ entry (unsigned long magic, unsigned long addr)
 	/* Spin (nicely, so we don't chew up cycles) */
 	// asm volatile(".1: hlt; jmp .1;");
 }
-
