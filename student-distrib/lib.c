@@ -95,29 +95,36 @@ void shift_screen_up(void)
 
 /*
 * void putc_kbd(uint8_t c);
+*   Description: ouputs char to the screen, has special cases for new line and back space
 *   Inputs: uint_8* c = character to print
 *   Return Value: void
-*	Function: Output a character to the console
+*	Side Effect: makes a character appear on the screen
 */
-
 void
 putc_kbd(uint8_t c)
 {
     if(c == '\n' || c == '\r') {
+        // if new line, make the screen point to the next line
         screen_y++;
         screen_x=0;
     } else if(c == BKSP_CHAR){
+        // if BKSP_CHAR, then decrement appropriate values
     	screen_x--;
+
+        // if screen_x becomes < 0, then make it wrap around decrement y
     	if(screen_x < 0)
     	{
     		screen_x = NUM_COLS -1;
     		screen_y--;
+            // if screen_y becomes < 0, then reset it to 0
     		if(screen_y < 0)
     			screen_y = 0;
     	}
+        // place EMPTY_SPACE char at correct position in memory
     	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = EMPTY_SPACE;
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
     } else {
+        // place given character on screen with its specific attribute
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
 
@@ -128,14 +135,15 @@ putc_kbd(uint8_t c)
         screen_x++;
         screen_y = (screen_y + (screen_x / NUM_COLS)); // % NUM_ROWS;
         screen_x %= NUM_COLS;
-		// TODO: need to shift screen up when out of bounds
-
     }
 
+    // if screen_y becomes >= NUM_ROWS during this process, then shift the screen up
     if(screen_y >= NUM_ROWS) {
 			shift_screen_up();
 			start_y--;
 	}
+
+    // set cursor to appropriate location
     set_cursor_location(screen_x, screen_y);
 }
 
@@ -149,17 +157,22 @@ putc_kbd(uint8_t c)
 int32_t
 put_t(uint8_t* s, uint32_t size, int32_t flag)
 {
+    // vars used during execution of function
 	int last_real_char_index = -FC_OFFSET;
     register int32_t index = 0;
     unsigned long flags;
 	int yval;
 	int final_wrap_offset;
 
+    // start critical section
     cli_and_save(flags);
+
+    // initialze variables
     start_x = screen_x;
     start_y = screen_y;
     int32_t wrapped_lines = 0;
 
+    // while loop which does the printing
     while(s[index] != NULL_CHAR && index < size) {
         if(s[index] == NEW_LINE || s[index] == CARRIAGE_RETURN) {
             // handle newline
@@ -172,18 +185,22 @@ put_t(uint8_t* s, uint32_t size, int32_t flag)
             	start_y = screen_y;
             }
 
+            // if screen_y becomes >= NUM_ROWS during this process, then shift the screen up
             if(screen_y >= NUM_ROWS) {
                 shift_screen_up();
                 start_y--;
             }
 
         } else if((index+start_x) != 0 && (index+start_x) % NUM_COLS == 0 && s[index] != BKSP_CHAR) {
+            // if we wrap will printing, then increment wrapped_lines
             wrapped_lines++;
         }
 
         if(s[index] == BKSP_CHAR) {
+            // if a BKSP_CHAR is seen, then output EMPTY_SPACE
             putc(EMPTY_SPACE);
         } else if(s[index] != NEW_LINE) {
+            // else output normal char if not NEW_LINE and increment last_real_char_index
             putc(s[index]);
             last_real_char_index = index;
         }
@@ -191,14 +208,19 @@ put_t(uint8_t* s, uint32_t size, int32_t flag)
         index++;
     }
 
+
 	final_wrap_offset = ((FC_OFFSET + last_real_char_index + start_x) / NUM_COLS);
-	final_wrap_offset = (final_wrap_offset > wrapped_lines)? final_wrap_offset : wrapped_lines;
+
+    // calculate the final_wrap_offset as a max of the two given values
+    final_wrap_offset = (final_wrap_offset > wrapped_lines)? final_wrap_offset : wrapped_lines;
+
+    // select y_val as a min of our current two offsets
     yval = start_y + final_wrap_offset;
     if(yval > screen_y) {
     	yval = screen_y;
     }
 
-
+    // based on flag select one of the two methods of deciding the cursor location
 	if(flag == 0)
 	{
         set_cursor_location(((start_x + FC_OFFSET + last_real_char_index ) % NUM_COLS), yval);
@@ -207,6 +229,7 @@ put_t(uint8_t* s, uint32_t size, int32_t flag)
 	}
     else
     {
+        // set cursor directly to current screen_x and current screen_y
         set_cursor_location(screen_x, screen_y);
     }
     restore_flags(flags);
@@ -223,6 +246,7 @@ void change_atribute(uint8_t attribute)
 {
 	int32_t i;
     for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
+        // assign provided attribute value to all of video memory
         *(uint8_t *)(video_mem + (i << 1) + 1) = attribute;
     }
 }
@@ -235,6 +259,7 @@ void change_atribute(uint8_t attribute)
 */
 void change_atribute_specific(int32_t position, uint8_t attribute)
 {
+    // assign attribute to given location in video memory
     *(uint8_t *)(video_mem + (position << 1) + 1) = attribute;
 }
 
