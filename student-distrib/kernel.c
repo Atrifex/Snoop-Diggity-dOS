@@ -90,6 +90,14 @@ void init_idt()
 
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
+/*
+ * entry
+ * DESCRIPTION: Entry into the kernel. It sets up kernel, ints all drivers, and many other things
+ * INPUT: unsigned long magic, unsigned long addr
+ * OUTPUTS: none
+ * RETURN VALUE: none.
+ * SIDE EFFECTS: sets up kernel
+*/
 void
 entry (unsigned long magic, unsigned long addr)
 {
@@ -270,7 +278,7 @@ entry (unsigned long magic, unsigned long addr)
 	while((read_terminal_bytes = read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE)) <= 0);
 	// print the scanned in value
 	printf_t("printf Test:\n");
-	write_terminal(STDOUT, buff, read_terminal_bytes, 1);
+	write_terminal(STDOUT, buff, read_terminal_bytes);
 
 	// main loop to test checkpoint 2
 	while(1){
@@ -361,7 +369,7 @@ entry (unsigned long magic, unsigned long addr)
 				}
 
 				// print file data to the screen
-				write_terminal(STDOUT, mybuf, length_in_bytes, 1);
+				write_terminal(STDOUT, mybuf, length_in_bytes);
 				printf_t("Filename: frame0.txt\n");
 
 
@@ -408,7 +416,7 @@ entry (unsigned long magic, unsigned long addr)
 
 					// read data 4K at a time into local buffer and output while file is not empty
 					while((bytes_read = read_data(entry.inode, offset, mybuf, sizeof(mybuf))) != 0) {
-                        write_terminal(STDOUT, mybuf, bytes_read, 1);
+                        write_terminal(STDOUT, mybuf, bytes_read);
                         offset += bytes_read;
                     }
 					printf_t("%c", NEW_LINE);

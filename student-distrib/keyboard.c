@@ -177,14 +177,14 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
  *                            error: -1
  * SIDE EFFECTS: user outputs their string
 */
-int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes, int32_t flag)
+int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
 {
     // error condition handling
     if(nbytes < 0)
         return FAILURE;
 
     // print buf to the screen
-    put_t((uint8_t *)buf, nbytes, flag);
+    put_t((uint8_t *)buf, nbytes, 1);
 
     // return number of bytes read
     return nbytes;

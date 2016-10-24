@@ -433,7 +433,7 @@ format_char_switch:
 					switch(*buf) {
 						/* Print a literal '%' character */
 						case '%':
-							write_terminal(STDOUT, "%", 1, 1);
+							write_terminal(STDOUT, "%", 1);
 							break;
 
 						/* Use alternate formatting */
@@ -451,7 +451,7 @@ format_char_switch:
 								int8_t conv_buf[64];
 								if(alternate == 0) {
 									itoa(*((uint32_t *)esp), conv_buf, 16);
-									write_terminal(STDOUT, conv_buf, sizeof(conv_buf), 1);
+									write_terminal(STDOUT, conv_buf, sizeof(conv_buf));
 									//puts(conv_buf);
 								} else {
 									int32_t starting_index;
@@ -462,7 +462,7 @@ format_char_switch:
 										conv_buf[i] = '0';
 										i++;
 									}
-									write_terminal(STDOUT, &conv_buf[starting_index], sizeof(conv_buf) - starting_index, 1);
+									write_terminal(STDOUT, &conv_buf[starting_index], sizeof(conv_buf) - starting_index);
 
 									// puts(&conv_buf[starting_index]);
 								}
@@ -475,7 +475,7 @@ format_char_switch:
 							{
 								int8_t conv_buf[36];
 								itoa(*((uint32_t *)esp), conv_buf, 10);
-								write_terminal(STDOUT, conv_buf, sizeof(conv_buf), 1);
+								write_terminal(STDOUT, conv_buf, sizeof(conv_buf));
 								esp++;
 							}
 							break;
@@ -491,21 +491,21 @@ format_char_switch:
 								} else {
 									itoa(value, conv_buf, 10);
 								}
-								write_terminal(STDOUT, conv_buf, sizeof(conv_buf), 1);
+								write_terminal(STDOUT, conv_buf, sizeof(conv_buf));
 								esp++;
 							}
 							break;
 
 						/* Print a single character */
 						case 'c':
-							write_terminal(STDOUT, ((uint8_t *)esp), 1, 1);
+							write_terminal(STDOUT, ((uint8_t *)esp), 1);
 							esp++;
 							break;
 
 						/* Print a NULL-terminated string */
 						case 's':
 							// puts( *((int8_t **)esp) );
-							write_terminal(STDOUT, *((int8_t **)esp), strlen(*((int8_t **)esp)), 1);
+							write_terminal(STDOUT, *((int8_t **)esp), strlen(*((int8_t **)esp)));
 							esp++;
 							break;
 
@@ -518,7 +518,7 @@ format_char_switch:
 
 			default:
 				// c = *buf;
-				write_terminal(STDOUT, buf, 1, 1);
+				write_terminal(STDOUT, buf, 1);
 				break;
 		}
 		buf++;

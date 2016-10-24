@@ -130,7 +130,7 @@ extern void init_kbd();
 /* Driver related functions */
 extern int32_t open_terminal(const uint8_t *pathname);
 extern int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes);
-extern int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes, int32_t flags);
+extern int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes);
 extern int32_t close_terminal(int32_t fd);
 
 
