@@ -28,7 +28,6 @@
 #define NUM_FILES_CAP 63
 #define SUCCESS 0
 #define FAILURE -1
-#define MAXBITS_TO_READ 32
 #define FILE_BEGINNING_OFFSET 0
 #define MAX_BLOCKS 1023
 #define MYBUF_SIZE 36864
