@@ -393,7 +393,7 @@ void IRQ8_handler_sub()
 	outb(RTC_CREG_C, RTC_CONTROL_PORT); // selects control register C of the RTC
 	inb(RTC_DATA_PORT);
 
-
+	// print 1 for the RTC test for checkpoint 2
     write_terminal(STDOUT, "1", 1, 1);
 
 	rtc_flag = 0; // Clear flag used in rtc_read()

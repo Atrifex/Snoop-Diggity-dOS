@@ -4,7 +4,7 @@
 #include "types.h"
 #include "filesystem.h"
 
-// checkpoint 2
+// checkpoint 2 and future mixed ---> will need to parse through
 #define RTC_LINE_NO 8
 volatile int testVal;
 int rtcTest = 0;

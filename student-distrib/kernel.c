@@ -252,27 +252,29 @@ entry (unsigned long magic, unsigned long addr)
     // welcome!
     printf_t("Welcome to Snoop-Diggity-dOS 0.2\n");
 
-	// For CTL-2 test
+	// CTL-2 test constants
 	uint8_t buff[KEYBOARD_BUFF_SIZE];
 	int last_rtc_test = -1;
 	int last_read_file = -2;
-
-
 	dentry_t entry;
 	int32_t result;
 	int32_t length_in_bytes;
-
 	first_rtc_disable = 0;
 	can_print_by_name = 1;
 	can_ls = 1;
 	interrupt_seen = 0;
 
-	printf_t("Read Terminal Test:\n");
+	// Scanf like test
+	printf_t("scanf Test:\n");
 	int32_t read_terminal_bytes;
 	while((read_terminal_bytes = read_terminal(STDIN, buff, KEYBOARD_BUFF_SIZE)) <= 0);
+	// print the scanned in value
+	printf_t("printf Test:\n");
 	write_terminal(STDOUT, buff, read_terminal_bytes, 1);
 
+	// main loop to test checkpoint 2
 	while(1){
+		// if interrupt has been seen reset test features
 		if(interrupt_seen)
 		{
 			clear_and_reset();
@@ -280,6 +282,7 @@ entry (unsigned long magic, unsigned long addr)
 			interrupt_seen = 0;
 			last_read_file = -2;
 		}
+		// special case so that we only disable rtc once
 	    if((first_rtc_disable && testVal != TEST_FOUR))
         {
             disable_irq(RTC_LINE_NO);
@@ -287,23 +290,25 @@ entry (unsigned long magic, unsigned long addr)
 			set_cursor_location(0,0);
             first_rtc_disable = 0;
         }
+		
+		// apply test features based on testVal
 		switch(testVal) {
-			case (TEST_ZERO):
-				//write_terminal(STDOUT, buff, KEYBOARD_BUFF_SIZE, STDIN);
+			case (TEST_ZERO):				// regular mode test
+				// initialize all test flags
                 can_print_by_name = 1;
                 can_ls = 1;
                 readByIndex = -1;
 				break;
-			case (TEST_ONE):
+			case (TEST_ONE):				// ls test
+				// checks to make sure that we are only performing ls once
                 if(can_ls == 0) break;
 
 				// directory listing
 				int entry_count, i;
 				char fn[FILE_NAME_BUF_SIZE];
 				dentry_t* entries = get_dir_entries_array(&entry_count);
+				// iterates through all of the files and prints their details
 				for(i = 0; i < entry_count; i++) {
-					// entries[i]->filename;
-					// filetype inode
 					strncpy(fn, (int8_t*) entries[i].filename, FILE_NAME_SIZE);
 					fn[FILE_NAME_SIZE] = NULL_CHAR;
 					printf_t(
@@ -313,110 +318,128 @@ entry (unsigned long magic, unsigned long addr)
 						 get_file_length(&entries[i])
 					);
 				}
+
+				// initialize all test flags
                 can_ls = 0;
                 can_print_by_name = 1;
                 readByIndex = -1;
 				break;
-			case (TEST_TWO):
-				// Read file by name
-				// Assumption for now: We only have to read a single file.
+			case (TEST_TWO):				// Read file by name
 
+				// checks permissions for printing
                 if(can_print_by_name == 0) break;
 
 
 				result = read_dentry_by_name((uint8_t*) "frame0.txt", &entry); // Read directory entry
 
+				// if result is an error value
 				if(result != SUCCESS)
 				{
 					printf_t("Failure to read, abort.\n");
 					break;
 				}
 
+				// get length of file
 				length_in_bytes = get_file_length(&entry);
 
+				// if length_in_bytes is a error value
 				if(length_in_bytes == FAILURE)
 				{
 					printf_t("Failure to read, abort.\n");
 					break;
 				}
 
-				uint8_t mybuf[MYBUF_SIZE]; // Assume this is enough
-				int32_t bytes_read = read_data(entry.inode, FILE_BEGINNING_OFFSET, mybuf, length_in_bytes); // Read data from the file
+				// copy data from the file into local buffer while there the file has information left
+				uint8_t mybuf[MYBUF_SIZE];
+				int32_t bytes_read = read_data(entry.inode, FILE_BEGINNING_OFFSET, mybuf, length_in_bytes);
 
+				// if bytes_read is an error value
 				if(bytes_read != length_in_bytes)
 				{
 					printf_t("Failure to read entire file, abort.\n");
 					break;
 				}
 
+				// print file data to the screen
 				write_terminal(STDOUT, mybuf, length_in_bytes, 1);
 				printf_t("Filename: frame0.txt\n");
 
+
+				// initialize all test flags
 				can_print_by_name = 0;
                 can_ls = 1;
                 readByIndex = -1;
 				break;
-			case (TEST_THREE):
-				//
+			case (TEST_THREE):				// print file data by index iteration
+				// make sure we don't print the same file twice
 				if(readByIndex != last_read_file)
 				{
-					// Actually get the data and print the file
+					// handle edge case
 					if(readByIndex < 0) {
 						readByIndex = 0;
 					}
+
 					char fn[FILE_NAME_BUF_SIZE];
 
-					result = read_dentry_by_index(readByIndex, &entry); // Read directory entry
+					// read dentry 
+					result = read_dentry_by_index(readByIndex, &entry);
 
+					// if result is error value
 					if(result != SUCCESS)
 					{
 						printf_t("Failure to read directory entry %d, abort.\n", readByIndex);
 						break;
 					}
 
+					// get length_in_bytes of file
 					length_in_bytes = get_file_length(&entry);
 
+					// if error then break
 					if(length_in_bytes == FAILURE)
 					{
 						printf_t("Failure to get length of %d, abort.\n", readByIndex);
 						break;
 					}
 
-					uint8_t mybuf[MEMORY_BLOCK]; // buffer, read 4k at a time
+					// printing file local vars
+					uint8_t mybuf[MEMORY_BLOCK]; 
                     int32_t bytes_read;
                     uint32_t offset = 0;
 
-                                        // Read data from the file
+					// read data 4K at a time into local buffer and output while file is not empty
 					while((bytes_read = read_data(entry.inode, offset, mybuf, sizeof(mybuf))) != 0) {
                         write_terminal(STDOUT, mybuf, bytes_read, 1);
                         offset += bytes_read;
                     }
-
-
 					printf_t("%c", NEW_LINE);
+
+					// copy copy file name into local buffer and output to screen
 					strncpy(fn, (int8_t*) entry.filename, FILE_NAME_SIZE);
 					fn[FILE_NAME_SIZE] = NULL_CHAR;
 					printf_t("Filename: %s, index %d\n", fn, readByIndex);
 
+					// set last_read_file index so that we don't read same file twice
 					last_read_file = readByIndex;
 				}
-
+				// initialize all test flags
                 can_print_by_name = 1;
                 can_ls = 1;
 				break;
-			case (TEST_FOUR):
+			case (TEST_FOUR):					// RTC test
+
 				// rtcTestNumber 0-15
 				if(rtcTest != last_rtc_test) {
 					write_rtc(rtcTest);
 					last_rtc_test = rtcTest;
 				}
 
-                first_rtc_disable = 1;
-                can_print_by_name = 1;
-                can_ls = 1;
-                readByIndex = -1;
+                first_rtc_disable = 1;			// allow interrupts to disable RTC
+                can_print_by_name = 1;			// allow printing file by name
+                can_ls = 1;						// allow performing ls
+                readByIndex = -1;				// allow read by index
 				break;
-			case (TEST_FIVE):
+			case (TEST_FIVE):					// stop rtc test
+				// initialize all test flags
                 can_print_by_name = 1;
                 can_ls = 1;
                 readByIndex = -1;

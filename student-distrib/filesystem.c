@@ -72,8 +72,8 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry)
 int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
 {
 	if(index >= bootblock->direntries)
-		return FAILURE; 
-	
+		return FAILURE;
+
 	memcpy((void*) dentry, (const void*) &bootblock->files[index], sizeof(dentry_t));
 	return SUCCESS;
 }
