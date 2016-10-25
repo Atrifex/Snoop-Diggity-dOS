@@ -150,7 +150,7 @@ int open_rtc()
 }
 
 /*
-# int open_rtc()
+# int close_rtc()
 # DESCRIPTION: Closes the RTC
 # INPUTS   : fd (RTC file descriptor)
 # OUTPUTS  : none

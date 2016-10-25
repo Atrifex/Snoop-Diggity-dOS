@@ -370,7 +370,7 @@ void init_scancode_table()
 
     // for "	"
     scancode_table[0x0F].result = 9;
-    scancode_table[0x0F].flags = SCANCODE_MAKE | SCANCODE_PRINTABLE;
+    scancode_table[0x0F].flags = SCANCODE_MAKE;
 
     // for "q"
     scancode_table[0x10].result = 113;

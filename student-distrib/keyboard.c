@@ -50,6 +50,7 @@ uint8_t get_char()
 
     // get second byte of multi-byte sequences
     if(data == MB_SEQ_INIT) {
+        io_wait();
         data = inb(KEYBOARD_DATA_PORT);
     }
 
@@ -192,72 +193,18 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
 
 
 /*
- * process_sent_scancode
- * DESCRIPTION: returns an unsigned long containing characters to display in the two most significant bits
- *                              in the 3 least significant bits returns the (potentially) updated keyboard_state
- *                              1xx control is on, x1x capslock is on, xx1 shift is on
+ * run_cp_tests
+ * DESCRIPTION: executes the tests for cp2
  * INPUT: keyboard_state indicating current keyboard_state of shift, capslock, and control
  * OUTPUTS: none.
  * RETURN VALUE: none.
  * SIDE EFFECTS: Initializes the keyboard
 */
-unsigned long process_sent_scancode()
+uint8_t run_cp_tests(scancode_t mapped)
 {
-    scancode_t mapped;
-
-    // get scancode
-    uint8_t raw_scancode = get_char();
-
-    // see if we need to update keyboard_state
-    switch(raw_scancode) {
-        case (BACKSPACE_PRESS):
-            TURN_BACKSPACE_ON(keyboard_state);
-            break;
-        case (BACKSPACE_RELEASE):
-            TURN_BACKSPACE_OFF(keyboard_state);
-            break;
-        case (CAPS_LOCK_PRESS):
-            TOGGLE_CAPS_LOCK(keyboard_state);
-            break;
-        case (CAPS_LOCK_RELEASE):
-            //don't care about this
-            break;
-        case (SHIFT_PRESS):
-            TURN_SHIFT_ON(keyboard_state);
-            break;
-        case (SHIFT_RELEASE):
-            TURN_SHIFT_OFF(keyboard_state);
-            break;
-        case (CONTROL_PRESS):
-            TURN_CONTROL_ON(keyboard_state);
-            break;
-        case (CONTROL_RELEASE):
-            TURN_CONTROL_OFF(keyboard_state);
-            break;
-    }
-
-    // get mapped value of scancode
-    mapped = scancode_table[raw_scancode];
-
-    // if not a make scancode then return
-    if(!IS_MAKE_SC(mapped)) {
-        return keyboard_state;
-    }
-
-    // check if control is pressed
-    if(CONTROL_ON(keyboard_state)) {
-
-        // ctrl + l is pressed then clear screen
-        if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
-            clear_and_reset();
-            set_cursor_location(0,0);
-            printf_t("%s",stdin);           // print current buffered value
-            return keyboard_state;
-        }
-
-        // Run checkpoint 2 test checks
+            // Run checkpoint 2 test checks
         switch(mapped.result) {
-          	case (ASCII_ZERO):              // normal use mode
+            case (ASCII_ZERO):              // normal use mode
                 // clear the value of stdin buffer and associated attributes
                 memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
                 stdin_index = 0;
@@ -273,7 +220,7 @@ unsigned long process_sent_scancode()
                 rtcTestNumber = 0;
                 rtcTest = 1;
                 return keyboard_state;
-			case (ASCII_ONE):                // ls test
+            case (ASCII_ONE):                // ls test
                 // clear flag for special handling in kernel.c
                 interrupt_seen = 0;
 
@@ -289,7 +236,7 @@ unsigned long process_sent_scancode()
                 rtcTestNumber = 0;
                 rtcTest = 1;
                 return keyboard_state;
-			case (ASCII_TWO):                // read file by name test
+            case (ASCII_TWO):                // read file by name test
                 // clear flag for special handling in kernel.c
                 interrupt_seen = 0;
 
@@ -305,7 +252,7 @@ unsigned long process_sent_scancode()
                 rtcTestNumber = 0;
                 rtcTest = 1;
                 return keyboard_state;
-			case (ASCII_THREE):              // read file by index test
+            case (ASCII_THREE):              // read file by index test
                 // set interrupt seen flag and prep screen
                 interrupt_seen = 1;
                 clear_and_reset();
@@ -328,7 +275,7 @@ unsigned long process_sent_scancode()
                 rtcTestNumber = 0;
                 rtcTest = 1;
                 return keyboard_state;
-			case (ASCII_FOUR):               // RTC test
+            case (ASCII_FOUR):               // RTC test
                 // set interrupt seen flag and prep screen
                 interrupt_seen = 1;
                 clear_and_reset();
@@ -348,7 +295,7 @@ unsigned long process_sent_scancode()
                     rtcTestNumber++;
                 rtcTest = rtcTestArray[rtcTestNumber];
                 return keyboard_state;
-			case (ASCII_FIVE):               // Stop RTC
+            case (ASCII_FIVE):               // Stop RTC
                 // set interrupt seen flag and prep screen
                 interrupt_seen = 1;
                 clear_and_reset();
@@ -367,7 +314,84 @@ unsigned long process_sent_scancode()
                 return keyboard_state;
             default:                        // do nothing for all other conbinations
                 return keyboard_state;
-		}
+        }
+}
+
+
+
+
+/*
+ * process_sent_scancode
+ * DESCRIPTION: returns an unsigned long containing characters to display in the two most significant bits
+ *                              in the 3 least significant bits returns the (potentially) updated keyboard_state
+ *                              1xx control is on, x1x capslock is on, xx1 shift is on
+ * INPUT: keyboard_state indicating current keyboard_state of shift, capslock, and control
+ * OUTPUTS: none.
+ * RETURN VALUE: none.
+ * SIDE EFFECTS: Initializes the keyboard
+*/
+unsigned long process_sent_scancode()
+{
+    scancode_t mapped;
+
+    // get scancode
+    uint8_t raw_scancode = get_char();
+
+    if(raw_scancode == DELETE_SCAN_CODE)
+        return keyboard_state;
+
+    // see if we need to update keyboard_state
+    switch(raw_scancode) {
+        case (BACKSPACE_PRESS):
+            TURN_BACKSPACE_ON(keyboard_state);
+            break;
+        case (BACKSPACE_RELEASE):
+            TURN_BACKSPACE_OFF(keyboard_state);
+            break;
+        case (CAPS_LOCK_PRESS):
+            TOGGLE_CAPS_LOCK(keyboard_state);
+            break;
+        case (CAPS_LOCK_RELEASE):
+            //don't care about this
+            break;
+        case (SHIFT_PRESS):
+            TURN_SHIFT_ON(keyboard_state);
+            break;
+        case (SHIFT_RELEASE):
+            TURN_SHIFT_OFF(keyboard_state);
+            break;
+        case (R_SHIFT_PRESS):
+            TURN_R_SHIFT_ON(keyboard_state);
+            break;
+        case (R_SHIFT_RELEASE):
+            TURN_R_SHIFT_OFF(keyboard_state);
+            break;
+        case (CONTROL_PRESS):
+            TURN_CONTROL_ON(keyboard_state);
+            break;
+        case (CONTROL_RELEASE):
+            TURN_CONTROL_OFF(keyboard_state);
+            break;
+    }
+
+    // get mapped value of scancode
+    mapped = scancode_table[raw_scancode];
+
+    // if not a make scancode then return
+    if(!IS_MAKE_SC(mapped)) {
+        return keyboard_state;
+    }
+
+    // check if control is pressed
+    if(CONTROL_ON(keyboard_state)) {
+        // ctrl + l is pressed then clear screen
+        if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
+            clear_and_reset();
+            set_cursor_location(0,0);
+            printf_t("%s",stdin);           // print current buffered value
+            return keyboard_state;
+        }
+        return run_cp_tests(mapped);
 	} else if(testVal != TEST_ZERO){
         // don't allow typing unless in test_0
         return keyboard_state;
@@ -403,7 +427,7 @@ unsigned long process_sent_scancode()
     }
 
     //if caps lock is on and shift is not then
-    if(CAPS_LOCK_ON(keyboard_state) && !SHIFT_ON(keyboard_state)) {
+    if(CAPS_LOCK_ON(keyboard_state) && !SHIFT_ON(keyboard_state) && !R_SHIFT_ON(keyboard_state)) {
         if(IS_LETTER_SC(mapped)) {
             // if letter, then print capital version
             putc_kbd(mapped.result - ASCII_SHIFT_VAL);
@@ -417,7 +441,7 @@ unsigned long process_sent_scancode()
             if(stdin[stdin_index] != BKSP_CHAR)
                 stdin[stdin_index] = NULL_CHAR;
         }
-    } else if(SHIFT_ON(keyboard_state)) {
+    } else if(SHIFT_ON(keyboard_state) || R_SHIFT_ON(keyboard_state)) {
         if(IS_LETTER_SC(mapped) && !CAPS_LOCK_ON(keyboard_state)) {
             // if shift and caps is not on, then print the capital version of the letter
             putc_kbd(mapped.result - ASCII_SHIFT_VAL);

@@ -15,19 +15,25 @@
 #define CAPS_LOCK_MASK 0x4
 #define BACKSPACE_MASK 0x8
 #define ENTER_MASK 0x10
+#define R_SHIFT_MASK 0x20
 
 // keyboad buffer attributes
 #define KEYBOARD_BUFF_SIZE 128
-
 #define NULL_NL_PADDING 2
+
+// delete
+#define DELETE_SCAN_CODE 0x53
+
 // update state macros
 #define TURN_SHIFT_ON(state) (state = state | SHIFT_MASK)
+#define TURN_R_SHIFT_ON(state) (state = state | R_SHIFT_MASK)
 #define TURN_CONTROL_ON(state) (state = state | CONTROL_MASK)
 #define TURN_BACKSPACE_ON(state) (state = state | BACKSPACE_MASK)
 #define TURN_ENTER_ON(state) (state = state | ENTER_MASK)
 #define TOGGLE_CAPS_LOCK(state) (state = state ^ CAPS_LOCK_MASK)
 
 #define TURN_SHIFT_OFF(state) (state = state & ~SHIFT_MASK)
+#define TURN_R_SHIFT_OFF(state) (state = state & ~R_SHIFT_MASK)
 #define TURN_CONTROL_OFF(state) (state = state & ~CONTROL_MASK)
 #define TURN_BACKSPACE_OFF(state) (state = state & ~BACKSPACE_MASK)
 #define TURN_ENTER_OFF(state) (state = state & ~ENTER_MASK)
@@ -38,6 +44,7 @@
 #define BACKSPACE_ON(state) (state & BACKSPACE_MASK)
 #define ENTER_ON(state) (state & ENTER_MASK)
 #define SHIFT_ON(state) (state & SHIFT_MASK)
+#define R_SHIFT_ON(state) (state & R_SHIFT_MASK)
 
 // initializer for a multibyte scancode sequence
 #define MB_SEQ_INIT 0xE0
@@ -65,6 +72,9 @@
 
 #define SHIFT_PRESS 0x2A
 #define SHIFT_RELEASE 0xAA
+
+#define R_SHIFT_PRESS 0x36
+#define R_SHIFT_RELEASE 0xB6
 
 #define CAPS_LOCK_PRESS 0x3A
 #define CAPS_LOCK_RELEASE 0xBA

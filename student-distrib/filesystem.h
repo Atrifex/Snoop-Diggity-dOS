@@ -6,6 +6,8 @@
 // size of filenames in bytes
 #define FILE_NAME_SIZE 32
 
+#define THREE_BYTES 3
+
 // and buffers need one more char since filenames might not be null-terminated (verylarge.......tx)
 #define FILE_NAME_BUF_SIZE FILE_NAME_SIZE + 1
 
@@ -75,5 +77,15 @@ extern dentry_t * get_dir_entries_array(int * entry_count);
 
 // Returns the length of a file in bytes
 extern int32_t get_file_length(dentry_t * entry);
+
+extern int32_t read_file(int32_t fd, const void* buf, int32_t nbytes);
+
+extern int32_t read_directory(int32_t fd, const void* buf, int32_t nbytes);
+
+extern int32_t write_file(int32_t fd, const void* buf, int32_t nbytes);
+
+extern int32_t close_file(int32_t fd);
+
+extern int32_t open_file (const uint8_t* filename);
 
 #endif /* ifndef FILESYSTEM_H */

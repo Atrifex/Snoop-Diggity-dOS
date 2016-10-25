@@ -1,5 +1,6 @@
 #include "filesystem.h"
 #include "lib.h"
+#include "rtc.h"
 
 // pointer to boot block, first inode (inode array), and first data block
 boot_block_t * bootblock;
@@ -24,6 +25,87 @@ void init_filesystem(uint32_t start_addr, uint32_t size)
 
     // first data block will be start_addr + memory_block + (block_size*number of inodes)
     datablocks = (data_block_t *) ( start_addr + FS_BLOCK_LENGTH + FS_BLOCK_LENGTH * bootblock->inodes);
+}
+
+/*
+ * void open_file
+ * DESCRIPTION: Opens a file in our filesystem
+ * INPUTS   : filename (name of the while we're opening)
+ * OUTPUTS  : none
+ * RETURN VALUE: none
+ * SIDE EFFECTS: Sets up file descriptor, structure for the file
+ */
+int32_t open_file (const uint8_t* filename)
+{
+    dentry_t file_entry;
+    int result = read_dentry_by_name(filename, &file_entry); // Get directory entry by filename
+
+    if(result == FAILURE) // Return -1 for invalid filename
+        return FAILURE;
+
+    const int8_t* rtc_filename = "rtc";
+
+    // If this is the rtc file, call its specific "open"
+    if(strncmp((const int8_t*)filename, rtc_filename, THREE_BYTES))
+        open_rtc();
+
+    // TODO: CP3. Allocate file descriptor
+
+    return SUCCESS;
+}
+
+/*
+# int32_t close_file()
+# DESCRIPTION: Closes a file
+# INPUTS   : fd (file descriptor)
+# OUTPUTS  : none
+# RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
+# SIDE EFFECTS: Deletes data necessary to handle the file, makes it available to open
+*/
+int32_t close_file(int32_t fd)
+{
+    // TODO: For CP3, deallocate the file descriptor
+
+    return 0;
+}
+
+/*
+# int32_t write_file()
+# DESCRIPTION: Write to file... or not
+# INPUTS   : Ignored
+# OUTPUTS  : none
+# RETURN VALUE: Returns 0
+# SIDE EFFECTS: none
+*/
+int32_t write_file(int32_t fd, const void* buf, int32_t nbytes)
+{
+    return 0; // Read-only filesystem
+}
+
+/*
+# int32_t read_file()
+# DESCRIPTION: Read file
+# INPUTS   : Ignored
+# OUTPUTS  : none
+# RETURN VALUE: Returns 0
+# SIDE EFFECTS: none
+*/
+int32_t read_file(int32_t fd, const void* buf, int32_t nbytes)
+{
+    return 0; // We don't have file descriptors yet
+}
+
+/*
+# int32_t read_file()
+# DESCRIPTION: Read directory
+# INPUTS   : Ignored
+# OUTPUTS  : none
+# RETURN VALUE: Returns 0
+# SIDE EFFECTS: none
+*/
+int32_t read_directory(int32_t fd, const void* buf, int32_t nbytes)
+{
+    return 0; // We don't have file descriptors yet
 }
 
 /*
