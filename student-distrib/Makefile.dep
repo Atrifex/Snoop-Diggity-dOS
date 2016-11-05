@@ -20,4 +20,3 @@ ps2.o: devices/ps2.c devices/ps2.h lib.h types.h
 rtc.o: devices/rtc.c devices/rtc.h types.h lib.h types.h devices/i8259.h
 scancodes.o: devices/scancodes.c devices/scancodes.h types.h lib.h \
   types.h
-test.o: devices/test.c lib.h types.h

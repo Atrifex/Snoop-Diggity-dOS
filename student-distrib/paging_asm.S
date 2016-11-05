@@ -49,3 +49,22 @@ paging_hw_enable:
 
 	leave
 	ret
+
+# set_new_page_directory(pde_t* base)
+# DESCRIPTION: places pointer to PDE table into CR3
+# INPUTS: pde_t* base
+# OUTPUTS: none
+# RETURN VALUE: none
+# REGISTER USAGE: uses %eax, modifies %cr3
+# SIDE EFFECTS: changes currently active page directory
+set_new_page_directory:
+	# set up stack
+	pushl %ebp
+	movl %esp, %ebp
+
+	# move the page directory address into cr3
+	movl ARGUMENT_ONE(%ebp), %eax
+	movl %eax, %cr3
+
+	leave
+	ret
