@@ -1,8 +1,8 @@
 #include "interrupt_handler.h"
 #include "lib.h"
-#include "devices/rtc.h"
-#include "devices/i8259.h"
-#include "devices/keyboard.h"
+#include "rtc.h"
+#include "i8259.h"
+#include "keyboard.h"
 
 /*
  * void ignore_int_sub()
@@ -490,20 +490,4 @@ void IRQ14_handler_sub()
 void IRQ15_handler_sub()
 {
 	printf("IRQ: Ide1 (hard drive)\n");
-}
-
-/* System call */
-/*
- * void system_call_handler_sub()
- * DESCRIPTION: system call handler, we will not call this function ever.
- * 				We will need to use a purly asembly function to be a dispatcher.
- *				This function is just a placeholder for now.
- * INPUTS   : inputs are through %eax and %ecx
- * OUTPUTS  : none
- * RETURN VALUE: none
- * SIDE EFFECTS: Displays system message.
-*/
-void system_call_handler_sub()
-{
-	printf("System Call initiated by User\n");
 }

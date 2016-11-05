@@ -56,7 +56,4 @@ extern void IRQ13_handler_sub();
 extern void IRQ14_handler_sub();
 extern void IRQ15_handler_sub();
 
-/* System Call */
-extern void system_call_handler_sub();
-
 #endif

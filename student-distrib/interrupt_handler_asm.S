@@ -9,6 +9,7 @@
 // .globl system_call_handler
 // .globl ignore_int
 
+#include "syscalls.h"
 
 # the jump table that contains pointers to all of the functions
 .globl idt_jmp_table
@@ -23,7 +24,7 @@ idt_jmp_table:
 	.long IRQ0_handler, IRQ1_handler, ignore_int, IRQ3_handler, IRQ4_handler, IRQ5_handler
 	.long IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
 	.long IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler
-	.long system_call_handler
+	.long system_call_handler 
 
 .text
 
@@ -828,24 +829,23 @@ IRQ15_handler:
 	iret
 
 # void system_call_handler()
-# DESCRIPTION: wrapper to system_call_handler_sub. Allows for IRET to be used
-# INPUTS   : through the use of registers eax and ecx
+# DESCRIPTION: wrapper for our system call handlers. Allows for IRET to be used
+# INPUTS   : EAX: call number. EBX, ECX, EDX: arguments.
 # OUTPUTS  : none
-# RETURN VALUE: none
-# REGISTER USAGE: we save caller save registers and the callee are saved by functoin call
+# RETURN VALUE: --1 on failure. Others indicate success (meaning varies by call)
+# REGISTER USAGE: Need to save caller save registers (except EAX as it stores return value).
+# The callee are saved by eventual call to a C function
 system_call_handler:
 	# save caller registers
-	pushl %eax
 	pushl %ecx
 	pushl %edx
 
-	# Call subroutine to print
-	call system_call_handler_sub
+	# Call the appropriate syscall assembly wrapper based on the syscall number
+	call *syscall_jmp_table(, %eax, 4) # EAX stores the call number
 
 	# Restore caller save registers
 	popl %edx
 	popl %ecx
-	popl %eax
 
 	# Return from interrupt
 	iret
