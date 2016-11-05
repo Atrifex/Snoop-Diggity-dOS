@@ -48,6 +48,6 @@ extern void init_paging();
 
 /* written in paging_asm.S */
 extern void paging_hw_enable(pde_t* base);
-extern void set_new_page_direcotry(pde_t* base);
+extern void set_new_page_directory(pde_t* base);
 
 #endif
