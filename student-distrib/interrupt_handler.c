@@ -1,8 +1,8 @@
 #include "interrupt_handler.h"
 #include "lib.h"
-#include "rtc.h"
-#include "i8259.h"
-#include "keyboard.h"
+#include "devices/rtc.h"
+#include "devices/i8259.h"
+#include "devices/keyboard.h"
 
 /*
  * void ignore_int_sub()

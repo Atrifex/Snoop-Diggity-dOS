@@ -1,6 +1,6 @@
 #include "filesystem.h"
 #include "lib.h"
-#include "rtc.h"
+#include "devices/rtc.h"
 
 // pointer to boot block, first inode (inode array), and first data block
 boot_block_t * bootblock;

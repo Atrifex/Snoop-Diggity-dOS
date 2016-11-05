@@ -5,11 +5,11 @@
 #include "multiboot.h"
 #include "x86_desc.h"
 #include "lib.h"
-#include "i8259.h"
+#include "devices/i8259.h"
 #include "debug.h"
-#include "rtc.h"
+#include "devices/rtc.h"
 #include "paging.h"
-#include "keyboard.h"
+#include "devices/keyboard.h"
 #include "filesystem.h"
 
 extern unsigned long* idt_jmp_table;
