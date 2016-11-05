@@ -158,11 +158,11 @@ int32_t
 put_t(uint8_t* s, uint32_t size, int32_t flag)
 {
     // vars used during execution of function
-	int last_real_char_index = -FC_OFFSET;
+    int last_real_char_index = -FC_OFFSET;
     register int32_t index = 0;
     unsigned long flags;
-	int yval;
-	int final_wrap_offset;
+    int yval;
+    int final_wrap_offset;
 
     // start critical section
     cli_and_save(flags);
@@ -178,7 +178,7 @@ put_t(uint8_t* s, uint32_t size, int32_t flag)
             // handle newline
             screen_x = 0;
             screen_y++;
-			start_x = 0;
+            start_x = 0;
             start_y++;
             // handle previously wrapped text
             if(wrapped_lines > 0) {
@@ -209,7 +209,7 @@ put_t(uint8_t* s, uint32_t size, int32_t flag)
     }
 
 
-	final_wrap_offset = ((FC_OFFSET + last_real_char_index + start_x) / NUM_COLS);
+    final_wrap_offset = ((FC_OFFSET + last_real_char_index + start_x) / NUM_COLS);
 
     // calculate the final_wrap_offset as a max of the two given values
     final_wrap_offset = (final_wrap_offset > wrapped_lines)? final_wrap_offset : wrapped_lines;
@@ -221,19 +221,19 @@ put_t(uint8_t* s, uint32_t size, int32_t flag)
     }
 
     // based on flag select one of the two methods of deciding the cursor location
-	if(flag == 0)
-	{
+    if(flag == 0)
+    {
         set_cursor_location(((start_x + FC_OFFSET + last_real_char_index ) % NUM_COLS), yval);
-		screen_x = start_x;
+        screen_x = start_x;
 		screen_y = start_y;
-	}
+    }
     else
     {
         // set cursor directly to current screen_x and current screen_y
         set_cursor_location(screen_x, screen_y);
     }
     restore_flags(flags);
-	return index;
+    return index;
 }
 
 /*
