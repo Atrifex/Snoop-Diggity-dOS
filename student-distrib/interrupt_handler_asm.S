@@ -9,8 +9,6 @@
 // .globl system_call_handler
 // .globl ignore_int
 
-#include "syscalls.h"
-
 # the jump table that contains pointers to all of the functions
 .globl idt_jmp_table
 idt_jmp_table:

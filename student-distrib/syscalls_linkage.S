@@ -1,4 +1,3 @@
-#include "syscalls.h"
 
 .data
 
@@ -30,9 +29,10 @@ halt_wrap:
 	# No need to save caller-save registers as this is done in system_call_handler
 	# Callee-save registers are handled via calling the C function
 
-	pushb %bl # Argument to the halt system call
+	andl $0x000000FF, %ebx
+	pushl %ebx # Argument to the halt system call
 	call halt
-	addl $1, %esp
+	addl $POP_ONE_ARG, %esp
 
 	# Jump to EXECUTE
 

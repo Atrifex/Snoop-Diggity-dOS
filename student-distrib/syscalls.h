@@ -7,7 +7,7 @@
 #include "keyboard.h"
 
 // System calls for our OS
-// Use fastcall attribute to pass arguments via registers (useful b/c assembly linkage)
+// Use asmlinkage to ensure arguments are passed via the stack (useful b/c assembly linkage)
 extern asmlinkage int32_t halt(uint8_t status);
 extern asmlinkage int32_t execute(const uint8_t* command);
 extern asmlinkage int32_t read(int32_t fd, void* buf, int32_t num_bytes);

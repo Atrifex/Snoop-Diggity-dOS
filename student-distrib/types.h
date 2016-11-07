@@ -18,6 +18,8 @@
 #define CARRIAGE_RETURN '\r' // mac os 7 compat
 #define BKSP_CHAR 8
 
+ #define asmlinkage __attribute__((regparm(0)))
+
 /* Types defined here just like in <stdint.h> */
 typedef int int32_t;
 typedef unsigned int uint32_t;
