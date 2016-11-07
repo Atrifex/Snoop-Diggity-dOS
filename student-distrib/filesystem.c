@@ -7,6 +7,8 @@ boot_block_t * bootblock;
 inode_t * inodes;
 data_block_t * datablocks;
 
+static int32_t ls_count = 0; // Index of the filename to be read when we read from the directory
+
 /*
  * void init_filesystem
  * DESCRIPTION: Initializes our kernel's structure for the filesystem
@@ -90,39 +92,47 @@ int32_t write_file(int32_t fd, const void* buf, int32_t nbytes)
 # RETURN VALUE: Returns 0
 # SIDE EFFECTS: none
 */
-int32_t read_file(int32_t fd, const void* buf, int32_t nbytes)
+int32_t read_file(int32_t fd, void* buf, int32_t nbytes)
 {
+    // Check if file descriptor matches '.' directory
+    // If so...
+
+
+    // Else, call read_data
+
     return 0; // We don't have file descriptors yet
 }
 
 /*
-# int32_t read_file()
-# DESCRIPTION: Read directory
-# INPUTS   : Ignored
+# int32_t read_directory()
+# DESCRIPTION: Read a filename from the directory
+# INPUTS   : buf: buffer into which to read a filename
 # OUTPUTS  : none
 # RETURN VALUE: Returns 0
 # SIDE EFFECTS: none
 */
-int32_t read_directory(int32_t fd, const void* buf, int32_t nbytes)
+int32_t read_directory(int32_t fd, void* buf, int32_t nbytes)
 {
-    return 0; // We don't have file descriptors yet
-}
+    int entry_count;
+    dentry_t* entries;
 
-/*
- * dentry_t* get_dir_entries_array()
- * DESCRIPTION: Gets directory entries
- * INPUTS   :  none
- * OUTPUTS  : entry_count - directory count
- * RETURN VALUE: pointer to first entry of dir entries array
- * SIDE EFFECTS: N/A
- */
-dentry_t * get_dir_entries_array(int * entry_count)
-{
-    // pass the entry count to the caller
-    *entry_count = bootblock->direntries;
+    entry_count = bootblock->direntries;
+    entries = bootblock->files;
 
-    // then just return the array
-    return bootblock->files;
+    if(ls_count >= entry_count)
+    {
+        ls_count = 0; // So subsequent ls calls work
+        return 0; // No bytes read (we read all directory entries already)
+    }
+        
+    strncpy((int8_t*)buf, (int8_t*) entries[ls_count].filename, nbytes); // Copy filename (or at least, the number of bytes specified)
+
+    ls_count++; // We just read one more file
+
+    if(((int8_t*)buf)[31] != '\0')
+        return 32; // Return the number of bytes read
+
+    return strlen((int8_t*)buf);
 }
 
 /*
