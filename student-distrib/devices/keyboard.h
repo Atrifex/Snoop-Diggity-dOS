@@ -85,48 +85,6 @@
 #define ENTER_PRESS 0x1C
 #define ENTER_RELEASE 0x9C
 
-// checkpoint 2
-extern int rtcTest;
-extern int readByIndex;
-extern volatile int testVal;
-extern int first_rtc_disable;
-extern int can_print_by_name;
-extern int can_ls;
-extern int interrupt_seen;
-#define TEST_ZERO   0              // normal mode
-#define TEST_ONE    1              // ls emulation
-#define TEST_TWO    2              // read file by name
-#define TEST_THREE  3              // read file by index
-#define TEST_FOUR   4              // RTC Test
-#define TEST_FIVE   5              // Stop RTC
-
-#define ASCII_ZERO  48
-#define ASCII_ONE   49
-#define ASCII_TWO   50
-#define ASCII_THREE 51
-#define ASCII_FOUR  52
-#define ASCII_FIVE  53
-#define RTC_MODES   16
-
-
-#define RTC_TEST_0 1
-#define RTC_TEST_1 2
-#define RTC_TEST_2 4
-#define RTC_TEST_3 8
-#define RTC_TEST_4 16
-#define RTC_TEST_5 32
-#define RTC_TEST_6 64
-#define RTC_TEST_7 128
-#define RTC_TEST_8 256
-#define RTC_TEST_9 512
-#define RTC_TEST_10 1024
-#define RTC_TEST_11 2048
-#define RTC_TEST_12 4096
-#define RTC_TEST_13 8192
-#define RTC_TEST_14 16384
-#define RTC_TEST_15 32768
-
-
 // attribute related defines
 #define ASCII_SIX  54
 #define MAX_ATTRIB 0x0F

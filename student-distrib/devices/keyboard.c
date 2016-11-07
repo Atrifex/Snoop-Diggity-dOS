@@ -4,34 +4,20 @@
 #include "types.h"
 #include "filesystem.h"
 
-// checkpoint 2 and future mixed ---> will need to parse through
-#define RTC_LINE_NO 8
-
-volatile int testVal;
-int rtcTest = 0;
-int rtcTestNumber = 0;
-int readByIndex = 0;
-int first_rtc_disable = 1;
-int can_print_by_name;
-int can_ls;
-int interrupt_seen;
+// specifies the color on the screen
 int curr_attribute = ATTRIB;
 
-// RTC powers of two
-const int rtcTestArray[RTC_MODES] = {RTC_TEST_0, RTC_TEST_1, RTC_TEST_2, RTC_TEST_3, RTC_TEST_4, RTC_TEST_5, RTC_TEST_6, RTC_TEST_7, RTC_TEST_8, RTC_TEST_9, RTC_TEST_10, RTC_TEST_11, RTC_TEST_12, RTC_TEST_13, RTC_TEST_14, RTC_TEST_15};
-
+// variables associated with reading
 volatile int allowed_to_read = 0;          // allows read to stop blocking
 volatile int read_waiting = 0;
 
-// bit 0 = shift
-// bit 1 = control
-// bit 2 = caps lock
+// holds state of "command" keys
 uint8_t keyboard_state = 0;
 
+// Stdin and index
 uint8_t stdin[KEYBOARD_BUFF_SIZE];       // number of chars in a row is 80 ---> why do we want 128 then?
 int stdin_index;                     // points to current free spot in stdin
 
-uint8_t isOpen = 0;
 
 //TODO: make seperate drivers for keybord and terminal
 
@@ -74,9 +60,6 @@ void init_kbd()
     stdin_index = 0;
     memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
 
-    // checkpoint 2 test
-    testVal = TEST_ZERO;
-
     //TODO: try to change the mode of the keyboard
 
     // enable the interrupt on the PIC
@@ -85,7 +68,7 @@ void init_kbd()
 
 /*
  * open_terminal
- * DESCRIPTION: opens file to acces the stdin from kbd
+ * DESCRIPTION: always open
  * INPUT:       const uint8_t * pathname - path to file being opened
  * OUTPUTS:  file descriptor
  * RETURN VALUE: int fd - unsigned number if success, -1 if unable to open file
@@ -93,14 +76,12 @@ void init_kbd()
 */
 int32_t open_terminal(const uint8_t *pathname)
 {
-    // declare file to be open
-    isOpen = 1;
     return 0;
 }
 
 /*
  * close_terminal
- * DESCRIPTION: close file access to the stdout to the terminal
+ * DESCRIPTION: always open
  * INPUT:   int32_t fd - file descriptor to the file being closed
  * OUTPUTS: error state
  * RETURN VALUE: int error - 0 if success and -1 if error
@@ -108,8 +89,6 @@ int32_t open_terminal(const uint8_t *pathname)
 */
 int32_t close_terminal(int32_t fd)
 {
-    // declare file to be closed
-    isOpen = 0;
     return 0;
 }
 
@@ -193,134 +172,6 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
 
 
 /*
- * run_cp_tests
- * DESCRIPTION: executes the tests for cp2
- * INPUT: keyboard_state indicating current keyboard_state of shift, capslock, and control
- * OUTPUTS: none.
- * RETURN VALUE: none.
- * SIDE EFFECTS: Initializes the keyboard
-*/
-uint8_t run_cp_tests(scancode_t mapped)
-{
-            // Run checkpoint 2 test checks
-        switch(mapped.result) {
-            case (ASCII_ZERO):              // normal use mode
-                // clear the value of stdin buffer and associated attributes
-                memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-                stdin_index = 0;
-                allowed_to_read = 0;
-
-                // set interrupt seen flag and prep screen
-                interrupt_seen = 1;
-                clear_and_reset();
-                set_cursor_location(0,0);
-
-                // set test val to current test and reset RTC test vals
-                testVal = TEST_ZERO;
-                rtcTestNumber = 0;
-                rtcTest = 1;
-                return keyboard_state;
-            case (ASCII_ONE):                // ls test
-                // clear flag for special handling in kernel.c
-                interrupt_seen = 0;
-
-                // prevention from clearing screen once you have already lsed
-                if(can_ls)
-                {
-                    clear_and_reset();
-                    set_cursor_location(0,0);
-                }
-
-                // set test val to current test and reset RTC test vals
-                testVal = TEST_ONE;
-                rtcTestNumber = 0;
-                rtcTest = 1;
-                return keyboard_state;
-            case (ASCII_TWO):                // read file by name test
-                // clear flag for special handling in kernel.c
-                interrupt_seen = 0;
-
-                // prevention from clearing screen once you have already printed by name
-                if(can_print_by_name)
-                {
-                    clear_and_reset();
-                    set_cursor_location(0,0);
-                }
-
-                // set test val to current test and reset RTC test vals
-                testVal = TEST_TWO;
-                rtcTestNumber = 0;
-                rtcTest = 1;
-                return keyboard_state;
-            case (ASCII_THREE):              // read file by index test
-                // set interrupt seen flag and prep screen
-                interrupt_seen = 1;
-                clear_and_reset();
-                set_cursor_location(0,0);
-
-                // get number of files
-                int num_files;
-                get_dir_entries_array(&num_files);
-
-                // increment read index
-                readByIndex++;
-
-                // if index is greater than num_files, then set readByIndex to 0
-                if(readByIndex >= num_files) {
-                    readByIndex = 0;
-                }
-
-                // set test val to current test and reset RTC test vals
-                testVal = TEST_THREE;
-                rtcTestNumber = 0;
-                rtcTest = 1;
-                return keyboard_state;
-            case (ASCII_FOUR):               // RTC test
-                // set interrupt seen flag and prep screen
-                interrupt_seen = 1;
-                clear_and_reset();
-                set_cursor_location(0,0);
-
-                // enable rtc and allow disabling of it
-                enable_irq(RTC_LINE_NO);
-                first_rtc_disable = 1;
-
-                // set test valu to current test
-                testVal = TEST_FOUR;
-
-                // increament test number and if greater then RTC modes, then reset
-                if(rtcTestNumber >= RTC_MODES)
-                    rtcTestNumber = 0;
-                else
-                    rtcTestNumber++;
-                rtcTest = rtcTestArray[rtcTestNumber];
-                return keyboard_state;
-            case (ASCII_FIVE):               // Stop RTC
-                // set interrupt seen flag and prep screen
-                interrupt_seen = 1;
-                clear_and_reset();
-                set_cursor_location(0,0);
-
-                // set test val to current test and reset RTC test vals
-                testVal = TEST_FIVE;
-                rtcTestNumber = 0;
-                rtcTest = 1;
-                return keyboard_state;
-            case (ASCII_SIX):
-                curr_attribute++;
-                if(curr_attribute > MAX_ATTRIB)
-                    curr_attribute = MIN_ATTRIB;
-                change_atribute(curr_attribute);
-                return keyboard_state;
-            default:                        // do nothing for all other conbinations
-                return keyboard_state;
-        }
-}
-
-
-
-
-/*
  * process_sent_scancode
  * DESCRIPTION: returns an unsigned long containing characters to display in the two most significant bits
  *                              in the 3 least significant bits returns the (potentially) updated keyboard_state
@@ -384,18 +235,20 @@ unsigned long process_sent_scancode()
 
     // check if control is pressed
     if(CONTROL_ON(keyboard_state)) {
-        // ctrl + l is pressed then clear screen
         if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
+            // ctrl + l is pressed then clear screen
             clear_and_reset();
             set_cursor_location(0,0);
             printf_t("%s",stdin);           // print current buffered value
-            return keyboard_state;
+        } else if(mapped.result == ASCII_SIX){
+            // ctrl + 6 is pressed then change color
+            curr_attribute++;
+            if(curr_attribute > MAX_ATTRIB)
+                curr_attribute = MIN_ATTRIB;
+            change_atribute(curr_attribute);
         }
-        return run_cp_tests(mapped);
-	} else if(testVal != TEST_ZERO){
-        // don't allow typing unless in test_0
         return keyboard_state;
-    } else if(BACKSPACE_ON(keyboard_state)){
+	} else if(BACKSPACE_ON(keyboard_state)){
         // if there are values in stdin BKSP_CHAR is seen, then delete last char
         if(stdin_index > 0) {
             putc_kbd(BKSP_CHAR);
@@ -432,36 +285,31 @@ unsigned long process_sent_scancode()
             // if letter, then print capital version
             putc_kbd(mapped.result - ASCII_SHIFT_VAL);
             stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL);
-            if(stdin[stdin_index] != BKSP_CHAR)
-                stdin[stdin_index] = NULL_CHAR;
+            stdin[stdin_index] = NULL_CHAR;
         } else if(IS_PRINTABLE_SC(mapped)) {
             // if not letter but printable, then print the car directly
             putc_kbd(mapped.result);
             stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
-            if(stdin[stdin_index] != BKSP_CHAR)
-                stdin[stdin_index] = NULL_CHAR;
+            stdin[stdin_index] = NULL_CHAR;
         }
     } else if(SHIFT_ON(keyboard_state) || R_SHIFT_ON(keyboard_state)) {
         if(IS_LETTER_SC(mapped) && !CAPS_LOCK_ON(keyboard_state)) {
             // if shift and caps is not on, then print the capital version of the letter
             putc_kbd(mapped.result - ASCII_SHIFT_VAL);
             stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL); // shifting letters is simple
-            if(stdin[stdin_index] != BKSP_CHAR)
-                stdin[stdin_index] = NULL_CHAR;
+            stdin[stdin_index] = NULL_CHAR;
         } else if(IS_PRINTABLE_SC(mapped)) {
             // if printable, then check futher characteristics
             if(non_alpha_shift_table[mapped.result] != 0) {
                 // if it as char like '1', then print its shited value
                 putc_kbd(non_alpha_shift_table[mapped.result]);
                 stdin[stdin_index++] = (non_alpha_shift_table[mapped.result]);
-                if(stdin[stdin_index] != BKSP_CHAR)
-                    stdin[stdin_index] = NULL_CHAR;
+                stdin[stdin_index] = NULL_CHAR;
             } else {
                 // if its not shiftable, then just print directly
                 putc_kbd(mapped.result);
                 stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
-                if(stdin[stdin_index] != BKSP_CHAR)
-                    stdin[stdin_index] = NULL_CHAR;
+                stdin[stdin_index] = NULL_CHAR;
             }
         }
     } else {
@@ -469,8 +317,7 @@ unsigned long process_sent_scancode()
             // if no spcial conditions and input is printable, then print the input.
             putc_kbd(mapped.result);
             stdin[stdin_index++] = (mapped.result);
-            if(stdin[stdin_index] != BKSP_CHAR)
-                stdin[stdin_index] = NULL_CHAR;
+            stdin[stdin_index] = NULL_CHAR;
         }
     }
 
