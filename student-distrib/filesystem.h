@@ -72,15 +72,12 @@ extern int32_t read_dentry_by_index(uint32_t index, dentry_t * dentry);
 // Reads data from a file given the inode and the offset into the file's data
 extern int32_t read_data(uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t length);
 
-// Returns a pointer to the directory entry array
-extern dentry_t * get_dir_entries_array(int * entry_count);
-
 // Returns the length of a file in bytes
 extern int32_t get_file_length(dentry_t * entry);
 
-extern int32_t read_file(int32_t fd, const void* buf, int32_t nbytes);
+extern int32_t read_file(int32_t fd, void* buf, int32_t nbytes);
 
-extern int32_t read_directory(int32_t fd, const void* buf, int32_t nbytes);
+extern int32_t read_directory(int32_t fd, void* buf, int32_t nbytes);
 
 extern int32_t write_file(int32_t fd, const void* buf, int32_t nbytes);
 

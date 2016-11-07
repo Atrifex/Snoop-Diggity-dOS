@@ -10,10 +10,6 @@
 
 static int screen_x;
 static int screen_y;
-static int cursor_x;
-static int cursor_y;
-static int start_x;
-static int start_y;
 static char* video_mem = (char *)VIDEO;
 static int curr_attribute = ATTRIB;
 
@@ -51,9 +47,6 @@ void set_cursor_location(int x, int y) {
 
     outb(VGA_CURSOR_HIGH_BIT_REG, VGA_REG_SELECT_PORT);
     outb((uint8_t) ( (cursor_location >> CURSOR_LOC_SHIFT ) & CURSOR_LOC_MASK ), VGA_REG_DATA_PORT);
-
-    cursor_x = x;
-    cursor_y = y;
 }
 
 /*
@@ -140,7 +133,6 @@ putc_kbd(uint8_t c)
     // if screen_y becomes >= NUM_ROWS during this process, then shift the screen up
     if(screen_y >= NUM_ROWS) {
 			shift_screen_up();
-			start_y--;
 	}
 
     // set cursor to appropriate location
@@ -157,82 +149,11 @@ putc_kbd(uint8_t c)
 int32_t
 put_t(uint8_t* s, uint32_t size, int32_t flag)
 {
-    // vars used during execution of function
-    int last_real_char_index = -FC_OFFSET;
     register int32_t index = 0;
-    unsigned long flags;
-    int yval;
-    int final_wrap_offset;
-
-    // start critical section
-    cli_and_save(flags);
-
-    // initialze variables
-    start_x = screen_x;
-    start_y = screen_y;
-    int32_t wrapped_lines = 0;
-
-    // while loop which does the printing
     while(s[index] != NULL_CHAR && index < size) {
-        if(s[index] == NEW_LINE || s[index] == CARRIAGE_RETURN) {
-            // handle newline
-            screen_x = 0;
-            screen_y++;
-            start_x = 0;
-            start_y++;
-            // handle previously wrapped text
-            if(wrapped_lines > 0) {
-            	start_y = screen_y;
-            }
-
-            // if screen_y becomes >= NUM_ROWS during this process, then shift the screen up
-            if(screen_y >= NUM_ROWS) {
-                shift_screen_up();
-                start_y--;
-            }
-
-        } else if((index+start_x) != 0 && (index+start_x) % NUM_COLS == 0 && s[index] != BKSP_CHAR) {
-            // if we wrap will printing, then increment wrapped_lines
-            wrapped_lines++;
-        }
-
-        if(s[index] == BKSP_CHAR) {
-            // if a BKSP_CHAR is seen, then output EMPTY_SPACE
-            putc(EMPTY_SPACE);
-        } else if(s[index] != NEW_LINE) {
-            // else output normal char if not NEW_LINE and increment last_real_char_index
-            putc(s[index]);
-            last_real_char_index = index;
-        }
-
+    	putc_kbd(s[index]);
         index++;
     }
-
-
-    final_wrap_offset = ((FC_OFFSET + last_real_char_index + start_x) / NUM_COLS);
-
-    // calculate the final_wrap_offset as a max of the two given values
-    final_wrap_offset = (final_wrap_offset > wrapped_lines)? final_wrap_offset : wrapped_lines;
-
-    // select y_val as a min of our current two offsets
-    yval = start_y + final_wrap_offset;
-    if(yval > screen_y) {
-    	yval = screen_y;
-    }
-
-    // based on flag select one of the two methods of deciding the cursor location
-    if(flag == 0)
-    {
-        set_cursor_location(((start_x + FC_OFFSET + last_real_char_index ) % NUM_COLS), yval);
-        screen_x = start_x;
-		screen_y = start_y;
-    }
-    else
-    {
-        // set cursor directly to current screen_x and current screen_y
-        set_cursor_location(screen_x, screen_y);
-    }
-    restore_flags(flags);
     return index;
 }
 
@@ -542,7 +463,6 @@ puts(int8_t* s)
 		putc(s[index]);
 		index++;
 	}
-
 	return index;
 }
 
@@ -573,7 +493,6 @@ putc(uint8_t c)
 		// TODO: need to shift screen up when out of bounds
 		if(screen_y >= NUM_ROWS) {
 			shift_screen_up();
-			start_y--;
 		}
     }
 }
