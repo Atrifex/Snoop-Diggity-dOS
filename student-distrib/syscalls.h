@@ -8,7 +8,7 @@
 #include "x86_desc.h"
 
 // constants and other masks
-#define MAX_8KB_ALIGNED 0xFFFFE000
+#define MASK_8KB_ALIGNED 0xFFFFE000
 #define MAX_FD_PER_PROCESS 8
 
 // Jump table sub-types
@@ -60,10 +60,40 @@ extern asmlinkage int32_t close(int32_t fd);
 extern asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes);
 extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 
-/*open_func open_jmp_table[2] = {open_rtc, open_file};
-close_func close_jmp_table[2] = {close_rtc, close_file};
-write_func write_jmp_table[3] = {write_rtc, write_file, write_terminal};
-read_func read_jmp_table[3] = {read_rtc, read_file, read_terminal};*/
+const file_operations_t rtc_table = {
+	.o_func = open_rtc;
+	.c_func = close_rtc;
+	.r_func = read_rtc;
+	.w_func = write_rtc;
+};
+
+const file_operations_t stdout_table = {
+	.o_func = open_terminal;
+	.c_func = close_terminal;
+	.r_func = read_terminal;
+	.w_func = write_terminal;
+};
+
+const file_operations_t stdin_table = {
+	.o_func = open_keyboard;
+	.c_func = close_keyboard;
+	.r_func = read_keyboard;
+	.w_func = write_keyboard;
+};
+
+const file_operations_t file_table = {
+	.o_func = open_file;
+	.c_func = close_file;
+	.r_func = read_file;
+	.w_func = write_file;
+};
+
+const file_operations_t directory_table = {
+	.o_func = open_directory;
+	.c_func = close_directory;
+	.r_func = read_directory;
+	.w_func = write_directory;
+};
 
 // set_handler and sigreturn: TODO for extra credit
 

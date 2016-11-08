@@ -30,7 +30,19 @@ asmlinkage int32_t open(const uint8_t* filename)
 	// Valid as PCB is at top of kernel stack, which is 8KB-aligned
 	pcb_t* pcb = esp0 & MAX_8KB_ALIGNED;
 
-	
+	dentry_t entry;
+
+	// Get dentry for this file
+	if(read_dentry_by_name(filename, &entry) == FAILURE)
+		return FAILURE; // Return -1 if this isn't a valid file
+
+	// Allocate an unused file descriptor if possible
+	for(int i = 2; i < MAX_FD_PER_PROCESS; i++) // Start at 2 as STDIN and STDOUT are always open
+	{
+		
+	}
+
+	// Decide whether we're opening RTC, the directory (.), or another file
 
 	return 0;
 }
