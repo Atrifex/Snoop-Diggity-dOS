@@ -51,12 +51,18 @@ typedef struct
 typedef struct
 {
 	file_info_t fd_array[MAX_FD_PER_PROCESS]; // File descriptors allocated for this process
-	uint32_t esp0; // Parent's stack pointer
-	uint32_t esp; // Stack pointer
-	uint32_t ebp; // Base pointer
-	unsigned char* args; // Program's arguments
-	uint8_t pid; // Process id
 
+	unsigned char* args; // Program's arguments
+	uint8_t pid; // Process id of current process
+
+	// parents info
+	pcb_t* parentPCB;
+	uint32_t esp0; // Parent's kernel stack pointer
+	uint32_t parentPid; // process id of parent
+	uint32_t esp; // Parent's user Stack pointer
+	uint32_t ebp; // Parent's user base pointer
+
+	uint32_t flags;
 	// Maybe store IRET context of the parent in the child's PCB?
 	// Or not, because we jump to parent's execute in halt
 } pcb_t;
@@ -79,21 +85,14 @@ const file_operations_t rtc_table = {
 	.w_func = write_rtc,
 };
 
-const file_operations_t stdout_table = {
+const file_operations_t terminal_table = {
 	.o_func = open_terminal,
 	.c_func = close_terminal,
 	.r_func = read_terminal,
 	.w_func = write_terminal,
 };
 
-const file_operations_t stdin_table = {
-	.o_func = open_keyboard,
-	.c_func = close_keyboard,
-	.r_func = read_keyboard,
-	.w_func = write_keyboard,
-};
-
-const file_operations_t file_table = {
+const file_operations_t regular_file_table = {
 	.o_func = open_file,
 	.c_func = close_file,
 	.r_func = read_file,
