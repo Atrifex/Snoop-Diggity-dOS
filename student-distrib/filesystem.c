@@ -271,3 +271,20 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t lengt
 
     return i; // This is the number of bytes we read
 } /* read_data */
+
+/*
+ * inode_t* get_inode_ptr
+ * DESCRIPTION: Returns a pointer to the inode specified by inode_idx
+ * INPUTS   : inode_idx: index of the inode
+ * OUTPUTS  : None
+ * RETURN VALUE: Pointer to the inode corresponding to inode_idx
+ * SIDE EFFECTS: N/A.
+ */
+inode_t* get_inode_ptr(uint32_t inode_idx)
+{
+    if(inode_idx < NUM_FILES_CAP)
+        return &(inodes[inode_idx]);
+
+    else
+        return NULL;
+}
