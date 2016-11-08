@@ -26,7 +26,18 @@ typedef struct
 	write_func w_func;
 } file_operations_t;
 
-// Structure storing information about an open file
+/*
+ * Structure storing information about an open file
+ *
+ * Flag usage:
+ *  |-----------+--------|
+ *  | bits 31-1 | bit 0  |
+ *  |-----------+--------|
+ *  | Reserved  | in-use |
+ *  |-----------+--------|
+ *
+ *
+ */
 typedef struct
 {
 	file_operations_t* jmp_table;
