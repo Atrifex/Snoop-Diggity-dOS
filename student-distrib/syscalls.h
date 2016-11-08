@@ -6,6 +6,8 @@
 #include "filesystem.h"
 #include "keyboard.h"
 
+// constants and other masks
+#define MASK_8KB_ALIGNED 0xFFFFE000
 #define MAX_FD_PER_PROCESS 8
 
 // Jump table sub-types
