@@ -5,7 +5,10 @@
 #include "rtc.h"
 #include "filesystem.h"
 #include "keyboard.h"
+#include "x86_desc.h"
 
+// constants and other masks
+#define MAX_8KB_ALIGNED 0xFFFFE000
 #define MAX_FD_PER_PROCESS 8
 
 // Jump table sub-types
