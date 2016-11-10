@@ -20,6 +20,14 @@ asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
 	return 0;
 }
 
+/*
+ * int32_t open(const uint8_t* filename)
+ * DESCRIPTION: Opens a file in our filesystem
+ * INPUTS   : filename (name of the file we're opening)
+ * OUTPUTS  : none
+ * RETURN VALUE: none
+ * SIDE EFFECTS: Sets up file descriptor, structure for the file
+ */
 asmlinkage int32_t open(const uint8_t* filename)
 {
 	// Grab esp0 from TSS so that we can access the PCB
@@ -77,6 +85,14 @@ asmlinkage int32_t open(const uint8_t* filename)
 	return i; // Return the file descriptor allocated by open()
 }
 
+/*
+ * int32_t close_file()
+ * DESCRIPTION: Closes a file
+ * INPUTS   : fd (file descriptor)
+ * OUTPUTS  : none
+ * RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
+ * SIDE EFFECTS: Deletes data necessary to handle the file, makes it available to open
+*/
 asmlinkage int32_t close(int32_t fd)
 {
 	// Grab esp0 from TSS so that we can access the PCB

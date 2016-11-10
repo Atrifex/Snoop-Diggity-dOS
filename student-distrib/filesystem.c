@@ -1,6 +1,7 @@
 #include "filesystem.h"
 #include "lib.h"
 #include "devices/rtc.h"
+#include "syscalls.h"
 
 // pointer to boot block, first inode (inode array), and first data block
 boot_block_t * bootblock;
@@ -30,28 +31,16 @@ void init_filesystem(uint32_t start_addr, uint32_t size)
 }
 
 /*
- * void open_file
- * DESCRIPTION: Opens a file in our filesystem
- * INPUTS   : filename (name of the while we're opening)
+ * int32_t open_file(const uint8_t* filename)
+ * DESCRIPTION: Opens a file (not directory, terminal or RTC)
+ * INPUTS   : filename (name of the file we're opening)
  * OUTPUTS  : none
- * RETURN VALUE: none
- * SIDE EFFECTS: Sets up file descriptor, structure for the file
+ * RETURN VALUE: Returns 0 if we get to this function at all
+ * SIDE EFFECTS: None
  */
 int32_t open_file (const uint8_t* filename)
 {
-    dentry_t file_entry;
-    int result = read_dentry_by_name(filename, &file_entry); // Get directory entry by filename
-
-    if(result == FAILURE) // Return -1 for invalid filename
-        return FAILURE;
-
-    const int8_t* rtc_filename = "rtc";
-
-    // If this is the rtc file, call its specific "open"
-    if(strncmp((const int8_t*)filename, rtc_filename, THREE_BYTES))
-        open_rtc();
-
-    // TODO: CP3. Allocate file descriptor
+   // We don't need to do anything specific in this function as system call open() will handle everything already
 
     return SUCCESS;
 }
@@ -61,14 +50,14 @@ int32_t open_file (const uint8_t* filename)
 # DESCRIPTION: Closes a file
 # INPUTS   : fd (file descriptor)
 # OUTPUTS  : none
-# RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
-# SIDE EFFECTS: Deletes data necessary to handle the file, makes it available to open
+# RETURN VALUE: Returns 0 if we get to this function at all
+# SIDE EFFECTS: none
 */
 int32_t close_file(int32_t fd)
 {
-    // TODO: For CP3, deallocate the file descriptor
+    // We don't need to do anything specific in this function as system call close() will handle everything already
 
-    return 0;
+    return SUCCESS;
 }
 
 /*
@@ -85,22 +74,20 @@ int32_t write_file(int32_t fd, const void* buf, int32_t nbytes)
 }
 
 /*
-# int32_t read_file()
-# DESCRIPTION: Read file
-# INPUTS   : Ignored
+# int32_t read_file(int32_t fd, void* buf, int32_t nbytes)
+# DESCRIPTION: Reads data from a file (not RTC, terminal, or the directory)
+# INPUTS   : fd: file descriptor of the file to read, buf: buffer into which to read data, nbytes: Number of bytes to read.
 # OUTPUTS  : none
 # RETURN VALUE: Returns 0
 # SIDE EFFECTS: none
 */
 int32_t read_file(int32_t fd, void* buf, int32_t nbytes)
 {
-    // Check if file descriptor matches '.' directory
-    // If so...
+    
 
+    // Call read_data
 
-    // Else, call read_data
-
-    return 0; // We don't have file descriptors yet
+    return 0;
 }
 
 /*
