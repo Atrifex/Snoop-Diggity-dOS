@@ -17,11 +17,6 @@
 #define FC_OFFSET               1
 #define ATTRIB 					0x7
 
-// return codes
-#define SUCCESS 0
-#define FAILURE -1
-
-
 
 // checkpoint 2 test defines
 #define LAST_RTC_TEST_INIT -1

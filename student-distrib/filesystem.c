@@ -124,7 +124,7 @@ int32_t read_directory(int32_t fd, void* buf, int32_t nbytes)
         ls_count = 0; // So subsequent ls calls work
         return 0; // No bytes read (we read all directory entries already)
     }
-        
+
     strncpy((int8_t*)buf, (int8_t*) entries[ls_count].filename, nbytes); // Copy filename (or at least, the number of bytes specified)
 
     ls_count++; // We just read one more file

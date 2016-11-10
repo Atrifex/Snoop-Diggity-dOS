@@ -106,6 +106,11 @@ int32_t close_terminal(int32_t fd)
 */
 int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
 {
+    // error check
+    if(fd != STDIN){
+        return ERROR;
+    }
+
     int i = 0;
     unsigned long flags;
 
@@ -159,9 +164,13 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
 */
 int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
 {
-    // error condition handling
-    if(nbytes < 0)
+    // error checks
+    if(fd != STDOUT){
+        return ERROR;
+    }
+    if(nbytes < 0){
         return FAILURE;
+    }
 
     // print buf to the screen
     put_t((uint8_t *)buf, nbytes, 1);

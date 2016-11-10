@@ -11,7 +11,15 @@
 
 #ifndef ASM
 
+
+// return codes
+#define SUCCESS 0
+#define ERROR -1
+#define FAILURE -1
+
 // globally necessary constants
+#define STDIN 0
+#define STDOUT 1
 #define EMPTY_SPACE ' '
 #define NULL_CHAR '\0'
 #define NEW_LINE '\n'
