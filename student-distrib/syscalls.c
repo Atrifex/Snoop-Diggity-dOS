@@ -88,10 +88,10 @@ asmlinkage int32_t open(const uint8_t* filename)
 	// Decide whether we're opening RTC, the directory (.), or another file
 
 	if(entry.filetype != 2) // 0: RTC, 1: directory, 2: regular file
-		(pcb->fd_array[i]).inodeNum = NULL; // Directory and RTC files don't have associated inodes
+		(pcb->fd_array[i]).inode = NULL; // Directory and RTC files don't have associated inodes
 
 	else
-		(pcb->fd_array[i]).inodeNum = get_inode_ptr(entry.inode); // Else, store the inode pointer
+		(pcb->fd_array[i]).inode = get_inode_ptr(entry.inode); // Else, store the inode pointer
 
 	(pcb->fd_array[i]).position = 0; // We start at the beginning of the file
 	(pcb->fd_array[i]).flags = 1; // The file descriptor is in use

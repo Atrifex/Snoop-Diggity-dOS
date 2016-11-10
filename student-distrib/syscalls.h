@@ -42,7 +42,7 @@ typedef struct
 typedef struct
 {
 	file_operations_t* fops_jmp_table;
-	inode_t* inodeNum;
+	inode_t* inode;
 	int32_t position;
 	int32_t flags;
 } file_info_t;
