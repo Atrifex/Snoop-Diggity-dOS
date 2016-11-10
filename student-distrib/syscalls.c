@@ -1,4 +1,5 @@
 #include "syscalls.h"
+#include "scheduling.h"
 
 static file_operations_t rtc_table = {
     .o_func = open_rtc,
@@ -41,7 +42,6 @@ asmlinkage int32_t execute(const uint8_t* command)
 	char* argstring = NULL;
 	dentry_t entry;
 	int32_t result;
-	int32_t program_length;
 	uint32_t proc_memory_start;
 
 	int pid;
@@ -50,8 +50,10 @@ asmlinkage int32_t execute(const uint8_t* command)
   cli_and_save(flags);
 
 	// if we can't execute since we're out of processes, return failure immediately
-	pid = mark_available_pid_used();
+	pid = get_available_pid();
 	if(pid == FAILURE) return FAILURE;
+
+	mark_pid_used(pid);
 
 	// if the command is too long, return failure
 	if(strlen((char*) command) >= MAX_EXECUTE_ARG_SIZE){
