@@ -39,6 +39,15 @@ asmlinkage int32_t execute(const uint8_t* command)
 	return 0;
 }
 
+/*
+ * int32_t read(int32_t fd, void* buf, int32_t num_bytes)
+ * DESCRIPTION: Opens a file in our filesystem
+ * INPUTS   : int32_t fd - file descriptor, void * buf - buf read into, int32_t num_bytes - num bytes to read
+ * OUTPUTS  : none
+ * RETURN VALUE: the number of bytes read or error
+ * RETURN VALUE: none
+ * SIDE EFFECTS: Sets up file descriptor, structure for the file
+ */
 asmlinkage int32_t read(int32_t fd, void* buf, int32_t num_bytes)
 {
     // Grab esp0 from TSS so that we can access the PCB
@@ -56,6 +65,14 @@ asmlinkage int32_t read(int32_t fd, void* buf, int32_t num_bytes)
     return ((pcb->fd_array[fd]).fops_jmp_table->r_func)(fd, buf, num_bytes);
 }
 
+/*
+ * int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
+ * DESCRIPTION: Opens a file in our filesystem
+ * INPUTS   : int32_t fd - file descriptor, const void* buf - buf to read from, int32_t num_bytes - num bytes to write
+ * OUTPUTS  :
+ * RETURN VALUE: the number of bytes read or error
+ * SIDE EFFECTS: Sets up file descriptor, structure for the file
+ */
 asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
 {
     // Grab esp0 from TSS so that we can access the PCB
