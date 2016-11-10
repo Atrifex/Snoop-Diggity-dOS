@@ -1,13 +1,12 @@
 #include "filesystem.h"
 #include "lib.h"
+#include "devices/rtc.h"
+#include "syscalls.h"
 
 // pointer to boot block, first inode (inode array), and first data block
 boot_block_t * bootblock;
 inode_t * inodes;
 data_block_t * datablocks;
-
-static int32_t ls_count = 0; // Index of the filename to be read when we read from the directory
-
 
 
 /*
@@ -151,6 +150,19 @@ inode_t* get_inode_ptr(uint32_t inode_idx)
 }
 
 /*
+ * uint32_t get_inode_num
+ * DESCRIPTION: Returns the index of the inode specified by the inode pointer
+ * INPUTS   : inode_ptr: pointer to the inode specified
+ * OUTPUTS  : None
+ * RETURN VALUE: index of the inode specified
+ * SIDE EFFECTS: N/A.
+ */
+uint32_t get_inode_num(inode_t* inode_ptr)
+{
+    return ((uint32_t)(inode_ptr - inodes))/sizeof(inode_t); // Get the index
+}
+
+/*
  * int32_t get_file_length
  * DESCRIPTION: Returns the length of a file given its directory entry
  * INPUTS   : entry - directory entry ptr for a file
@@ -196,14 +208,7 @@ void init_filesystem(uint32_t start_addr, uint32_t size)
  */
 int32_t open_file (const uint8_t* filename)
 {
-    dentry_t file_entry;
-    int result = read_dentry_by_name(filename, &file_entry); // Get directory entry by filename
-
-    if(result == FAILURE){
-        return FAILURE;
-    }
-
-    // TODO: CP3. Allocate file descriptor
+    // We don't need to do anything specific in this function as system call open() will handle everything already
 
     return SUCCESS;
 }
@@ -218,23 +223,44 @@ int32_t open_file (const uint8_t* filename)
 */
 int32_t close_file(int32_t fd)
 {
-    // TODO: For CP3, deallocate the file descriptor
+    // We don't need to do anything specific in this function as system call close() will handle everything already
 
-    return 0;
+    return SUCCESS;
 }
 
 /*
-# int32_t read_file()
-# DESCRIPTION: Read file
-# INPUTS   : Ignored
-# OUTPUTS  : none
-# RETURN VALUE: Returns 0
-# SIDE EFFECTS: none
+ * int32_t read_file(int32_t fd, void* buf, int32_t nbytes)
+ * DESCRIPTION: Read data from a file
+ * INPUTS   : fd: file descriptor of the file from which we're reading data, buf: buffer into which to read data,
+ * nbytes: Number of bytes to read
+ * OUTPUTS  : none
+ * RETURN VALUE: Returns the number of bytes read, or -1 if there's an error
+ * SIDE EFFECTS: none
 */
 int32_t read_file(int32_t fd, void* buf, int32_t nbytes)
 {
+    // Grab esp0 from TSS so that we can access the PCB
+    tss_t* tss_base = (tss_t*)&tss;
+    uint32_t esp0 = tss_base->esp0;
 
-    return 0; // We don't have file descriptors yet
+    // Mask bottom 13 bits to get the starting address of the PCB
+    // Valid as PCB is at top of kernel stack, which is 8KB-aligned
+    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+
+    // Get various pieces of information relevant to this file
+    int position = pcb->fd_array[fd].position;
+    inode_t* file_inode_ptr = pcb->fd_array[fd].inode;
+    uint32_t inode_num = get_inode_num(file_inode_ptr);
+
+    int32_t result = read_data(inode_num, position, buf, nbytes); // read_data will handle the return value
+
+    if(result > 0) // If we successfully read some non-zero amount of bytes
+    {
+        position += result;
+        pcb->fd_array[fd].position = position; // Update the file position
+    }
+
+    return result;
 }
 
 /*
@@ -284,33 +310,43 @@ int32_t close_directory(int32_t fd)
 
 /*
 # int32_t read_directory()
-# DESCRIPTION: Read a filename from the directory
-# INPUTS   : buf: buffer into which to read a filename
+# DESCRIPTION:
+# INPUTS   : fd is the file descriptor
+#            buf is the buffer into which we want to read our file
+#            nbytes is the number of bytes read
 # OUTPUTS  : none
 # RETURN VALUE: Returns 0
-# SIDE EFFECTS: none
+# SIDE EFFECTS: updates the file position
 */
 int32_t read_directory(int32_t fd, void* buf, int32_t nbytes)
 {
+    // get access to the current processes PCB
+    tss_t* tss_base = (tss_t*)&tss;
+    uint32_t esp0 = tss_base->esp0;
+    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+
     int entry_count;
     dentry_t* entries;
 
     entry_count = bootblock->direntries;
     entries = bootblock->files;
 
+    // gets current file position
+    int ls_count = (pcb->fd_array[fd]).position;
+
     if(ls_count >= entry_count)
     {
         ls_count = 0; // So subsequent ls calls work
         return 0; // No bytes read (we read all directory entries already)
     }
-
     strncpy((int8_t*)buf, (int8_t*) entries[ls_count].filename, nbytes); // Copy filename (or at least, the number of bytes specified)
 
-    ls_count++; // We just read one more file
+    // assigns current ls position to position
+    ls_count++;
+    (pcb->fd_array[fd]).position = ls_count;
 
     if(((int8_t*)buf)[31] != '\0')
         return 32; // Return the number of bytes read
-
     return strlen((int8_t*)buf);
 }
 

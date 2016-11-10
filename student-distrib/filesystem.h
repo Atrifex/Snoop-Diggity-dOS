@@ -96,10 +96,9 @@ extern int32_t close_directory(int32_t fd);
 
 extern int32_t open_directory (const uint8_t* filename);
 
-
 extern inode_t* get_inode_ptr(uint32_t inode_idx);
 
-
+extern uint32_t get_inode_num(inode_t* inode_ptr);
 
 
 #endif /* ifndef FILESYSTEM_H */
