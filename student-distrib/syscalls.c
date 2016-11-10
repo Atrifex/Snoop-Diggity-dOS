@@ -49,11 +49,11 @@ asmlinkage int32_t read(int32_t fd, void* buf, int32_t num_bytes)
     pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
 
     // If fd is not in-use, then we can't read
-		if(((pcb->fd_array[i]).flags & ISOLATE_BIT_0) == 0)
+		if(((pcb->fd_array[fd]).flags & ISOLATE_BIT_0) == 0)
         return ERROR;
 
     // Call the device-specific open function via jump table
-    return ((pcb->fd_array[i]).fops_jmp_table->r_func)(fd, buf, num_bytes);
+    return ((pcb->fd_array[fd]).fops_jmp_table->r_func)(fd, buf, num_bytes);
 }
 
 asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
@@ -66,11 +66,11 @@ asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
     pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
 
     // If fd is not in-use, then we can't read
-		if(((pcb->fd_array[i]).flags & ISOLATE_BIT_0) == 0)
+		if(((pcb->fd_array[fd]).flags & ISOLATE_BIT_0) == 0)
         return ERROR;
 
     // Call the device-specific open function via jump table
-    return ((pcb->fd_array[i]).fops_jmp_table->w_func)(fd, buf, num_bytes);
+    return ((pcb->fd_array[fd]).fops_jmp_table->w_func)(fd, buf, num_bytes);
 }
 
 /*

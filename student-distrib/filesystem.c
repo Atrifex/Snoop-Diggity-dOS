@@ -324,7 +324,7 @@ int32_t read_directory(int32_t fd, void* buf, int32_t nbytes)
     entries = bootblock->files;
 
     // gets current file position
-    int ls_count = (pcb->fd_array[i]).position;
+    int ls_count = (pcb->fd_array[fd]).position;
 
     if(ls_count >= entry_count)
     {
@@ -335,7 +335,7 @@ int32_t read_directory(int32_t fd, void* buf, int32_t nbytes)
 
     // assigns current ls position to position
     ls_count++;
-    (pcb->fd_array[i]).position = ls_count;
+    (pcb->fd_array[fd]).position = ls_count;
 
     if(((int8_t*)buf)[31] != '\0')
         return 32; // Return the number of bytes read
