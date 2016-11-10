@@ -85,6 +85,16 @@ extern int32_t close_file(int32_t fd);
 
 extern int32_t open_file (const uint8_t* filename);
 
+extern int32_t write_directory(int32_t fd, const void* buf, int32_t nbytes);
+
+extern int32_t close_directory(int32_t fd);
+
+extern int32_t open_directory (const uint8_t* filename);
+
+
 extern inode_t* get_inode_ptr(uint32_t inode_idx);
+
+
+
 
 #endif /* ifndef FILESYSTEM_H */

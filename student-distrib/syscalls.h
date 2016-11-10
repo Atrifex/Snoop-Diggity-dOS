@@ -41,14 +41,15 @@ typedef struct
  */
 typedef struct
 {
-	file_operations_t* jmp_table;
-	inode_t* file_inode;
-	int32_t file_position;
+	file_operations_t* fops_jmp_table;
+	inode_t* inodeNum;
+	int32_t position;
 	int32_t flags;
 } file_info_t;
 
 // Structure for Process Control Block
-typedef struct
+typedef struct pcb_t pcb_t;
+struct pcb_t
 {
 	file_info_t fd_array[MAX_FD_PER_PROCESS]; // File descriptors allocated for this process
 
@@ -65,7 +66,7 @@ typedef struct
 	uint32_t flags;
 	// Maybe store IRET context of the parent in the child's PCB?
 	// Or not, because we jump to parent's execute in halt
-} pcb_t;
+};
 
 // System calls for our OS
 // Use asmlinkage to ensure arguments are passed via the stack (useful b/c assembly linkage)
@@ -78,33 +79,7 @@ extern asmlinkage int32_t close(int32_t fd);
 extern asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes);
 extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 
-const file_operations_t rtc_table = {
-	.o_func = open_rtc,
-	.c_func = close_rtc,
-	.r_func = read_rtc,
-	.w_func = write_rtc,
-};
 
-const file_operations_t terminal_table = {
-	.o_func = open_terminal,
-	.c_func = close_terminal,
-	.r_func = read_terminal,
-	.w_func = write_terminal,
-};
-
-const file_operations_t regular_file_table = {
-	.o_func = open_file,
-	.c_func = close_file,
-	.r_func = read_file,
-	.w_func = write_file,
-};
-
-const file_operations_t directory_table = {
-	.o_func = open_directory,
-	.c_func = close_directory,
-	.r_func = read_directory,
-	.w_func = write_directory,
-};
 
 // set_handler and sigreturn: TODO for extra credit
 

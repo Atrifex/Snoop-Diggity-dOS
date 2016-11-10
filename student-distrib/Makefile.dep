@@ -3,8 +3,7 @@ interrupt_handler_asm.o: interrupt_handler_asm.S
 paging_asm.o: paging_asm.S
 syscalls_linkage.o: syscalls_linkage.S
 x86_desc.o: x86_desc.S x86_desc.h types.h
-filesystem.o: filesystem.c filesystem.h types.h lib.h devices/rtc.h \
-  types.h
+filesystem.o: filesystem.c filesystem.h types.h lib.h
 interrupt_handler.o: interrupt_handler.c interrupt_handler.h lib.h \
   types.h devices/rtc.h types.h devices/i8259.h devices/keyboard.h \
   devices/scancodes.h

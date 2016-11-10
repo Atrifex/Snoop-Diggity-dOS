@@ -5,9 +5,6 @@
 // TODO: Change open() and close() once we've loaded the filesystem.
 // And again for MP3.3
 
-// File-scope flag: is the RTC open?
-static int rtc_enable = 0;
-
 // Shared flag with interrupt_handler.c
 extern volatile int rtc_flag;
 
@@ -50,7 +47,6 @@ void init_rtc()
 
     // enable irqs so that we can get interrupts from the RTC
 	enable_irq(RTC_LINE_NO);
-	rtc_enable = 1;
 }
 
 /*
@@ -64,9 +60,6 @@ void init_rtc()
 */
 int read_rtc(int32_t fd, void* buf, int32_t nbytes)
 {
-	if(!rtc_enable)
-		return -1;
-
 	rtc_flag = 1; // Set a flag and wait for interrupt handler to clear it
 
 	while(rtc_flag != 0);
@@ -78,19 +71,19 @@ int read_rtc(int32_t fd, void* buf, int32_t nbytes)
 
 /*
 # int write_rtc(int freq)
-# DESCRIPTION: Writes a 4-byte integer (representing the interrupt rate in Hertz) to the RTC 
+# DESCRIPTION: Writes a 4-byte integer (representing the interrupt rate in Hertz) to the RTC
 # Should be called by the write() system call when the RTC device file is specified
 # INPUTS   : freq (RTC interrupt rate)
 # OUTPUTS  : none
 # RETURN VALUE: Returns the number of bytes written, or -1 if the write failed
 # SIDE EFFECTS: (Potentially) changes the RTC's interrupt rate
 */
-int write_rtc(int freq)
+int write_rtc(int32_t fd, const void* buf, int32_t num_bytes)
 {
-	if(!rtc_enable)
-		return -1;
-
 	unsigned long flags;
+
+	int * buffer = (int *)buf;
+	int freq = buffer[0];
 
 	// Input checking
 	// RTC interrupt rate must be a power of 2 in range [2, 1024]
@@ -145,7 +138,6 @@ int open_rtc()
 	// TODO: For CP3, allocate the file descriptor
 
 	init_rtc(); // Set interrupt rate to 2 Hz by default
-	rtc_enable = 1; // Open and close will work now
 	return 0;
 }
 
@@ -160,7 +152,5 @@ int open_rtc()
 int close_rtc(int32_t fd)
 {
 	// TODO: For CP3, close the file descriptor
-
-	rtc_enable = 0;
 	return 0;
 }
