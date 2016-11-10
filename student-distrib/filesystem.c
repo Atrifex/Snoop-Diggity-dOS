@@ -1,6 +1,5 @@
 #include "filesystem.h"
 #include "lib.h"
-#include "devices/rtc.h"
 
 // pointer to boot block, first inode (inode array), and first data block
 boot_block_t * bootblock;
@@ -9,131 +8,7 @@ data_block_t * datablocks;
 
 static int32_t ls_count = 0; // Index of the filename to be read when we read from the directory
 
-/*
- * void init_filesystem
- * DESCRIPTION: Initializes our kernel's structure for the filesystem
- * INPUTS   : start_addr (starting address of the filesystem), size (size in bytes of the filesystem image)
- * OUTPUTS  : none
- * RETURN VALUE: none
- * SIDE EFFECTS: Constructs structure for the filesystem.
- */
-void init_filesystem(uint32_t start_addr, uint32_t size)
-{
-    // start_addr points to our boot block
-    bootblock = (boot_block_t *) start_addr;
 
-    // first inode will be start_addr + block_size
-    inodes = (inode_t *) ( start_addr + FS_BLOCK_LENGTH );
-
-    // first data block will be start_addr + memory_block + (block_size*number of inodes)
-    datablocks = (data_block_t *) ( start_addr + FS_BLOCK_LENGTH + FS_BLOCK_LENGTH * bootblock->inodes);
-}
-
-/*
- * void open_file
- * DESCRIPTION: Opens a file in our filesystem
- * INPUTS   : filename (name of the while we're opening)
- * OUTPUTS  : none
- * RETURN VALUE: none
- * SIDE EFFECTS: Sets up file descriptor, structure for the file
- */
-int32_t open_file (const uint8_t* filename)
-{
-    dentry_t file_entry;
-    int result = read_dentry_by_name(filename, &file_entry); // Get directory entry by filename
-
-    if(result == FAILURE) // Return -1 for invalid filename
-        return FAILURE;
-
-    const int8_t* rtc_filename = "rtc";
-
-    // If this is the rtc file, call its specific "open"
-    if(strncmp((const int8_t*)filename, rtc_filename, THREE_BYTES))
-        open_rtc();
-
-    // TODO: CP3. Allocate file descriptor
-
-    return SUCCESS;
-}
-
-/*
-# int32_t close_file()
-# DESCRIPTION: Closes a file
-# INPUTS   : fd (file descriptor)
-# OUTPUTS  : none
-# RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
-# SIDE EFFECTS: Deletes data necessary to handle the file, makes it available to open
-*/
-int32_t close_file(int32_t fd)
-{
-    // TODO: For CP3, deallocate the file descriptor
-
-    return 0;
-}
-
-/*
-# int32_t write_file()
-# DESCRIPTION: Write to file... or not
-# INPUTS   : Ignored
-# OUTPUTS  : none
-# RETURN VALUE: Returns 0
-# SIDE EFFECTS: none
-*/
-int32_t write_file(int32_t fd, const void* buf, int32_t nbytes)
-{
-    return 0; // Read-only filesystem
-}
-
-/*
-# int32_t read_file()
-# DESCRIPTION: Read file
-# INPUTS   : Ignored
-# OUTPUTS  : none
-# RETURN VALUE: Returns 0
-# SIDE EFFECTS: none
-*/
-int32_t read_file(int32_t fd, void* buf, int32_t nbytes)
-{
-    // Check if file descriptor matches '.' directory
-    // If so...
-
-
-    // Else, call read_data
-
-    return 0; // We don't have file descriptors yet
-}
-
-/*
-# int32_t read_directory()
-# DESCRIPTION: Read a filename from the directory
-# INPUTS   : buf: buffer into which to read a filename
-# OUTPUTS  : none
-# RETURN VALUE: Returns 0
-# SIDE EFFECTS: none
-*/
-int32_t read_directory(int32_t fd, void* buf, int32_t nbytes)
-{
-    int entry_count;
-    dentry_t* entries;
-
-    entry_count = bootblock->direntries;
-    entries = bootblock->files;
-
-    if(ls_count >= entry_count)
-    {
-        ls_count = 0; // So subsequent ls calls work
-        return 0; // No bytes read (we read all directory entries already)
-    }
-
-    strncpy((int8_t*)buf, (int8_t*) entries[ls_count].filename, nbytes); // Copy filename (or at least, the number of bytes specified)
-
-    ls_count++; // We just read one more file
-
-    if(((int8_t*)buf)[31] != '\0')
-        return 32; // Return the number of bytes read
-
-    return strlen((int8_t*)buf);
-}
 
 /*
  * int32_t read_dentry_by_name
@@ -178,21 +53,7 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t * dentry)
     return SUCCESS;
 }
 
-/*
- * int32_t get_file_length
- * DESCRIPTION: Returns the length of a file given its directory entry
- * INPUTS   : entry - directory entry ptr for a file
- * OUTPUTS  : None
- * RETURN VALUE: The length of the file in bytes if successsful, FAILURE if unsuccessful
- * SIDE EFFECTS: N/A.
- */
-int32_t get_file_length(dentry_t * entry)
-{
-    if (entry->inode < 0 || entry->inode >= bootblock->inodes) // Input checking
-        return FAILURE;
 
-    return inodes[entry->inode].length;
-}
 
 /*
  * int32_t read_data
@@ -287,4 +148,181 @@ inode_t* get_inode_ptr(uint32_t inode_idx)
 
     else
         return NULL;
+}
+
+/*
+ * int32_t get_file_length
+ * DESCRIPTION: Returns the length of a file given its directory entry
+ * INPUTS   : entry - directory entry ptr for a file
+ * OUTPUTS  : None
+ * RETURN VALUE: The length of the file in bytes if successsful, FAILURE if unsuccessful
+ * SIDE EFFECTS: N/A.
+ */
+int32_t get_file_length(dentry_t * entry)
+{
+    if (entry->inode < 0 || entry->inode >= bootblock->inodes) // Input checking
+        return FAILURE;
+
+    return inodes[entry->inode].length;
+}
+
+/*
+ * void init_filesystem
+ * DESCRIPTION: Initializes our kernel's structure for the filesystem
+ * INPUTS   : start_addr (starting address of the filesystem), size (size in bytes of the filesystem image)
+ * OUTPUTS  : none
+ * RETURN VALUE: none
+ * SIDE EFFECTS: Constructs structure for the filesystem.
+ */
+void init_filesystem(uint32_t start_addr, uint32_t size)
+{
+    // start_addr points to our boot block
+    bootblock = (boot_block_t *) start_addr;
+
+    // first inode will be start_addr + block_size
+    inodes = (inode_t *) ( start_addr + FS_BLOCK_LENGTH );
+
+    // first data block will be start_addr + memory_block + (block_size*number of inodes)
+    datablocks = (data_block_t *) ( start_addr + FS_BLOCK_LENGTH + FS_BLOCK_LENGTH * bootblock->inodes);
+}
+
+/*
+ * void open_file
+ * DESCRIPTION: Opens a file in our filesystem
+ * INPUTS   : filename (name of the while we're opening)
+ * OUTPUTS  : none
+ * RETURN VALUE: none
+ * SIDE EFFECTS: Sets up file descriptor, structure for the file
+ */
+int32_t open_file (const uint8_t* filename)
+{
+    dentry_t file_entry;
+    int result = read_dentry_by_name(filename, &file_entry); // Get directory entry by filename
+
+    if(result == FAILURE){
+        return FAILURE;
+    }
+
+    // TODO: CP3. Allocate file descriptor
+
+    return SUCCESS;
+}
+
+/*
+# int32_t close_file()
+# DESCRIPTION: Closes a file
+# INPUTS   : fd (file descriptor)
+# OUTPUTS  : none
+# RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
+# SIDE EFFECTS: Deletes data necessary to handle the file, makes it available to open
+*/
+int32_t close_file(int32_t fd)
+{
+    // TODO: For CP3, deallocate the file descriptor
+
+    return 0;
+}
+
+/*
+# int32_t read_file()
+# DESCRIPTION: Read file
+# INPUTS   : Ignored
+# OUTPUTS  : none
+# RETURN VALUE: Returns 0
+# SIDE EFFECTS: none
+*/
+int32_t read_file(int32_t fd, void* buf, int32_t nbytes)
+{
+
+    return 0; // We don't have file descriptors yet
+}
+
+/*
+# int32_t write_file()
+# DESCRIPTION: Write to file... or not
+# INPUTS   : Ignored
+# OUTPUTS  : none
+# RETURN VALUE: Returns 0
+# SIDE EFFECTS: none
+*/
+int32_t write_file(int32_t fd, const void* buf, int32_t nbytes)
+{
+    return FAILURE; // Read-only filesystem
+}
+
+
+/*
+ * void open_directory
+ * DESCRIPTION: Opens a directory in our filesystem
+ * INPUTS   : directory name (name of the while we're opening)
+ * OUTPUTS  : none
+ * RETURN VALUE: none
+ * SIDE EFFECTS: Sets up file descriptor, structure for the file
+ */
+int32_t open_directory(const uint8_t* directoryName)
+{
+    // TODO: CP3. Allocate file descriptor
+
+    return SUCCESS;
+}
+
+/*
+# int32_t close_directory()
+# DESCRIPTION: Closes a file
+# INPUTS   : fd (file descriptor)
+# OUTPUTS  : none
+# RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
+# SIDE EFFECTS: Deletes data necessary to handle the file, makes it available to open
+*/
+int32_t close_directory(int32_t fd)
+{
+    // TODO: For CP3, deallocate the file descriptor
+
+    return 0;
+}
+
+
+/*
+# int32_t read_directory()
+# DESCRIPTION: Read a filename from the directory
+# INPUTS   : buf: buffer into which to read a filename
+# OUTPUTS  : none
+# RETURN VALUE: Returns 0
+# SIDE EFFECTS: none
+*/
+int32_t read_directory(int32_t fd, void* buf, int32_t nbytes)
+{
+    int entry_count;
+    dentry_t* entries;
+
+    entry_count = bootblock->direntries;
+    entries = bootblock->files;
+
+    if(ls_count >= entry_count)
+    {
+        ls_count = 0; // So subsequent ls calls work
+        return 0; // No bytes read (we read all directory entries already)
+    }
+
+    strncpy((int8_t*)buf, (int8_t*) entries[ls_count].filename, nbytes); // Copy filename (or at least, the number of bytes specified)
+
+    ls_count++; // We just read one more file
+
+    if(((int8_t*)buf)[31] != '\0')
+        return 32; // Return the number of bytes read
+
+    return strlen((int8_t*)buf);
+}
+
+/*
+# int32_t write_file()
+# DESCRIPTION: Write to file... or not
+# INPUTS   : Ignored
+# OUTPUTS  : none
+# RETURN VALUE: Returns 0
+# SIDE EFFECTS: none
+*/
+int32_t write_directory(int32_t fd, const void* buf, int32_t nbytes)
+{
+    return FAILURE; // write-only filesystem
 }

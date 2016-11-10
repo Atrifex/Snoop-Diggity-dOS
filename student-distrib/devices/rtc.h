@@ -49,7 +49,7 @@ extern void init_rtc();
 extern int read_rtc(int32_t fd, void* buf, int32_t nbytes);
 
 // Called by write system call when RTC is specified
-extern int write_rtc(int freq);
+extern int write_rtc(int32_t fd, const void* buf, int32_t num_bytes);
 
 // Opens the RTC (allocates file descriptor)
 extern int open_rtc();
