@@ -1,31 +1,31 @@
 #include "syscalls.h"
 
 static file_operations_t rtc_table = {
-	.o_func = open_rtc,
-	.c_func = close_rtc,
-	.r_func = read_rtc,
-	.w_func = write_rtc,
+    .o_func = open_rtc,
+    .c_func = close_rtc,
+    .r_func = read_rtc,
+    .w_func = write_rtc,
 };
 
 static file_operations_t terminal_table = {
-	.o_func = open_terminal,
-	.c_func = close_terminal,
-	.r_func = read_terminal,
-	.w_func = write_terminal,
+    .o_func = open_terminal,
+    .c_func = close_terminal,
+    .r_func = read_terminal,
+    .w_func = write_terminal,
 };
 
 static file_operations_t regular_file_table = {
-	.o_func = open_file,
-	.c_func = close_file,
-	.r_func = read_file,
-	.w_func = write_file,
+    .o_func = open_file,
+    .c_func = close_file,
+    .r_func = read_file,
+    .w_func = write_file,
 };
 
 static file_operations_t directory_table = {
-	.o_func = open_directory,
-	.c_func = close_directory,
-	.r_func = read_directory,
-	.w_func = write_directory,
+    .o_func = open_directory,
+    .c_func = close_directory,
+    .r_func = read_directory,
+    .w_func = write_directory,
 };
 
 
@@ -41,7 +41,20 @@ asmlinkage int32_t execute(const uint8_t* command)
 
 asmlinkage int32_t read(int32_t fd, void* buf, int32_t num_bytes)
 {
-	return 0;
+    // Grab esp0 from TSS so that we can access the PCB
+    tss_t* tss_base = (tss_t*)&tss;
+    uint32_t esp0 = tss_base->esp0;
+
+    // Mask bottom 13 bits to get the starting address of the PCB
+    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+
+    // If fd is not in-use, then we can't read
+		if(((pcb->fd_array[i]).flags & ISOLATE_BIT_0) == 0)
+        return ERROR;
+
+    // Call the device-specific open function via jump table
+    ((pcb->fd_array[i]).fops_jmp_table->o_func)(filename);
+
 }
 
 asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)

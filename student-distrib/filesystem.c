@@ -6,7 +6,6 @@ boot_block_t * bootblock;
 inode_t * inodes;
 data_block_t * datablocks;
 
-static int32_t ls_count = 0; // Index of the filename to be read when we read from the directory
 
 
 
@@ -196,15 +195,6 @@ void init_filesystem(uint32_t start_addr, uint32_t size)
  */
 int32_t open_file (const uint8_t* filename)
 {
-    dentry_t file_entry;
-    int result = read_dentry_by_name(filename, &file_entry); // Get directory entry by filename
-
-    if(result == FAILURE){
-        return FAILURE;
-    }
-
-    // TODO: CP3. Allocate file descriptor
-
     return SUCCESS;
 }
 
@@ -284,33 +274,43 @@ int32_t close_directory(int32_t fd)
 
 /*
 # int32_t read_directory()
-# DESCRIPTION: Read a filename from the directory
-# INPUTS   : buf: buffer into which to read a filename
+# DESCRIPTION:
+# INPUTS   : fd is the file descriptor
+#            buf is the buffer into which we want to read our file
+#            nbytes is the number of bytes read
 # OUTPUTS  : none
 # RETURN VALUE: Returns 0
-# SIDE EFFECTS: none
+# SIDE EFFECTS: updates the file position
 */
 int32_t read_directory(int32_t fd, void* buf, int32_t nbytes)
 {
+    // get access to the current processes PCB
+    tss_t* tss_base = (tss_t*)&tss;
+    uint32_t esp0 = tss_base->esp0;
+    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+
     int entry_count;
     dentry_t* entries;
 
     entry_count = bootblock->direntries;
     entries = bootblock->files;
 
+    // gets current file position
+    int ls_count = (pcb->fd_array[i]).position;
+
     if(ls_count >= entry_count)
     {
         ls_count = 0; // So subsequent ls calls work
         return 0; // No bytes read (we read all directory entries already)
     }
-
     strncpy((int8_t*)buf, (int8_t*) entries[ls_count].filename, nbytes); // Copy filename (or at least, the number of bytes specified)
 
-    ls_count++; // We just read one more file
+    // assigns current ls position to position
+    ls_count++;
+    (pcb->fd_array[i]).position = ls_count;
 
     if(((int8_t*)buf)[31] != '\0')
         return 32; // Return the number of bytes read
-
     return strlen((int8_t*)buf);
 }
 
