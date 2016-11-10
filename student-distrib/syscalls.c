@@ -36,6 +36,78 @@ asmlinkage int32_t halt(uint8_t status)
 
 asmlinkage int32_t execute(const uint8_t* command)
 {
+	int i;
+	char* argstring = NULL;
+	dentry_t entry;
+	int32_t result;
+	int32_t program_length;
+	uint32_t proc_memory_start;
+
+	int pid;
+	char commandstring[MAX_EXECUTE_ARG_SIZE];
+
+	// if we can't execute since we're out of processes, return failure immediately
+	pid = get_available_pid();
+	if(pid == FAILURE) return FAILURE;
+
+	// if the command is too long, return failure
+	if(strlen((char*) command) >= MAX_EXECUTE_ARG_SIZE) return FAILURE;
+
+	// copy the command into a mutable string
+	strcpy(commandstring, (char*) command);
+
+	// split "command" by first space character
+	// file name will now be in "commandstring", argument string will now be in "argstring"
+	for(i = 0; i < strlen(commandstring); i++) {
+		if(commandstring[i] == ' ') {
+			commandstring[i] = '\0'; // command now ends here
+			argstring = ( commandstring + (i+1) );
+			break;
+		}
+	}
+
+
+	// check file validity, load into memory, set up paging, craete PCB/open FD, context switch
+	result = read_dentry_by_name((uint8_t*) commandstring, &entry);
+	if(result == FAILURE) return result;
+
+	// we can't execute a directory or a device
+	if(entry.filetype != FILETYPE_REGULAR) return FAILURE;
+
+	// check for executable magic number
+	uint8_t magic[4];
+	read_data(entry.inode, 0, magic, sizeof(magic));
+	if(! (magic[0] == 0x7f && magic[1] == 0x45 && magic[2] == 0x4c && magic[3] == 0x46)) {
+		return FAILURE; // not executable
+	}
+
+	// read entry point (bytes 24-27 of executable file)
+	uint32_t entry_point_address;
+	read_data(entry.inode, 24, (uint8_t*) &entry_point_address, sizeof(entry_point_address));
+
+	// mark PID as in use
+	mark_pid_used(pid);
+
+	// set up paging for this process
+	pde_t* pd = get_page_directory_for_pid(pid);
+	pte_t* base_pt = get_base_page_table_for_pid(pid);
+
+	// address we'll load the file to
+	proc_memory_start = block_address_for_process(pid);
+
+	// load the file to this address + the offset given
+	// load a max of 4MB-offset
+	// possibly TODO some error checkign here, but wouldn't be much. 
+	read_data(entry.inode, 0, (uint8_t*) ( proc_memory_start + TASK_PROGRAM_IMAGE_OFFSET ), FOUR_MEGS - TASK_PROGRAM_IMAGE_OFFSET);
+
+	// set up page table
+	setup_task_paging(pd, base_pt, proc_memory_start);
+
+	// set up kernel stack/PCB/TSS 
+	// IRET/jump/whatever
+
+	mark_pid_free(pid);
+
 	return 0;
 }
 
@@ -79,7 +151,7 @@ asmlinkage int32_t open(const uint8_t* filename)
 
 	// Decide whether we're opening RTC, the directory (.), or another file
 
-	if(entry.filetype != 2) // 0: RTC, 1: directory, 2: regular file
+	if(entry.filetype != FILETYPE_REGULAR) // 0: RTC, 1: directory, 2: regular file
 		(pcb->fd_array[i]).inodeNum = NULL; // Directory and RTC files don't have associated inodes
 
 	else

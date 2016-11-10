@@ -1,6 +1,8 @@
 #ifndef PAGING_H
 #define PAGING_H
 
+#include "lib.h"
+
 /* base address of kernel in both physical and virtual memory */
 #define KERNEL_BASE_ADDRESS 0x400000
 #define TWENTY_BIT_ADDRESS_MASK 0xFFFFF000
@@ -28,9 +30,11 @@
 #define PT_ENTRIES 1024
 #define BYTES_TO_ALIGN_TO 4096
 #define BYTES_TO_ALIGN_4MB 0x400000
-#define NOT_PRESENT_MEMORY_START 2
 #define KERNEL_PDE_ENTRY 1
-#define MAX_TASKS 8
+#define PROCESS_BLOCKS_START 2
+#define MAX_TASKS 6
+#define NOT_PRESENT_MEMORY_START (PROCESS_BLOCKS_START + MAX_TASKS)
+
 
 #define TASK_VIRTUAL_BASE_ADDRESS 0x08000000 // (128MB)
 #define TASK_PROGRAM_IMAGE_OFFSET 0x00048000
@@ -39,12 +43,12 @@
 typedef unsigned long pde_t;
 typedef unsigned long pte_t;
 
-/* externs the the page tables so that they can be used in other files */
-extern pde_t kernel_page_directory[PD_ENTRIES];
-extern pte_t kernel_page_table[PT_ENTRIES];
-
 /* so that init function can be used in kernel.c */
 extern void init_paging();
+
+extern pde_t* get_page_directory_for_pid(int pid);
+extern pte_t* get_base_page_table_for_pid(int pid);
+extern void setup_task_paging(pde_t* page_directory, pte_t* base_page_table, uint32_t phys_program_address);
 
 /* written in paging_asm.S */
 extern void paging_hw_enable(pde_t* base);

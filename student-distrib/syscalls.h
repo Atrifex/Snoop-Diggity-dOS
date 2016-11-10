@@ -1,16 +1,20 @@
 #ifndef SYSCALLS_H
 #define SYSCALLS_H
 
+#include "lib.h"
 #include "types.h"
 #include "rtc.h"
 #include "filesystem.h"
 #include "keyboard.h"
 #include "x86_desc.h"
+#include "paging.h"
 
 // constants and other masks
 #define MASK_8KB_ALIGNED 0xFFFFE000
 #define ISOLATE_BIT_0 0x01
 #define MAX_FD_PER_PROCESS 8
+#define MAX_EXECUTE_ARG_SIZE 256
+#define FOUR_MEGS 0x400000
 
 // Jump table sub-types
 typedef int32_t (*open_func)(const uint8_t*);
@@ -56,14 +60,14 @@ struct pcb_t
 	unsigned char* args; // Program's arguments
 	uint8_t pid; // Process id of current process
 
-	// parents info
-	pcb_t* parentPCB;
+	// parent's info
 	uint32_t esp0; // Parent's kernel stack pointer
-	uint32_t parentPid; // process id of parent
-	uint32_t esp; // Parent's user Stack pointer
+	uint32_t parent_pid; // process id of parent
+	uint32_t esp; // Parent's user stack pointer
 	uint32_t ebp; // Parent's user base pointer
 
-	uint32_t flags;
+	uint32_t flags; // we'll use this for something
+
 	// Maybe store IRET context of the parent in the child's PCB?
 	// Or not, because we jump to parent's execute in halt
 };

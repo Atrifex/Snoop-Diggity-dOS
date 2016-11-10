@@ -29,6 +29,11 @@
 // maximum amount of data blocks composing a file
 #define MAX_BLOCKS 1023
 
+// file type constants
+#define FILETYPE_DEVICE 0
+#define FILETYPE_DIRECTORY 1 
+#define FILETYPE_REGULAR 2
+
 // for code clarity.
 typedef unsigned char fs_data_t;
 

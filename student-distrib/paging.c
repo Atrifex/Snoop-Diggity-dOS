@@ -1,5 +1,4 @@
 #include "paging.h"
-#include "lib.h"
 
 /* declarations of kernel kernel_page_directory and kernel_page_table */
 pde_t kernel_page_directory[PD_ENTRIES] __attribute__((aligned(BYTES_TO_ALIGN_TO)));
@@ -14,7 +13,6 @@ pte_t user_level_base_page_tables[MAX_TASKS][PT_ENTRIES] __attribute__((aligned(
 /* local functions */
 void init_kernel_pages();
 void setup_base_page_table(pte_t* base_page_table);
-void setup_task_paging(pde_t* page_directory, pte_t* base_page_table, uint32_t phys_program_address);
 
 
 /*
@@ -48,22 +46,53 @@ void init_kernel_pages()
 
 	// maps 0MB-4MB to the page table we set up below
 	kernel_page_directory[0] = PDE_ADDRESS_ASSIGN(kernel_page_table);
-	kernel_page_directory[0] = kernel_page_directory[0] | PDE_ENTRY_PRESENT;
+	kernel_page_directory[0] |= PDE_ENTRY_PRESENT;
 
 	// set up the page table which describes 0MB-4MB
 	setup_base_page_table(kernel_page_table);
 
 	// map 4MB-8MB to the kernel as a single 4MB page
 	kernel_page_directory[KERNEL_PDE_ENTRY] = PDE_ADDRESS_ASSIGN(KERNEL_BASE_ADDRESS);
-	kernel_page_directory[KERNEL_PDE_ENTRY] = kernel_page_directory[KERNEL_PDE_ENTRY] | PDE_ENTRY_4MB_PRESENT;
+	kernel_page_directory[KERNEL_PDE_ENTRY] |= PDE_ENTRY_4MB_PRESENT;
 
-	// map 8MB-4GB as not present
+	// map 8MB - (8MB + (MAX_TASKS * 4MB)) as present for process blocks
+	for(i = PROCESS_BLOCKS_START; i < NOT_PRESENT_MEMORY_START; i++) {
+		kernel_page_directory[i] = PDE_ADDRESS_ASSIGN(i*BYTES_TO_ALIGN_4MB);
+		kernel_page_directory[i] |= PDE_ENTRY_4MB_PRESENT;
+	}
+
+	// map everything else up to 4GB as not present
 	for(i = NOT_PRESENT_MEMORY_START; i < PD_ENTRIES; i++) {
 		kernel_page_directory[i] = PDE_ADDRESS_ASSIGN(i*BYTES_TO_ALIGN_4MB);
-		kernel_page_directory[i] = kernel_page_directory[i] | PDE_ENTRY_NOT_PRESENT;
+		kernel_page_directory[i] |= PDE_ENTRY_NOT_PRESENT;
 	}
 }
 
+/*
+ * pde_t* get_page_directory_for_pid(int pid)
+ * DESCRIPTION: Returns the corresponding page directory for a PID or NULL if invalid PID is passed
+ * INPUTS: int pid - processs ID to get dir for
+ * OUTPUTS: none
+ * RETURN VALUE: pointer to the page directory
+ * SIDE EFFECTS: none 
+*/
+pde_t* get_page_directory_for_pid(int pid) {
+	if(pid >= MAX_TASKS) return NULL;
+	return user_level_page_directories[pid];
+}
+
+/*
+ * pte_t* get_base_page_table_for_pid(int pid)
+ * DESCRIPTION: Returns the corresponding base page table for a PID or NULL if invalid PID is passed
+ * INPUTS: int pid - processs ID to get dir for
+ * OUTPUTS: none
+ * RETURN VALUE: pointer to the page table
+ * SIDE EFFECTS: none 
+*/
+pte_t* get_base_page_table_for_pid(int pid) {
+	if(pid >= MAX_TASKS) return NULL;
+	return user_level_base_page_tables[pid];
+}
 
 /*
  * void setup_task_paging(pde_t* page_directory, pte_t* base_page_table, uint32_t phys_program_address)
@@ -87,16 +116,16 @@ void setup_task_paging(pde_t* page_directory, pte_t* base_page_table, uint32_t p
 
 	// map 4MB-8MB to the kernel as a single 4MB page
 	page_directory[KERNEL_PDE_ENTRY] = PDE_ADDRESS_ASSIGN(KERNEL_BASE_ADDRESS);
-	page_directory[KERNEL_PDE_ENTRY] = page_directory[KERNEL_PDE_ENTRY] | PDE_ENTRY_4MB_PRESENT;
+	page_directory[KERNEL_PDE_ENTRY] |= PDE_ENTRY_4MB_PRESENT;
 
 	// map the program image at 0x08000000 and mark everything else as not present
 	for(i = NOT_PRESENT_MEMORY_START; i < PD_ENTRIES; i++) {
 		if(i*BYTES_TO_ALIGN_4MB == TASK_VIRTUAL_BASE_ADDRESS) {
 			page_directory[i] = PDE_ADDRESS_ASSIGN(phys_program_address);
-			page_directory[i] = page_directory[i] | PDE_ENTRY_4MB_PRESENT | PDE_USER_ACCESSIBLE;
+			page_directory[i] |= PDE_ENTRY_4MB_PRESENT | PDE_USER_ACCESSIBLE;
 		} else {
 			page_directory[i] = PDE_ADDRESS_ASSIGN(i*BYTES_TO_ALIGN_4MB);
-			page_directory[i] = page_directory[i] | PDE_ENTRY_NOT_PRESENT;
+			page_directory[i] |= PDE_ENTRY_NOT_PRESENT;
 		}
 	}
 }
@@ -118,10 +147,10 @@ void setup_base_page_table(pte_t* base_page_table)
 	for(i=0; i < PT_ENTRIES; i++) {
 		if(i*BYTES_TO_ALIGN_TO == VIDEO_MEM_BASE) {
 			base_page_table[i] = PTE_ADDRESS_ASSIGN(i*BYTES_TO_ALIGN_TO);
-			base_page_table[i] = base_page_table[i] | PTE_ENTRY_PRESENT;
+			base_page_table[i] |= PTE_ENTRY_PRESENT;
 		} else {
 			base_page_table[i] = PTE_ADDRESS_ASSIGN(i*BYTES_TO_ALIGN_TO);
-			base_page_table[i] = base_page_table[i] | PTE_ENTRY_NOT_PRESENT;
+			base_page_table[i] |= PTE_ENTRY_NOT_PRESENT;
 		}
 	}
 }
