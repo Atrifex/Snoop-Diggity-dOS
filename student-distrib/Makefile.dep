@@ -14,9 +14,9 @@ lib.o: lib.c lib.h types.h devices/keyboard.h devices/scancodes.h types.h
 paging.o: paging.c paging.h lib.h types.h
 scheduling.o: scheduling.c scheduling.h filesystem.h types.h syscalls.h \
   lib.h devices/rtc.h types.h devices/keyboard.h devices/scancodes.h \
-  x86_desc.h
+  x86_desc.h paging.h
 syscalls.o: syscalls.c syscalls.h lib.h types.h devices/rtc.h types.h \
-  filesystem.h devices/keyboard.h devices/scancodes.h x86_desc.h
+  filesystem.h devices/keyboard.h devices/scancodes.h x86_desc.h paging.h
 i8259.o: devices/i8259.c devices/i8259.h types.h lib.h types.h
 keyboard.o: devices/keyboard.c devices/keyboard.h devices/scancodes.h \
   types.h lib.h types.h devices/i8259.h filesystem.h
@@ -24,3 +24,4 @@ ps2.o: devices/ps2.c devices/ps2.h lib.h types.h
 rtc.o: devices/rtc.c devices/rtc.h types.h lib.h types.h devices/i8259.h
 scancodes.o: devices/scancodes.c devices/scancodes.h types.h lib.h \
   types.h
+spinlocks.o: synchronization/spinlocks.c synchronization/spinlocks.h
