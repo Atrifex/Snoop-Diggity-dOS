@@ -53,13 +53,24 @@ asmlinkage int32_t read(int32_t fd, void* buf, int32_t num_bytes)
         return ERROR;
 
     // Call the device-specific open function via jump table
-    ((pcb->fd_array[i]).fops_jmp_table->o_func)(filename);
-
+    return ((pcb->fd_array[i]).fops_jmp_table->r_func)(fd, buf, num_bytes);
 }
 
 asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
 {
-	return 0;
+    // Grab esp0 from TSS so that we can access the PCB
+    tss_t* tss_base = (tss_t*)&tss;
+    uint32_t esp0 = tss_base->esp0;
+
+    // Mask bottom 13 bits to get the starting address of the PCB
+    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+
+    // If fd is not in-use, then we can't read
+		if(((pcb->fd_array[i]).flags & ISOLATE_BIT_0) == 0)
+        return ERROR;
+
+    // Call the device-specific open function via jump table
+    return ((pcb->fd_array[i]).fops_jmp_table->w_func)(fd, buf, num_bytes);
 }
 
 asmlinkage int32_t open(const uint8_t* filename)
