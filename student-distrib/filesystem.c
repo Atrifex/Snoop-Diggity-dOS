@@ -252,7 +252,15 @@ int32_t read_file(int32_t fd, void* buf, int32_t nbytes)
     inode_t* file_inode_ptr = pcb->fd_array[fd].inode;
     uint32_t inode_num = get_inode_num(file_inode_ptr);
 
-    return read_data(inode_num, position, buf, nbytes); // read_data will handle the return value
+    int32_t result = read_data(inode_num, position, buf, nbytes); // read_data will handle the return value
+
+    if(result > 0) // If we successfully read some non-zero amount of bytes
+    {
+        position += result;
+        pcb->fd_array[fd].position = position; // Update the file position
+    }
+
+    return result;
 }
 
 /*
