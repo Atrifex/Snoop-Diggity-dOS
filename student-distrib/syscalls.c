@@ -73,6 +73,14 @@ asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
     return ((pcb->fd_array[i]).fops_jmp_table->w_func)(fd, buf, num_bytes);
 }
 
+/*
+ * int32_t open(const uint8_t* filename)
+ * DESCRIPTION: Opens a file in our filesystem
+ * INPUTS   : filename (name of the file we're opening)
+ * OUTPUTS  : none
+ * RETURN VALUE: none
+ * SIDE EFFECTS: Sets up file descriptor, structure for the file
+ */
 asmlinkage int32_t open(const uint8_t* filename)
 {
 	// Grab esp0 from TSS so that we can access the PCB
@@ -104,10 +112,10 @@ asmlinkage int32_t open(const uint8_t* filename)
 	// Decide whether we're opening RTC, the directory (.), or another file
 
 	if(entry.filetype != 2) // 0: RTC, 1: directory, 2: regular file
-		(pcb->fd_array[i]).inodeNum = NULL; // Directory and RTC files don't have associated inodes
+		(pcb->fd_array[i]).inode = NULL; // Directory and RTC files don't have associated inodes
 
 	else
-		(pcb->fd_array[i]).inodeNum = get_inode_ptr(entry.inode); // Else, store the inode pointer
+		(pcb->fd_array[i]).inode = get_inode_ptr(entry.inode); // Else, store the inode pointer
 
 	(pcb->fd_array[i]).position = 0; // We start at the beginning of the file
 	(pcb->fd_array[i]).flags = 1; // The file descriptor is in use
@@ -132,6 +140,14 @@ asmlinkage int32_t open(const uint8_t* filename)
 	return i; // Return the file descriptor allocated by open()
 }
 
+/*
+ * int32_t close_file()
+ * DESCRIPTION: Closes a file
+ * INPUTS   : fd (file descriptor)
+ * OUTPUTS  : none
+ * RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
+ * SIDE EFFECTS: Deletes data necessary to handle the file, makes it available to open
+*/
 asmlinkage int32_t close(int32_t fd)
 {
 	// Grab esp0 from TSS so that we can access the PCB

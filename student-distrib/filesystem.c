@@ -1,12 +1,12 @@
 #include "filesystem.h"
-#include "lib.h"
+#include "lib.h"
+#include "devices/rtc.h"
+#include "syscalls.h"
 
 // pointer to boot block, first inode (inode array), and first data block
 boot_block_t * bootblock;
 inode_t * inodes;
 data_block_t * datablocks;
-
-
 
 
 /*
@@ -150,6 +150,19 @@ inode_t* get_inode_ptr(uint32_t inode_idx)
 }
 
 /*
+ * uint32_t get_inode_num
+ * DESCRIPTION: Returns the index of the inode specified by the inode pointer
+ * INPUTS   : inode_ptr: pointer to the inode specified
+ * OUTPUTS  : None
+ * RETURN VALUE: index of the inode specified
+ * SIDE EFFECTS: N/A.
+ */
+uint32_t get_inode_num(inode_t* inode_ptr)
+{
+    return ((uint32_t)(inode_ptr - inodes))/sizeof(inode_t); // Get the index
+}
+
+/*
  * int32_t get_file_length
  * DESCRIPTION: Returns the length of a file given its directory entry
  * INPUTS   : entry - directory entry ptr for a file
@@ -195,6 +208,8 @@ void init_filesystem(uint32_t start_addr, uint32_t size)
  */
 int32_t open_file (const uint8_t* filename)
 {
+    // We don't need to do anything specific in this function as system call open() will handle everything already
+
     return SUCCESS;
 }
 
@@ -208,23 +223,36 @@ int32_t open_file (const uint8_t* filename)
 */
 int32_t close_file(int32_t fd)
 {
-    // TODO: For CP3, deallocate the file descriptor
+    // We don't need to do anything specific in this function as system call close() will handle everything already
 
-    return 0;
+    return SUCCESS;
 }
 
 /*
-# int32_t read_file()
-# DESCRIPTION: Read file
-# INPUTS   : Ignored
-# OUTPUTS  : none
-# RETURN VALUE: Returns 0
-# SIDE EFFECTS: none
+ * int32_t read_file(int32_t fd, void* buf, int32_t nbytes)
+ * DESCRIPTION: Read data from a file
+ * INPUTS   : fd: file descriptor of the file from which we're reading data, buf: buffer into which to read data,
+ * nbytes: Number of bytes to read
+ * OUTPUTS  : none
+ * RETURN VALUE: Returns the number of bytes read, or -1 if there's an error
+ * SIDE EFFECTS: none
 */
 int32_t read_file(int32_t fd, void* buf, int32_t nbytes)
 {
+    // Grab esp0 from TSS so that we can access the PCB
+    tss_t* tss_base = (tss_t*)&tss;
+    uint32_t esp0 = tss_base->esp0;
 
-    return 0; // We don't have file descriptors yet
+    // Mask bottom 13 bits to get the starting address of the PCB
+    // Valid as PCB is at top of kernel stack, which is 8KB-aligned
+    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+
+    // Get various pieces of information relevant to this file
+    int position = pcb->fd_array[fd].position;
+    inode_t* file_inode_ptr = pcb->fd_array[fd].inode;
+    uint32_t inode_num = get_inode_num(file_inode_ptr);
+
+    return read_data(inode_num, position, buf, nbytes); // read_data will handle the return value
 }
 
 /*
