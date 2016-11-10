@@ -2,9 +2,9 @@
 #define SYSCALLS_H
 
 #include "types.h"
-#include "rtc.h"
+#include "devices/rtc.h"
 #include "filesystem.h"
-#include "keyboard.h"
+#include "devices/keyboard.h"
 #include "x86_desc.h"
 
 // constants and other masks
