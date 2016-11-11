@@ -104,9 +104,9 @@ asmlinkage int32_t execute(const uint8_t* command)
     }
 
 	// check for executable magic number
-	uint8_t magic[4];
+	uint8_t magic[NUM_MAGIC_CHECK];
 	read_data(entry.inode, 0, magic, sizeof(magic));
-	if(! (magic[0] == 0x7f && magic[1] == 0x45 && magic[2] == 0x4c && magic[3] == 0x46)) {
+	if(! (magic[0] == EXECUTABLE_CHECK_0 && magic[1] == EXECUTABLE_CHECK_1 && magic[2] == EXECUTABLE_CHECK_2 && magic[3] == EXECUTABLE_CHECK_3)) {
         return FAILURE; // not executable
 	}
 
@@ -349,8 +349,8 @@ asmlinkage int32_t close(int32_t fd)
     tss_t* tss_base = (tss_t*)&tss;
     pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
-	if(fd < 2 || fd >= MAX_FD_PER_PROCESS)
-		return FAILURE; // Don't allow the user to close stdin, stdout, or invalid FDs.
+    if(fd < MIN_FD_PER_PROCESS || fd >= MAX_FD_PER_PROCESS)
+        return FAILURE; // Don't allow the user to close stdin, stdout, or invalid FDs.
 
 	if((pcb->fd_array[fd]).flags == 0) // If the file wasn't opened
 		return FAILURE;

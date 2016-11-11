@@ -12,6 +12,7 @@
 // constants and other masks
 #define MASK_8KB_ALIGNED 0xFFFFE000
 #define ISOLATE_BIT_0 0x01
+#define MIN_FD_PER_PROCESS 2
 #define MAX_FD_PER_PROCESS 8
 #define MAX_EXECUTE_ARG_SIZE 256
 #define FOUR_MEGS 0x400000
@@ -84,6 +85,13 @@ extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 
 
 // set_handler and sigreturn: TODO for extra credit
+
+// Executable check
+#define NUM_MAGIC_CHECK 4
+#define EXECUTABLE_CHECK_0 0x7f
+#define EXECUTABLE_CHECK_1 0x45
+#define EXECUTABLE_CHECK_2 0x4c
+#define EXECUTABLE_CHECK_3 0x46
 
 // masks for setting up context swtich
 #define SET_IOPRIV_USER 0x00003000
