@@ -100,13 +100,26 @@ extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 #define LITERAL_8KB 0x00002000
 #define KERNEL_STACK_START (0x800000 - LITERAL_8KB)
 #define ACCOUNT_FOR_RET_ADDR 4
+#define ENTRY_POINT_INDEX 24
+
+#define ELF_ID_BYTE_0 0
+#define ELF_ID_BYTE_1 1
+#define ELF_ID_BYTE_2 2
+#define ELF_ID_BYTE_3 3
 
 extern void iret_to_user(unsigned long entry_point_address, unsigned long cs, unsigned long new_flags, unsigned long new_esp, unsigned long ss);
 extern uint32_t get_esp();
 extern uint32_t get_ebp();
 
 
-// macro to enter new program
+/*
+# set_esp_ebp()
+# DESCRIPTION: sets the esp and ebp to a given value
+# INPUTS   : uint32_t par_esp, uint32_t par_ebp
+# OUTPUTS  : none
+# RETURN VALUE: none
+# REGISTER USAGE: esp and ebp
+*/
 #define set_esp_ebp(par_esp, par_ebp) 										                        \
     do {                                                                                            \
         asm volatile("\n                                                                            \
@@ -118,18 +131,5 @@ extern uint32_t get_ebp();
                      : "esp", "ebp"                                                                 \
             );                                                                                      \
     } while(0)
-
-#define hacky_fix() 										                                        \
-    do {                                                                                            \
-        asm volatile("\n                                                                            \
-                        leave      \n                                                               \
-                     "     	                                                                        \
-                     :                                                                              \
-                     : 				                                    							\
-                     : "esp", "ebp"                                                                 \
-            );                                                                                      \
-    } while(0)
-
-
 
 #endif

@@ -3,7 +3,7 @@
 
 void * execute_jmp_loc;
 
-// functions for rtc
+// file operations functions for rtc
 static file_operations_t rtc_table = {
     .o_func = open_rtc,
     .c_func = close_rtc,
@@ -11,7 +11,7 @@ static file_operations_t rtc_table = {
     .w_func = write_rtc,
 };
 
-// functions for terminal
+// file operations functions for terminal
 static file_operations_t terminal_table = {
     .o_func = open_terminal,
     .c_func = close_terminal,
@@ -19,7 +19,7 @@ static file_operations_t terminal_table = {
     .w_func = write_terminal,
 };
 
-// functions for regular file
+// file operations functions for regular file
 static file_operations_t regular_file_table = {
     .o_func = open_file,
     .c_func = close_file,
@@ -27,7 +27,7 @@ static file_operations_t regular_file_table = {
     .w_func = write_file,
 };
 
-// functions for directory
+// file operations functions for directory
 static file_operations_t directory_table = {
     .o_func = open_directory,
     .c_func = close_directory,
@@ -46,6 +46,7 @@ static file_operations_t directory_table = {
  */
 asmlinkage int32_t execute(const uint8_t* command)
 {
+    // local variables used in execute
 	int i;
     unsigned long flags;
 	char* argstring = NULL;
@@ -84,8 +85,8 @@ asmlinkage int32_t execute(const uint8_t* command)
 	// split "command" by first space character
 	// file name will now be in "commandstring", argument string will now be in "argstring"
 	for(i = 0; i < strlen(commandstring); i++) {
-		if(commandstring[i] == ' ') {
-			commandstring[i] = '\0'; // command now ends here
+		if(commandstring[i] == EMPTY_SPACE) {
+			commandstring[i] = NULL_CHAR; // command now ends here
 			argstring = ( commandstring + (i+1) );
 			break;
 		}
@@ -106,13 +107,13 @@ asmlinkage int32_t execute(const uint8_t* command)
 	// check for executable magic number
 	uint8_t magic[NUM_MAGIC_CHECK];
 	read_data(entry.inode, 0, magic, sizeof(magic));
-	if(! (magic[0] == EXECUTABLE_CHECK_0 && magic[1] == EXECUTABLE_CHECK_1 && magic[2] == EXECUTABLE_CHECK_2 && magic[3] == EXECUTABLE_CHECK_3)) {
+	if(!(magic[ELF_ID_BYTE_0] == EXECUTABLE_CHECK_0 && magic[ELF_ID_BYTE_1] == EXECUTABLE_CHECK_1 && magic[ELF_ID_BYTE_2] == EXECUTABLE_CHECK_2 && magic[ELF_ID_BYTE_3] == EXECUTABLE_CHECK_3)) {
         return FAILURE; // not executable
 	}
 
 	// read entry point (bytes 24-27 of executable file)
 	uint32_t entry_point_address;
-	read_data(entry.inode, 24, (uint8_t*) &entry_point_address, sizeof(entry_point_address));
+	read_data(entry.inode, ENTRY_POINT_INDEX, (uint8_t*) &entry_point_address, sizeof(entry_point_address));
 
 	// set up paging for this process
 	pde_t* pd = get_page_directory_for_pid(pid);
@@ -296,7 +297,7 @@ asmlinkage int32_t open(const uint8_t* filename)
 	int i;
 
 	// Allocate an unused file descriptor if possible
-	for(i = 2; i < MAX_FD_PER_PROCESS; i++) // Start at 2 as STDIN and STDOUT are always open
+	for(i = MIN_FD_PER_PROCESS; i < MAX_FD_PER_PROCESS; i++) // Start at 2 as STDIN and STDOUT are always open
 	{
 		if(!((pcb->fd_array[i]).flags & ISOLATE_BIT_0)) // If fd is not in-use
 			break;

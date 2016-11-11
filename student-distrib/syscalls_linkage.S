@@ -6,6 +6,7 @@
 	POP_ONE_ARG 	= 4
 	POP_TWO_ARGS 	= 8
 	POP_THREE_ARGS 	= 12
+	EBX_MASK = 0x000000FF
 
 .globl syscall_jmp_table # Make this accessible to the syscall interrupt handler
 
@@ -29,13 +30,13 @@ halt_wrap:
 	# No need to save caller-save registers as this is done in system_call_handler
 	# Callee-save registers are handled via calling the C function
 
-	andl $0x000000FF, %ebx
+	andl $EBX_MASK, %ebx
 	pushl %ebx # Argument to the halt system call
 	call halt
 
 	# Should never get here
 	addl $POP_ONE_ARG, %esp
-	ret 
+	ret
 
 # void execute_wrap()
 # DESCRIPTION: assembly linkage for the execute system call.
@@ -68,7 +69,7 @@ read_wrap:
 
 	pushl %edx # Arguments to the read system call
 	pushl %ecx
-	pushl %ebx 
+	pushl %ebx
 	call read
 	addl $POP_THREE_ARGS, %esp
 	ret
@@ -87,7 +88,7 @@ write_wrap:
 
 	pushl %edx # Arguments to the write system call
 	pushl %ecx
-	pushl %ebx 
+	pushl %ebx
 	call write
 	addl $POP_THREE_ARGS, %esp
 	ret

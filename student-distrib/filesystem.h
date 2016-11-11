@@ -5,6 +5,7 @@
 
 // size of filenames in bytes
 #define FILE_NAME_SIZE 32
+#define FILE_NAME_LST_IDX 31
 
 #define THREE_BYTES 3
 
@@ -31,7 +32,7 @@
 
 // file type constants
 #define FILETYPE_DEVICE 0
-#define FILETYPE_DIRECTORY 1 
+#define FILETYPE_DIRECTORY 1
 #define FILETYPE_REGULAR 2
 
 // for code clarity.

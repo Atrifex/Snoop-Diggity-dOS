@@ -345,8 +345,8 @@ int32_t read_directory(int32_t fd, void* buf, int32_t nbytes)
     ls_count++;
     (pcb->fd_array[fd]).position = ls_count;
 
-    if(((int8_t*)buf)[31] != '\0')
-        return 32; // Return the number of bytes read
+    if(((int8_t*)buf)[FILE_NAME_LST_IDX] != '\0')
+        return FILE_NAME_SIZE; // Return the number of bytes read
     return strlen((int8_t*)buf);
 }
 
