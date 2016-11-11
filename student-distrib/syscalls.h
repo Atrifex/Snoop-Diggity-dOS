@@ -14,7 +14,7 @@
 #define ISOLATE_BIT_0 0x01
 #define MIN_FD_PER_PROCESS 2
 #define MAX_FD_PER_PROCESS 8
-#define MAX_EXECUTE_ARG_SIZE 256
+#define MAX_EXECUTE_ARG_SIZE 128
 #define FOUR_MEGS 0x400000
 
 // Jump table sub-types

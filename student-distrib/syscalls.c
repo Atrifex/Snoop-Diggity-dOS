@@ -382,7 +382,22 @@ asmlinkage int32_t close(int32_t fd)
  */
 asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes)
 {
-	return -1;
+    // if(num_bytes < 0)
+    //     return FAILURE;
+
+    // // Grab esp0 from TSS so that we can access the PCB
+    // tss_t* tss_base = (tss_t*)&tss;
+    // pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+
+    // int8_t * arguments = (int8_t *)pcb->args;
+
+    // if(strlen(arguments) > num_bytes)
+    //     return FAILURE;
+
+    // strncpy((int8_t *)buf, arguments, num_bytes);
+
+    // return SUCCESS;
+    return FAILURE;
 }
 
 
