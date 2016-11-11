@@ -119,7 +119,7 @@ asmlinkage int32_t execute(const uint8_t* command)
     pcb_t* pcb_child = (pcb_t*)(KERNEL_STACK_START - (pid+1)*LITERAL_8KB);
     pcb_child->esp0 = tss_base->esp0;
     pcb_child->parentPCB = pcb_curr;
-    pcb_child->args = (unsigned char *)argstring; 
+    pcb_child->args = (unsigned char *)argstring;
 
     // set up kernel stack for child process
     tss_base->esp0 = (uint32_t)(KERNEL_STACK_START - pid*LITERAL_8KB);
@@ -135,10 +135,10 @@ asmlinkage int32_t execute(const uint8_t* command)
     pcb_child->fd_array[STDOUT].inode = NULL;
     pcb_child->fd_array[STDOUT].position = 0;
     pcb_child->fd_array[STDOUT].flags = 1;
-	
+
 	mark_pid_used(pid);
 	set_new_page_directory(pd);
-	
+
     /* IRET Context:
      *       |--------------------|
      *       | .........          |
@@ -152,8 +152,7 @@ asmlinkage int32_t execute(const uint8_t* command)
      */
     unsigned long new_esp = (unsigned long)(proc_memory_start + LITERAL_4MB);
     unsigned long new_flags = SET_INTERRUPTS | SET_IOPRIV_USER;
-
-    iret_to_user(entry_point_address, USER_CS, new_flags, new_esp, USER_DS);                       \
+    iret_to_user((unsigned long)entry_point_address, (unsigned long)USER_CS, (unsigned long)new_flags, (unsigned long)new_esp, (unsigned long)USER_DS);
 
 JMP_POS_HALT:
 	restore_flags(flags);
