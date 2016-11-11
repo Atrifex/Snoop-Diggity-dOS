@@ -9,7 +9,7 @@ filesystem.o: filesystem.c filesystem.h types.h lib.h devices/rtc.h \
   types.h x86_desc.h paging.h
 interrupt_handler.o: interrupt_handler.c interrupt_handler.h lib.h \
   types.h devices/rtc.h types.h devices/i8259.h devices/keyboard.h \
-  devices/scancodes.h
+  devices/scancodes.h syscalls.h filesystem.h x86_desc.h paging.h
 kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h devices/i8259.h \
   types.h debug.h devices/rtc.h paging.h devices/keyboard.h \
   devices/scancodes.h filesystem.h syscalls.h devices/rtc.h \

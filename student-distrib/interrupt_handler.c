@@ -3,6 +3,7 @@
 #include "rtc.h"
 #include "i8259.h"
 #include "keyboard.h"
+#include "syscalls.h"
 
 /*
  * void ignore_int_sub()
@@ -17,7 +18,7 @@
 void ignore_int_sub()
 {
 	printf("Unknown interrupt");
-	while(1);
+	halt(0);
 }
 
 /* 18 Exceptions */
@@ -35,7 +36,7 @@ void exception_handler_0_sub()
 {
 	clear_and_reset();
 	printf("EXCEPTION: DIVIDE BY ZERO ERROR\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -49,7 +50,7 @@ void exception_handler_0_sub()
 void exception_handler_2_sub()
 {
 	printf("EXCEPTION: NMI INTERRUPT\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -63,7 +64,7 @@ void exception_handler_2_sub()
 void exception_handler_3_sub()
 {
 	printf("EXCEPTION: BREAKPOINT\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -77,7 +78,7 @@ void exception_handler_3_sub()
 void exception_handler_4_sub()
 {
 	printf("EXCEPTION: OVERFLOW\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -91,7 +92,7 @@ void exception_handler_4_sub()
 void exception_handler_5_sub()
 {
 	printf("EXCEPTION: BOUND RANGE EXCEEDED ERROR\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -105,7 +106,7 @@ void exception_handler_5_sub()
 void exception_handler_6_sub()
 {
 	printf("EXCEPTION: INVALID OPCODE ERROR\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -119,7 +120,7 @@ void exception_handler_6_sub()
 void exception_handler_7_sub()
 {
 	printf("EXCEPTION: DEVICE NOT AVAILABLE\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -133,7 +134,7 @@ void exception_handler_7_sub()
 void exception_handler_8_sub()
 {
 	printf("EXCEPTION: DOUBLE FAULT\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -147,7 +148,7 @@ void exception_handler_8_sub()
 void exception_handler_9_sub()
 {
 	printf("EXCEPTION: COPROCESSOR SEGMENT OVERRUN\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -161,7 +162,7 @@ void exception_handler_9_sub()
 void exception_handler_10_sub()
 {
 	printf("EXCEPTION: INVALID TSS ERROR\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -175,7 +176,7 @@ void exception_handler_10_sub()
 void exception_handler_11_sub()
 {
 	printf("EXCEPTION: SEGMENT NOT PRESENT ERROR\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -189,7 +190,7 @@ void exception_handler_11_sub()
 void exception_handler_12_sub()
 {
 	printf("EXCEPTION: STACK-SEGMENT FAULT\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -203,7 +204,7 @@ void exception_handler_12_sub()
 void exception_handler_13_sub()
 {
 	printf("EXCEPTION: GENERAL PROTECTION FAULT\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -217,7 +218,7 @@ void exception_handler_13_sub()
 void exception_handler_14_sub()
 {
 	printf("EXCEPTION: PAGE FAULT ERROR\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -231,7 +232,7 @@ void exception_handler_14_sub()
 void exception_handler_16_sub()
 {
 	printf("EXCEPTION: x87 FPU FLOATING-POINT ERROR\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -245,7 +246,7 @@ void exception_handler_16_sub()
 void exception_handler_17_sub()
 {
 	printf("EXCEPTION: ALIGNMENT CHECK\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -259,7 +260,7 @@ void exception_handler_17_sub()
 void exception_handler_18_sub()
 {
 	printf("EXCEPTION: MACHINE CHECK\n");
-	while(1);
+	halt(0);
 }
 
 /*
@@ -273,7 +274,7 @@ void exception_handler_18_sub()
 void exception_handler_19_sub()
 {
 	printf("EXCEPTION: SIMD FLOATING-POINT EXCEPTION\n");
-	while(1);
+	halt(0);
 }
 
 

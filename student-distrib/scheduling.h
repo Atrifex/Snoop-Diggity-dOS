@@ -11,7 +11,6 @@
 #define PID_SPACE 0x400000
 #define MAX_NUM_PROCS 6
 
-
 extern int get_available_pid();
 extern int mark_pid_used(int pid);
 extern int mark_pid_free(int pid);

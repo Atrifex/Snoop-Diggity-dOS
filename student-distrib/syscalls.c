@@ -3,6 +3,9 @@
 
 void * execute_jmp_loc;
 
+// local functions
+void clear_fd_array(file_info_t * fd_array);
+
 // file operations functions for rtc
 static file_operations_t rtc_table = {
     .o_func = open_rtc,
@@ -152,6 +155,9 @@ asmlinkage int32_t execute(const uint8_t* command)
     pcb_child->fd_array[STDOUT].inode = NULL;
     pcb_child->fd_array[STDOUT].position = 0;
     pcb_child->fd_array[STDOUT].flags = 1;
+
+    // clears fd from from 2 to fd 8
+    clear_fd_array(pcb_child->fd_array);
 
 	mark_pid_used(pid);
 	set_new_page_directory(pd);
@@ -391,4 +397,25 @@ asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes)
 asmlinkage int32_t vidmap(uint8_t** screen_start)
 {
 	return 0;
+}
+
+
+/*
+ * void clear_fd_array()
+ * DESCRIPTION: clears the used bit in the fd_array
+ * INPUTS   : file_info_t * fd_array - pointer to the current process fd
+ * OUTPUTS  : none
+ * RETURN VALUE: none
+ * SIDE EFFECTS: clears value currently store in fd
+ */
+void clear_fd_array(file_info_t * fd_array)
+{
+    int i;
+    for(i = MIN_FD_PER_PROCESS; i < MAX_FD_PER_PROCESS; i++)
+    {
+        fd_array[i].fops_jmp_table = NULL;
+        fd_array[i].inode = NULL;
+        fd_array[i].position = 0;
+        fd_array[i].flags = 0;
+    }
 }
