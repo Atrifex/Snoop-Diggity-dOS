@@ -5,7 +5,7 @@
 	ARGUMENT_ONE = 8
 
 .text
-.globl paging_hw_enable
+.globl paging_hw_enable, set_new_page_directory
 
 # paging_hw_enable(pde_t* base)
 # DESCRIPTION: places pointer to the descriptor table into cr3
