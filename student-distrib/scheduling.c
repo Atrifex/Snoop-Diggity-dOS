@@ -1,11 +1,7 @@
 #include "scheduling.h"
-#define SHIFT 1
-#define BITMASK 0x1
-#define FREE_MASK 0xcf
-#define START_MEM 0x800000 //8 MB
-#define PID_SPACE 0x400000
 
-uint8_t pid_avail = 0x00; 
+
+uint8_t pid_avail = 0x00;
 
 int get_available_pid() { // return FAILURE (-1) if none left (MAX_TASKS) reached
 	int i;

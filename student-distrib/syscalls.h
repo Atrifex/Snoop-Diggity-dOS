@@ -87,4 +87,25 @@ extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 
 // set_handler and sigreturn: TODO for extra credit
 
+// masks for setting up context swtich
+#define SET_IOPRIV_USER 0x0003000
+#define SET_INTERRUPTS 0x0000200
+#define LITERAL_4MB 0x400000
+
+// macro to enter new program
+#define iret_to_ring_3(entry_point, code_seg, new_flags, new_esp, stack_seg)                        \
+    do {                                                                                            \
+        asm volatile("\n                                                                            \
+                        pushl %0      \n                                                            \
+                        pushl %1      \n                                                            \
+                        pushl %2      \n                                                            \
+                        pushl %3      \n                                                            \
+                        pushl %4      \n                                                            \
+                        iret"     	                                                                \
+                     :                                                                              \
+                     : "r"(stack_seg), "r"(new_esp), "r"(new_flags),"r"(code_seg), "r"(entry_point) \
+                     : "memory", "eax"                                                              \
+            );                                                                                      \
+    } while(0)
+
 #endif

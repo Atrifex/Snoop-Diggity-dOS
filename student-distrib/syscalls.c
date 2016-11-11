@@ -109,29 +109,28 @@ asmlinkage int32_t execute(const uint8_t* command)
 
 	// load the file to this address + the offset given
 	// load a max of 4MB-offset
-	// possibly TODO some error checkign here, but wouldn't be much. 
+	// possibly TODO some error checkign here, but wouldn't be much.
 	read_data(entry.inode, 0, (uint8_t*) ( proc_memory_start + TASK_PROGRAM_IMAGE_OFFSET ), FOUR_MEGS - TASK_PROGRAM_IMAGE_OFFSET);
 
 	// set up page table
 	setup_task_paging(pd, base_pt, proc_memory_start);
 
-  // restore interrupts explicitly
-  // or modify the bit in the iret context---> that way we dont just do sti when we return back to the parent process
-  //  EIP, CS, EFLAGS, ESP, and SS registers
-  /*
-   *   IRET Context:
-   *       |--------------------|
-   *       | ...                |
-   *       | EIP/Return Address |
-   *       | XCS                |
-   *       | EFlags             |
-   *       | ESP                |
-   *       | XSS                |
-   *       | ...                |
-   *       |--------------------|
-   *
-   */
+    /* IRET Context:
+     *       |--------------------|
+     *       | .........          |
+     *       | EIP/Return Address |
+     *       | XCS - user         |
+     *       | EFlags             |
+     *       | ESP                |
+     *       | XSS - user         |
+     *       | .........          |
+     *       |--------------------|
+     */
+    unsigned long new_esp = proc_memory_start + LITERAL_4MB - 1;
+    unsigned long new_flags = flags & SET_INTERRUPTS & SET_IOPRIV_USER;
+    iret_to_ring_3(entry_point_address, USER_CS, new_flags, new_esp, USER_DS);                       \
 
+JMP_POS_HALT:
 	restore_flags(flags);
 
 	mark_pid_free(pid);

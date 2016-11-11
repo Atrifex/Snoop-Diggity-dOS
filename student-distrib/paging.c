@@ -74,7 +74,7 @@ void init_kernel_pages()
  * INPUTS: int pid - processs ID to get dir for
  * OUTPUTS: none
  * RETURN VALUE: pointer to the page directory
- * SIDE EFFECTS: none 
+ * SIDE EFFECTS: none
 */
 pde_t* get_page_directory_for_pid(int pid) {
 	if(pid >= MAX_TASKS) return NULL;
@@ -87,7 +87,7 @@ pde_t* get_page_directory_for_pid(int pid) {
  * INPUTS: int pid - processs ID to get dir for
  * OUTPUTS: none
  * RETURN VALUE: pointer to the page table
- * SIDE EFFECTS: none 
+ * SIDE EFFECTS: none
 */
 pte_t* get_base_page_table_for_pid(int pid) {
 	if(pid >= MAX_TASKS) return NULL;
@@ -110,7 +110,7 @@ void setup_task_paging(pde_t* page_directory, pte_t* base_page_table, uint32_t p
 	// as accessing video memory at VIDEO_MEM_BASE should only be done by the kernel, vidmap will enable userspace level video memory accesss
 	page_directory[0] = PDE_ADDRESS_ASSIGN(base_page_table);
 	page_directory[0] |= PDE_ENTRY_PRESENT;
-	
+
 	// setup the base page table mapping 0MB-4MB as not present except for video memory
 	setup_base_page_table(base_page_table);
 
