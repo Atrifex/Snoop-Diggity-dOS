@@ -12,7 +12,7 @@ idt_jmp_table:
 	.long IRQ0_handler, IRQ1_handler, ignore_int, IRQ3_handler, IRQ4_handler, IRQ5_handler
 	.long IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
 	.long IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler
-	.long system_call_handler 
+	.long system_call_handler
 
 .text
 
@@ -828,6 +828,13 @@ system_call_handler:
 	pushl %ecx
 	pushl %edx
 
+	# check for bounds of interrupt
+	cmpl $1, %eax
+	jl error
+	cmpl $8, %eax
+	jg error
+
+
 	# Call the appropriate syscall assembly wrapper based on the syscall number
 	call *syscall_jmp_table(, %eax, 4) # EAX stores the call number
 
@@ -836,4 +843,12 @@ system_call_handler:
 	popl %ecx
 
 	# Return from interrupt
+	iret
+
+error:
+	# Restore caller save registers
+	popl %edx
+	popl %ecx
+	movl $-1, %eax
+
 	iret

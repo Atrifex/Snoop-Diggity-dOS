@@ -382,7 +382,7 @@ asmlinkage int32_t close(int32_t fd)
  */
 asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes)
 {
-	return 0;
+	return -1;
 }
 
 
@@ -396,7 +396,7 @@ asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes)
  */
 asmlinkage int32_t vidmap(uint8_t** screen_start)
 {
-	return 0;
+	return -1;
 }
 
 

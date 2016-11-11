@@ -20,8 +20,8 @@ data_block_t * datablocks;
 int32_t read_dentry_by_name(const uint8_t * fname, dentry_t * dentry)
 {
     int i;
-
-    for (i = 0; i < NUM_FILES_CAP; i++) { // iterate the directory entry array
+    int num_files = bootblock->direntries;
+    for (i = 0; i < num_files; i++) { // iterate the directory entry array
         // compare the given filename against the current entry file name
         if (strncmp((int8_t *) fname, (int8_t *) bootblock->files[i].filename, FILE_NAME_SIZE) == 0) {
             // if it matches, copy the directory entry and then return
@@ -142,7 +142,8 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t lengt
  */
 inode_t* get_inode_ptr(uint32_t inode_idx)
 {
-    if(inode_idx < NUM_FILES_CAP)
+    int num_inodes = bootblock->inodes;
+    if(inode_idx < num_inodes)
         return &(inodes[inode_idx]);
 
     else
