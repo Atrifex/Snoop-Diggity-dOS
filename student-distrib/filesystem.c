@@ -72,7 +72,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t lengt
 
     // Access the first block number
     block_numbers_idx = 0;
-    block_num         = (inodes[inode].block_numbers)[block_numbers_idx];
+    block_num = (inodes[inode].block_numbers)[block_numbers_idx];
 
     // Error-checking on block_num
     if (block_num < 0 || block_num >= bootblock->datablocks)
@@ -245,7 +245,7 @@ int32_t read_file(int32_t fd, void* buf, int32_t nbytes)
 
     // Mask bottom 13 bits to get the starting address of the PCB
     // Valid as PCB is at top of kernel stack, which is 8KB-aligned
-    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+    pcb_t* pcb = (pcb_t*)((esp0-1) & MASK_8KB_ALIGNED);
 
     // Get various pieces of information relevant to this file
     int position = pcb->fd_array[fd].position;
@@ -323,7 +323,7 @@ int32_t read_directory(int32_t fd, void* buf, int32_t nbytes)
     // get access to the current processes PCB
     tss_t* tss_base = (tss_t*)&tss;
     uint32_t esp0 = tss_base->esp0;
-    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+    pcb_t* pcb = (pcb_t*)((esp0-1) & MASK_8KB_ALIGNED);
 
     int entry_count;
     dentry_t* entries;

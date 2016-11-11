@@ -47,17 +47,19 @@ asmlinkage int32_t execute(const uint8_t* command)
 	int pid;
 	char commandstring[MAX_EXECUTE_ARG_SIZE];
 
+	// get pointer to current pcb by using tss
+    tss_t* tss_base = (tss_t*)&tss;
+    pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+
     cli_and_save(flags);
 
 	// if we can't execute since we're out of processes, return failure immediately
 	pid = get_available_pid();
 	if(pid == FAILURE) return FAILURE;
 
-	mark_pid_used(pid);
 
 	// if the command is too long, return failure
 	if(strlen((char*) command) >= MAX_EXECUTE_ARG_SIZE){
-        mark_pid_free(pid);
         return FAILURE;
     }
 
@@ -78,13 +80,11 @@ asmlinkage int32_t execute(const uint8_t* command)
 	// check file validity, load into memory, set up paging, craete PCB/open FD, context switch
 	result = read_dentry_by_name((uint8_t*) commandstring, &entry);
 	if(result == FAILURE){
-        mark_pid_free(pid);
         return FAILURE;
     }
 
 	// we can't execute a directory or a device
 	if(entry.filetype != FILETYPE_REGULAR){
-        mark_pid_free(pid);
         return FAILURE;
     }
 
@@ -92,7 +92,6 @@ asmlinkage int32_t execute(const uint8_t* command)
 	uint8_t magic[4];
 	read_data(entry.inode, 0, magic, sizeof(magic));
 	if(! (magic[0] == 0x7f && magic[1] == 0x45 && magic[2] == 0x4c && magic[3] == 0x46)) {
-        mark_pid_free(pid);
         return FAILURE; // not executable
 	}
 
@@ -115,13 +114,29 @@ asmlinkage int32_t execute(const uint8_t* command)
 	// set up page table
 	setup_task_paging(pd, base_pt, proc_memory_start);
 
-    // set up kernel stack
 
-    // Mask bottom 13 bits to get the starting address of the PCB
-    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+    // set up child PCB
+    pcb_t* pcb_child = (pcb_t*)(KERNEL_STACK_START - (pid+1)*LITERAL_8KB);
+    pcb_child->esp0 = tss_base->esp0;
+    pcb_child->parentPCB = pcb_curr;
+    pcb_child->args = (unsigned char *)argstring; 
 
+    // set up kernel stack for child process
+    tss_base->esp0 = (uint32_t)(KERNEL_STACK_START - pid*LITERAL_8KB);
 
+    //set stdin in fd array
+    pcb_child->fd_array[STDIN].fops_jmp_table = &terminal_table;
+    pcb_child->fd_array[STDIN].inode = NULL;
+    pcb_child->fd_array[STDIN].position = 0;
+    pcb_child->fd_array[STDIN].flags = 1;
 
+    //set stdout in fd array
+    pcb_child->fd_array[STDOUT].fops_jmp_table = &terminal_table;
+    pcb_child->fd_array[STDOUT].inode = NULL;
+    pcb_child->fd_array[STDOUT].position = 0;
+    pcb_child->fd_array[STDOUT].flags = 1;
+	
+	mark_pid_used(pid);
 
     /* IRET Context:
      *       |--------------------|
@@ -134,9 +149,9 @@ asmlinkage int32_t execute(const uint8_t* command)
      *       | .........          |
      *       |--------------------|
      */
-    unsigned long new_esp = proc_memory_start + LITERAL_4MB - 1;
-    unsigned long new_flags = flags & SET_INTERRUPTS & SET_IOPRIV_USER;
-    iret_to_ring_3(entry_point_address, USER_CS, new_flags, new_esp, USER_DS);                       \
+    unsigned long new_esp = (unsigned long)(proc_memory_start + LITERAL_4MB);
+    unsigned long new_flags = SET_INTERRUPTS | SET_IOPRIV_USER;
+    iret_to_user(entry_point_address, USER_CS, new_flags, new_esp, USER_DS);                       \
 
 JMP_POS_HALT:
 	restore_flags(flags);
@@ -158,10 +173,7 @@ asmlinkage int32_t read(int32_t fd, void* buf, int32_t num_bytes)
 {
     // Grab esp0 from TSS so that we can access the PCB
     tss_t* tss_base = (tss_t*)&tss;
-    uint32_t esp0 = tss_base->esp0;
-
-    // Mask bottom 13 bits to get the starting address of the PCB
-    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+    pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
     // If fd is not in-use, then we can't read
 	if(((pcb->fd_array[fd]).flags & ISOLATE_BIT_0) == 0)
@@ -183,10 +195,7 @@ asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
 {
     // Grab esp0 from TSS so that we can access the PCB
     tss_t* tss_base = (tss_t*)&tss;
-    uint32_t esp0 = tss_base->esp0;
-
-    // Mask bottom 13 bits to get the starting address of the PCB
-    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+    pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
     // If fd is not in-use, then we can't read
 	if(((pcb->fd_array[fd]).flags & ISOLATE_BIT_0) == 0)
@@ -207,12 +216,8 @@ asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
 asmlinkage int32_t open(const uint8_t* filename)
 {
 	// Grab esp0 from TSS so that we can access the PCB
-	tss_t* tss_base = (tss_t*)&tss;
-	uint32_t esp0 = tss_base->esp0;
-
-	// Mask bottom 13 bits to get the starting address of the PCB
-	// Valid as PCB is at top of kernel stack, which is 8KB-aligned
-	pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+    tss_t* tss_base = (tss_t*)&tss;
+    pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
 	dentry_t entry;
 
@@ -273,12 +278,8 @@ asmlinkage int32_t open(const uint8_t* filename)
 asmlinkage int32_t close(int32_t fd)
 {
 	// Grab esp0 from TSS so that we can access the PCB
-	tss_t* tss_base = (tss_t*)&tss;
-	uint32_t esp0 = tss_base->esp0;
-
-	// Mask bottom 13 bits to get the starting address of the PCB
-	// Valid as PCB is at top of kernel stack, which is 8KB-aligned
-	pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+    tss_t* tss_base = (tss_t*)&tss;
+    pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
 	if(fd < 2 || fd >= MAX_FD_PER_PROCESS)
 		return FAILURE; // Don't allow the user to close stdin, stdout, or invalid FDs.

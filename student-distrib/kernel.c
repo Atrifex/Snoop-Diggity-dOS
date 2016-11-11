@@ -11,6 +11,7 @@
 #include "paging.h"
 #include "devices/keyboard.h"
 #include "filesystem.h"
+#include "syscalls.h"
 
 extern unsigned long* idt_jmp_table;
 
@@ -256,19 +257,20 @@ entry (unsigned long magic, unsigned long addr)
 	/* Enable interrupts */
     sti();
 
-    unsigned char buf[128];
+    //unsigned char buf[128];
 
     // welcome!
     printf_t("Welcome to Snoop-Diggity-dOS 0.2\n");
 
     // minimal tests for read and write terminal
-    printf_t("Read Terminal Test\n");
-    int32_t read_term_bytes;
-    while((read_term_bytes = read_terminal(STDIN,buf,128))<= 0);
-    printf_t("Write Terminal Test\n");
-    write_terminal(STDOUT,buf, read_term_bytes);
+    // printf_t("Read Terminal Test\n");
+    // int32_t read_term_bytes;
+    // while((read_term_bytes = read_terminal(STDIN,buf,128))<= 0);
+    // printf_t("Write Terminal Test\n");
+    // write_terminal(STDOUT,buf, read_term_bytes);
 
 	/* Execute the first program (`shell') ... */
+	execute("shell");	
 
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");

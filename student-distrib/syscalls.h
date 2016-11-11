@@ -58,18 +58,16 @@ struct pcb_t
 	file_info_t fd_array[MAX_FD_PER_PROCESS]; // File descriptors allocated for this process
 
 	unsigned char* args; // Program's arguments
-	uint8_t pid; // Process id of current process
+	uint8_t pid; 	// Process id of current process
 
 	// parent's info
-	uint32_t esp0; // Parent's kernel stack pointer
-	uint32_t parent_pid; // process id of parent
-	uint32_t esp; // Parent's user stack pointer
-	uint32_t ebp; // Parent's user base pointer
+	pcb_t * parentPCB;
+	uint32_t esp0; 	// Parent's kernel stack pointer
 
+	// unused for now ---> may use during scheduling
+	uint32_t esp; 	// user stack pointer
+	uint32_t ebp; 	// user base pointer
 	uint32_t flags; // we'll use this for something
-
-	// Maybe store IRET context of the parent in the child's PCB?
-	// Or not, because we jump to parent's execute in halt
 };
 
 // System calls for our OS
@@ -92,10 +90,10 @@ extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 #define SET_INTERRUPTS 0x0000200
 #define LITERAL_4MB 0x00400000
 #define LITERAL_8KB 0x00002000
-#define
+#define KERNEL_STACK_START 0x800000
 
 // macro to enter new program
-#define iret_to_ring_3(entry_point, code_seg, new_flags, new_esp, stack_seg)                        \
+#define iret_to_user(entry_point, code_seg, new_flags, new_esp, stack_seg)                          \
     do {                                                                                            \
         asm volatile("\n                                                                            \
                         pushl %0      \n                                                            \
@@ -106,7 +104,7 @@ extern asmlinkage int32_t vidmap(uint8_t** screen_start);
                         iret"     	                                                                \
                      :                                                                              \
                      : "r"(stack_seg), "r"(new_esp), "r"(new_flags),"r"(code_seg), "r"(entry_point) \
-                     : "memory", "eax"                                                              \
+                     : "memory"                                                                     \
             );                                                                                      \
     } while(0)
 
