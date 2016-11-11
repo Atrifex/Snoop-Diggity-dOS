@@ -248,6 +248,7 @@ unsigned long process_sent_scancode()
             // ctrl + l is pressed then clear screen
             clear_and_reset();
             set_cursor_location(0,0);
+            printf_t("391OS> ");            // prints prompt for shell
             printf_t("%s",stdin);           // print current buffered value
         } else if(mapped.result == ASCII_SIX){
             // ctrl + 6 is pressed then change color
