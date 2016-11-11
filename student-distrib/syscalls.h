@@ -90,27 +90,38 @@ extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 #define SET_INTERRUPTS 0x0000200
 #define LITERAL_4MB FOUR_MEGS
 #define LITERAL_8KB 0x00002000
-#define KERNEL_STACK_START 0x800000
-
+#define KERNEL_STACK_START (0x800000 - LITERAL_8KB)
+#define ACCOUNT_FOR_RET_ADDR 4
 
 extern void iret_to_user(unsigned long entry_point_address, unsigned long cs, unsigned long new_flags, unsigned long new_esp, unsigned long ss);
+extern uint32_t get_esp();
+extern uint32_t get_ebp();
 
-/*
+
 // macro to enter new program
-// #define iret_to_user(entry_point, code_seg, new_flags, new_esp, stack_seg)                          \
-//     do {                                                                                            \
-//         asm volatile("\n                                                                            \
-//                         pushl %0      \n                                                            \
-//                         pushl %1      \n                                                            \
-//                         pushl %2      \n                                                            \
-//                         pushl %3      \n                                                            \
-//                         pushl %4      \n                                                            \
-//                         iret"     	                                                                \
-//                      :                                                                              \
-//                      : "r"(stack_seg), "r"(new_esp), "r"(new_flags),"r"(code_seg), "r"(entry_point) \
-//                      : "memory"                                                                     \
-//             );                                                                                      \
-//     } while(0)
-*/
+#define set_esp_ebp(par_esp, par_ebp) 										                        \
+    do {                                                                                            \
+        asm volatile("\n                                                                            \
+                        movl %0, %%esp      \n                                                      \
+                        movl %1, %%ebp      \n                                                      \
+                     "     	                                                                        \
+                     :                                                                              \
+                     : "r"(par_esp), "r"(par_ebp)				                                    \
+                     : "esp", "ebp"                                                                 \
+            );                                                                                      \
+    } while(0)
+
+#define hacky_fix() 										                                        \
+    do {                                                                                            \
+        asm volatile("\n                                                                            \
+                        leave      \n                                                               \
+                     "     	                                                                        \
+                     :                                                                              \
+                     : 				                                    							\
+                     : "esp", "ebp"                                                                 \
+            );                                                                                      \
+    } while(0)
+
+
 
 #endif

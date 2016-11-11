@@ -69,6 +69,21 @@ void init_kernel_pages()
 }
 
 /*
+ * pde_t* get_kernel_page_directory()
+ * DESCRIPTION: returns a pointer to the kernel page directory
+ * INPUTS: none
+ * OUTPUTS: none
+ * RETURN VALUE: pointer to the page directory
+ * SIDE EFFECTS: none
+*/
+pde_t* get_kernel_page_directory()
+{
+	return kernel_page_directory;
+}
+
+
+
+/*
  * pde_t* get_page_directory_for_pid(int pid)
  * DESCRIPTION: Returns the corresponding page directory for a PID or NULL if invalid PID is passed
  * INPUTS: int pid - processs ID to get dir for

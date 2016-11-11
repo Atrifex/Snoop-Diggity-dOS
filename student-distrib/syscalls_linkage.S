@@ -32,11 +32,10 @@ halt_wrap:
 	andl $0x000000FF, %ebx
 	pushl %ebx # Argument to the halt system call
 	call halt
+
+	# Should never get here
 	addl $POP_ONE_ARG, %esp
-
-	# Jump to EXECUTE
-
-	ret # Should never get here
+	ret 
 
 # void execute_wrap()
 # DESCRIPTION: assembly linkage for the execute system call.

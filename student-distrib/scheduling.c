@@ -3,6 +3,10 @@
 
 uint8_t pid_avail = 0x00;
 
+uint8_t all_pids_available() {
+	return pid_avail == 0;
+}
+
 int get_available_pid() { // return FAILURE (-1) if none left (MAX_TASKS) reached
 	int i;
 	int8_t current = BITMASK;

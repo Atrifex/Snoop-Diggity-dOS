@@ -2,7 +2,7 @@
 
 
 .text
-.globl iret_to_user
+.globl iret_to_user, get_esp, get_ebp
 
 # paging_hw_enable(pde_t* base)
 # DESCRIPTION: places pointer to the descriptor table into cr3
@@ -15,3 +15,13 @@
 iret_to_user:
 	addl $4, %esp
 	iret
+
+get_esp:
+	movl %esp, %eax	
+	ret
+
+get_ebp:
+	movl %ebp, %eax	
+	ret
+ 
+

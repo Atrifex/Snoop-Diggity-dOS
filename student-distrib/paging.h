@@ -46,6 +46,7 @@ typedef unsigned long pte_t;
 /* so that init function can be used in kernel.c */
 extern void init_paging();
 
+extern pde_t* get_kernel_page_directory();
 extern pde_t* get_page_directory_for_pid(int pid);
 extern pte_t* get_base_page_table_for_pid(int pid);
 extern void setup_task_paging(pde_t* page_directory, pte_t* base_page_table, uint32_t phys_program_address);

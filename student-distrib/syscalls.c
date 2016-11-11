@@ -1,6 +1,8 @@
 #include "syscalls.h"
 #include "scheduling.h"
 
+void * execute_jmp_loc;
+
 static file_operations_t rtc_table = {
     .o_func = open_rtc,
     .c_func = close_rtc,
@@ -30,12 +32,6 @@ static file_operations_t directory_table = {
 };
 
 
-asmlinkage int32_t halt(uint8_t status)
-{
-	// get_page_directory_for_pid
-	return 0;
-}
-
 asmlinkage int32_t execute(const uint8_t* command)
 {
 	int i;
@@ -48,11 +44,17 @@ asmlinkage int32_t execute(const uint8_t* command)
 	int pid;
 	char commandstring[MAX_EXECUTE_ARG_SIZE];
 
+	execute_jmp_loc = &&JMP_POS_HALT;
+
 	// get pointer to current pcb by using tss
     tss_t* tss_base = (tss_t*)&tss;
     pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
     cli_and_save(flags);
+
+    if(all_pids_available()) {
+    	pcb_curr = NULL;
+    }
 
 	// if we can't execute since we're out of processes, return failure immediately
 	pid = get_available_pid();
@@ -120,6 +122,7 @@ asmlinkage int32_t execute(const uint8_t* command)
     pcb_t* pcb_child = (pcb_t*)(KERNEL_STACK_START - (pid+1)*LITERAL_8KB);
     pcb_child->esp0 = tss_base->esp0;
     pcb_child->parentPCB = pcb_curr;
+    pcb_child->pid = pid;
     pcb_child->args = (unsigned char *)argstring;
 
     // set up kernel stack for child process
@@ -153,13 +156,54 @@ asmlinkage int32_t execute(const uint8_t* command)
      */
     unsigned long new_esp = (TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB);
     unsigned long new_flags = SET_INTERRUPTS | SET_IOPRIV_USER;
+
+    pcb_child->esp = get_esp() + ACCOUNT_FOR_RET_ADDR;
+    pcb_child->ebp = get_ebp();
+
     iret_to_user((unsigned long)entry_point_address, (unsigned long)USER_CS, (unsigned long)new_flags, (unsigned long)new_esp, (unsigned long)USER_DS);
 
 JMP_POS_HALT:
-	restore_flags(flags);
 	mark_pid_free(pid);
+	restore_flags(flags);
+
 	return 0;
 }
+
+
+
+asmlinkage int32_t halt(uint8_t status)
+{
+	pde_t* pd;
+	pcb_t* pcb_parent;
+
+	/****** Restore parent data ******/
+	// get pointer to tss and curr pcb
+    tss_t* tss_base = (tss_t*)&tss;
+    pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+
+    // assign esp0 of parent back into tss
+    tss_base->esp0 = pcb_curr->esp0;
+	pcb_parent = pcb_curr->parentPCB;
+	
+	// restore the PD of the parent
+    if(pcb_parent != NULL){
+		pd = get_page_directory_for_pid(pcb_parent->pid);
+    } else {
+		pd = get_kernel_page_directory();
+    }
+	set_new_page_directory(pd);
+
+	// restore esp and ebp for the KERNEL
+	set_esp_ebp(pcb_curr->esp, pcb_curr->ebp);
+
+	// jump to execute and return back to parent program
+	goto *execute_jmp_loc;
+
+	return 0;
+}
+
+
+
 
 /*
  * int32_t read(int32_t fd, void* buf, int32_t num_bytes)
