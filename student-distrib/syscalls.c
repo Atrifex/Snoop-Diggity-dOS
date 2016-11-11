@@ -38,7 +38,7 @@ asmlinkage int32_t halt(uint8_t status)
 asmlinkage int32_t execute(const uint8_t* command)
 {
 	int i;
-  unsigned long flags;
+    unsigned long flags;
 	char* argstring = NULL;
 	dentry_t entry;
 	int32_t result;
@@ -47,7 +47,7 @@ asmlinkage int32_t execute(const uint8_t* command)
 	int pid;
 	char commandstring[MAX_EXECUTE_ARG_SIZE];
 
-  cli_and_save(flags);
+    cli_and_save(flags);
 
 	// if we can't execute since we're out of processes, return failure immediately
 	pid = get_available_pid();
@@ -57,9 +57,9 @@ asmlinkage int32_t execute(const uint8_t* command)
 
 	// if the command is too long, return failure
 	if(strlen((char*) command) >= MAX_EXECUTE_ARG_SIZE){
-      mark_pid_free(pid);
-      return FAILURE;
-  }
+        mark_pid_free(pid);
+        return FAILURE;
+    }
 
 	// copy the command into a mutable string
 	strcpy(commandstring, (char*) command);
@@ -78,22 +78,22 @@ asmlinkage int32_t execute(const uint8_t* command)
 	// check file validity, load into memory, set up paging, craete PCB/open FD, context switch
 	result = read_dentry_by_name((uint8_t*) commandstring, &entry);
 	if(result == FAILURE){
-      mark_pid_free(pid);
-      return FAILURE;
-  }
+        mark_pid_free(pid);
+        return FAILURE;
+    }
 
 	// we can't execute a directory or a device
 	if(entry.filetype != FILETYPE_REGULAR){
-      mark_pid_free(pid);
-      return FAILURE;
-  }
+        mark_pid_free(pid);
+        return FAILURE;
+    }
 
 	// check for executable magic number
 	uint8_t magic[4];
 	read_data(entry.inode, 0, magic, sizeof(magic));
 	if(! (magic[0] == 0x7f && magic[1] == 0x45 && magic[2] == 0x4c && magic[3] == 0x46)) {
-      mark_pid_free(pid);
-      return FAILURE; // not executable
+        mark_pid_free(pid);
+        return FAILURE; // not executable
 	}
 
 	// read entry point (bytes 24-27 of executable file)
@@ -114,6 +114,14 @@ asmlinkage int32_t execute(const uint8_t* command)
 
 	// set up page table
 	setup_task_paging(pd, base_pt, proc_memory_start);
+
+    // set up kernel stack
+
+    // Mask bottom 13 bits to get the starting address of the PCB
+    pcb_t* pcb = (pcb_t*)(esp0 & MASK_8KB_ALIGNED);
+
+
+
 
     /* IRET Context:
      *       |--------------------|

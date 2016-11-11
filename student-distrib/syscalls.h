@@ -88,9 +88,11 @@ extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 // set_handler and sigreturn: TODO for extra credit
 
 // masks for setting up context swtich
-#define SET_IOPRIV_USER 0x0003000
+#define SET_IOPRIV_USER 0x00003000
 #define SET_INTERRUPTS 0x0000200
-#define LITERAL_4MB 0x400000
+#define LITERAL_4MB 0x00400000
+#define LITERAL_8KB 0x00002000
+#define
 
 // macro to enter new program
 #define iret_to_ring_3(entry_point, code_seg, new_flags, new_esp, stack_seg)                        \
