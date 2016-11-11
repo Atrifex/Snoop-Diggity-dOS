@@ -88,13 +88,14 @@ extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 // masks for setting up context swtich
 #define SET_IOPRIV_USER 0x00003000
 #define SET_INTERRUPTS 0x0000200
-#define LITERAL_4MB 0x00400000
+#define LITERAL_4MB FOUR_MEGS
 #define LITERAL_8KB 0x00002000
 #define KERNEL_STACK_START 0x800000
 
 
 extern void iret_to_user(unsigned long entry_point_address, unsigned long cs, unsigned long new_flags, unsigned long new_esp, unsigned long ss);
 
+/*
 // macro to enter new program
 // #define iret_to_user(entry_point, code_seg, new_flags, new_esp, stack_seg)                          \
 //     do {                                                                                            \
@@ -110,5 +111,6 @@ extern void iret_to_user(unsigned long entry_point_address, unsigned long cs, un
 //                      : "memory"                                                                     \
 //             );                                                                                      \
 //     } while(0)
+*/
 
 #endif
