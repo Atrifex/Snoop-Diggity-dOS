@@ -118,6 +118,14 @@ void setup_task_paging(pde_t* page_directory, pte_t* base_page_table, uint32_t p
 	page_directory[KERNEL_PDE_ENTRY] = PDE_ADDRESS_ASSIGN(KERNEL_BASE_ADDRESS);
 	page_directory[KERNEL_PDE_ENTRY] |= PDE_ENTRY_4MB_PRESENT;
 
+	// map 8MB - (8MB + (MAX_TASKS * 4MB)) as present for process blocks
+	// these should be only kernel accessible, but uesd from when we call execute
+	// within a running task, and need to write to a page for the next proc
+	for(i = PROCESS_BLOCKS_START; i < NOT_PRESENT_MEMORY_START; i++) {
+		page_directory[i] = PDE_ADDRESS_ASSIGN(i*BYTES_TO_ALIGN_4MB);
+		page_directory[i] |= PDE_ENTRY_4MB_PRESENT;
+	}
+
 	// map the program image at 0x08000000 and mark everything else as not present
 	for(i = NOT_PRESENT_MEMORY_START; i < PD_ENTRIES; i++) {
 		if(i*BYTES_TO_ALIGN_4MB == TASK_VIRTUAL_BASE_ADDRESS) {
@@ -135,7 +143,7 @@ void setup_task_paging(pde_t* page_directory, pte_t* base_page_table, uint32_t p
  * void setup_base_page_table(pte_t* base_page_table)
  * DESCRIPTION: Sets up a "base" (0MB-4MB) page table, pointed to by base_page_table, marking all entries as not present with the exception of video memory
  * INPUTS: base_page_table - pointer to base page table to set up
- * OUTPUTS: base_page_talbe - updates this table to be configured properly
+ * OUTPUTS: base_page_table - updates this table to be configured properly
  * RETURN VALUE: none
  * SIDE EFFECTS: updates base_page_table
 */

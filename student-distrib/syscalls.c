@@ -32,6 +32,7 @@ static file_operations_t directory_table = {
 
 asmlinkage int32_t halt(uint8_t status)
 {
+	// get_page_directory_for_pid
 	return 0;
 }
 
@@ -150,13 +151,12 @@ asmlinkage int32_t execute(const uint8_t* command)
      *       | .........          |
      *       |--------------------|
      */
-    unsigned long new_esp = (unsigned long)(TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB);
+    unsigned long new_esp = (TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB);
     unsigned long new_flags = SET_INTERRUPTS | SET_IOPRIV_USER;
     iret_to_user((unsigned long)entry_point_address, (unsigned long)USER_CS, (unsigned long)new_flags, (unsigned long)new_esp, (unsigned long)USER_DS);
 
 JMP_POS_HALT:
 	restore_flags(flags);
-
 	mark_pid_free(pid);
 	return 0;
 }
