@@ -117,6 +117,7 @@ asmlinkage int32_t execute(const uint8_t* command)
 
   // restore interrupts explicitly
   // or modify the bit in the iret context---> that way we dont just do sti when we return back to the parent process
+  //  EIP, CS, EFLAGS, ESP, and SS registers
 
 	// set up kernel stack/PCB/TSS
 	// IRET/jump/whatever

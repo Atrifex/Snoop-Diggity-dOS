@@ -49,9 +49,9 @@ int mark_pid_free(int pid) {
 }
 
 uint32_t block_address_for_process(int pid) { // 8MB + (4MB*pid)
-	if(pid > 6 || pid < 1){
-		uint32_t meme = START_MEM + PID_SPACE*pid;
-		return meme;
-	}
-	return FAILURE;
+    if(pid >= 0 && pid < 6){
+        uint32_t meme = START_MEM + PID_SPACE*pid;
+        return meme;
+    }
+    return FAILURE;
 }
