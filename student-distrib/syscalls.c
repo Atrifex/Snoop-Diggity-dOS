@@ -3,6 +3,7 @@
 
 void * execute_jmp_loc;
 
+// functions for rtc
 static file_operations_t rtc_table = {
     .o_func = open_rtc,
     .c_func = close_rtc,
@@ -10,6 +11,7 @@ static file_operations_t rtc_table = {
     .w_func = write_rtc,
 };
 
+// functions for terminal
 static file_operations_t terminal_table = {
     .o_func = open_terminal,
     .c_func = close_terminal,
@@ -17,6 +19,7 @@ static file_operations_t terminal_table = {
     .w_func = write_terminal,
 };
 
+// functions for regular file
 static file_operations_t regular_file_table = {
     .o_func = open_file,
     .c_func = close_file,
@@ -24,6 +27,7 @@ static file_operations_t regular_file_table = {
     .w_func = write_file,
 };
 
+// functions for directory
 static file_operations_t directory_table = {
     .o_func = open_directory,
     .c_func = close_directory,
@@ -32,6 +36,14 @@ static file_operations_t directory_table = {
 };
 
 
+/*
+ * int32_t execute(uint8_t * command)
+ * DESCRIPTION: parses input and determines if it is valid. If is valid, then set up paging, stack, and other properties of new process, then start new process by creating a fake iret context and returning
+ * INPUTS   : uint8_t * command - pointer to command
+ * OUTPUTS  : int32_t - used to check for FAILURE or SUCCESS
+ * RETURN VALUE: int32_t - used to check for FAILURE or SUCCESS
+ * SIDE EFFECTS: Starts a new process and executes it.
+ */
 asmlinkage int32_t execute(const uint8_t* command)
 {
 	int i;
@@ -160,9 +172,11 @@ asmlinkage int32_t execute(const uint8_t* command)
     pcb_child->esp = get_esp() + ACCOUNT_FOR_RET_ADDR;
     pcb_child->ebp = get_ebp();
 
+    // iret to new program
     iret_to_user((unsigned long)entry_point_address, (unsigned long)USER_CS, (unsigned long)new_flags, (unsigned long)new_esp, (unsigned long)USER_DS);
 
 JMP_POS_HALT:
+    // mark pid free and then restore flags
 	mark_pid_free(pid);
 	restore_flags(flags);
 
@@ -171,6 +185,15 @@ JMP_POS_HALT:
 
 
 
+/*
+ * int32_t halt(uint8_t status)
+ * DESCRIPTION: halts the currently running process
+ * INPUTS   : uint8_t status
+ * OUTPUTS  : none
+ * RETURN VALUE: always returns true
+ * RETURN VALUE: none
+ * SIDE EFFECTS: restores the attributes of the parents process and then returns to the process that started the current process
+ */
 asmlinkage int32_t halt(uint8_t status)
 {
 	pde_t* pd;
@@ -184,7 +207,7 @@ asmlinkage int32_t halt(uint8_t status)
     // assign esp0 of parent back into tss
     tss_base->esp0 = pcb_curr->esp0;
 	pcb_parent = pcb_curr->parentPCB;
-	
+
 	// restore the PD of the parent
     if(pcb_parent != NULL){
 		pd = get_page_directory_for_pid(pcb_parent->pid);
@@ -313,8 +336,8 @@ asmlinkage int32_t open(const uint8_t* filename)
 }
 
 /*
- * int32_t close_file()
- * DESCRIPTION: Closes a file
+ * int32_t close()
+ * DESCRIPTION: closes a file
  * INPUTS   : fd (file descriptor)
  * OUTPUTS  : none
  * RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
@@ -341,11 +364,29 @@ asmlinkage int32_t close(int32_t fd)
 	return 0;
 }
 
+
+/*
+ * int32_t getargs() - implemented in checkpoint 4
+ * DESCRIPTION: gets the argument supplied to a given process
+ * INPUTS   : uint8_t * buf - the buffer to copy agrs into, int32_t num_bytes - number of bytes to copy
+ * OUTPUTS  : none
+ * RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
+ * SIDE EFFECTS: returns the args in buffer
+ */
 asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes)
 {
 	return 0;
 }
 
+
+/*
+ * int32_t vidmap() - implemented in checkpoint 4
+ * DESCRIPTION: maps video memory into the memory of a program so that the program can directly write to it.
+ * INPUTS   : uint8_t * buf - the buffer to copy agrs into, int32_t num_bytes - number of bytes to copy
+ * OUTPUTS  : none
+ * RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
+ * SIDE EFFECTS: allows access to video memory for the user
+ */
 asmlinkage int32_t vidmap(uint8_t** screen_start)
 {
 	return 0;
