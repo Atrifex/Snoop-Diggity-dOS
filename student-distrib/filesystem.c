@@ -144,8 +144,7 @@ inode_t* get_inode_ptr(uint32_t inode_idx)
 {
     int num_inodes = bootblock->inodes;
     if(inode_idx < num_inodes)
-        return &(inodes[inode_idx]);
-
+        return inodes + inode_idx*FS_BLOCK_LENGTH;
     else
         return NULL;
 }

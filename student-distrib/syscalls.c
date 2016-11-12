@@ -88,9 +88,9 @@ asmlinkage int32_t execute(const uint8_t* command)
 	// split "command" by first space character
 	// file name will now be in "commandstring", argument string will now be in "argstring"
 	for(i = 0; i < strlen(commandstring); i++) {
+        argstring = ( commandstring + (i+1) );
 		if(commandstring[i] == EMPTY_SPACE) {
 			commandstring[i] = NULL_CHAR; // command now ends here
-			argstring = ( commandstring + (i+1) );
 			break;
 		}
 	}
@@ -382,22 +382,22 @@ asmlinkage int32_t close(int32_t fd)
  */
 asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes)
 {
-    // if(num_bytes < 0)
-    //     return FAILURE;
+    if(num_bytes < 0)
+        return FAILURE;
 
-    // // Grab esp0 from TSS so that we can access the PCB
-    // tss_t* tss_base = (tss_t*)&tss;
-    // pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+    // Grab esp0 from TSS so that we can access the PCB
+    tss_t* tss_base = (tss_t*)&tss;
+    pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
-    // int8_t * arguments = (int8_t *)pcb->args;
+    int8_t * arguments = (int8_t *)pcb->args;
 
-    // if(strlen(arguments) > num_bytes)
-    //     return FAILURE;
+    if(strlen(arguments) > num_bytes)
+        return FAILURE;
 
-    // strncpy((int8_t *)buf, arguments, num_bytes);
+    strncpy((int8_t *)buf, arguments, num_bytes);
 
-    // return SUCCESS;
-    return FAILURE;
+    return SUCCESS;
+    // return FAILURE;
 }
 
 
