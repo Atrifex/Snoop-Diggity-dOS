@@ -174,7 +174,7 @@ asmlinkage int32_t execute(const uint8_t* command)
      *       |--------------------|
      */
     unsigned long new_esp = (TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB);
-    unsigned long new_flags = SET_INTERRUPTS | SET_IOPRIV_USER;
+    unsigned long new_flags = SET_INTERRUPTS | SET_IOPRIV_USER | SET_PF_RANDBIT;
 
     pcb_child->esp = get_esp() + ACCOUNT_FOR_RET_ADDR;
     pcb_child->ebp = get_ebp();

@@ -96,6 +96,7 @@ extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 // masks for setting up context swtich
 #define SET_IOPRIV_USER 0x00003000
 #define SET_INTERRUPTS 0x0000200
+#define SET_PF_RANDBIT 0x0006
 #define LITERAL_4MB FOUR_MEGS
 #define LITERAL_8KB 0x00002000
 #define KERNEL_STACK_START (0x800000 - LITERAL_8KB)
