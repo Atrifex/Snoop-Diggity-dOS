@@ -120,15 +120,16 @@ extern uint32_t get_ebp();
 # RETURN VALUE: none
 # REGISTER USAGE: esp and ebp
 */
-#define set_esp_ebp(par_esp, par_ebp) 										                        \
+#define set_esp_ebp_eax(par_esp, par_ebp, ret_val) 										            \
     do {                                                                                            \
         asm volatile("\n                                                                            \
                         movl %0, %%esp      \n                                                      \
                         movl %1, %%ebp      \n                                                      \
+                        movl %2, %%eax      \n                                                      \
                      "     	                                                                        \
                      :                                                                              \
-                     : "r"(par_esp), "r"(par_ebp)				                                    \
-                     : "esp", "ebp"                                                                 \
+                     : "r"(par_esp), "r"(par_ebp), "r"(ret_val)                                     \
+                     : "esp", "ebp", "eax"                                                          \
             );                                                                                      \
     } while(0)
 

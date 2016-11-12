@@ -224,7 +224,7 @@ asmlinkage int32_t halt(uint8_t status)
 	set_new_page_directory(pd);
 
 	// restore esp and ebp for the KERNEL
-	set_esp_ebp(pcb_curr->esp, pcb_curr->ebp);
+	set_esp_ebp_eax(pcb_curr->esp, pcb_curr->ebp, (int32_t)status);
 
 	// jump to execute and return back to parent program
 	goto *execute_jmp_loc;
