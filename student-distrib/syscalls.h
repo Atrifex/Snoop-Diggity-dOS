@@ -57,11 +57,8 @@ typedef struct pcb_t pcb_t;
 struct pcb_t
 {
 	file_info_t fd_array[MAX_FD_PER_PROCESS]; // File descriptors allocated for this process
-
-	unsigned char* args; // Program's arguments
-	uint8_t pid; 	// Process id of current process
     uint32_t ret_val;
-
+    unsigned char* args; // Program's arguments
 	// parent's info
 	pcb_t * parentPCB;
 	uint32_t esp0; 	// Parent's kernel stack pointer
@@ -70,6 +67,9 @@ struct pcb_t
 
     // unused
 	uint32_t flags; // we'll use this for something
+
+    // kept down here to maximize packing
+    uint8_t pid;    // Process id of current process
 };
 
 // System calls for our OS
