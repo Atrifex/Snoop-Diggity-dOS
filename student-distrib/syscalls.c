@@ -301,7 +301,7 @@ asmlinkage int32_t read(int32_t fd, void* buf, int32_t num_bytes)
     pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
     // If fd is not in-use, then we can't read
-    if(fd >= MAX_FD_PER_PROCESS)
+    if(fd >= MAX_FD_PER_PROCESS || fd < 0)
         return ERROR;
 
     // If fd is not in-use, then we can't read
@@ -327,7 +327,7 @@ asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
     pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
     // If fd is not in-use, then we can't read
-    if(fd >= MAX_FD_PER_PROCESS)
+    if(fd >= MAX_FD_PER_PROCESS || fd < 0)
         return ERROR;
 
     // If fd is not in-use, then we can't read
