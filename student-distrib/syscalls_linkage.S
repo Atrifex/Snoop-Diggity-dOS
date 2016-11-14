@@ -157,6 +157,6 @@ vidmap_wrap:
 	# Callee-save registers are handled via calling the C function
 
 	pushl %ebx # Argument to the vidmap system call
-	call getargs
+	call vidmap
 	addl $POP_ONE_ARG, %esp
 	ret

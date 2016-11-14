@@ -5,7 +5,7 @@
 #include "syscalls.h"
 
 #define SHIFT 1
-#define BITMASK 0x1
+#define BITMASK 0x01
 #define FREE_MASK 0xcf
 #define START_MEM 0x800000 //8 MB
 #define PID_SPACE 0x400000
