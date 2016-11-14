@@ -1,6 +1,8 @@
 #ifndef INTERRUPT_HANDLER_H
 #define INTERRUPT_HANDLER_H
 
+#define EXCEPTION_HALT_RET_VAL 256
+
 // Flag cleared by the RTC interrupt handler
 volatile int rtc_flag;
 

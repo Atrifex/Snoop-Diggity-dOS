@@ -6,6 +6,8 @@ void * execute_jmp_loc;
 // local functions
 void clear_fd_array(file_info_t * fd_array);
 
+static int32_t halt_status = 0;
+
 // file operations functions for rtc
 static file_operations_t rtc_table = {
     .o_func = open_rtc,
@@ -187,7 +189,7 @@ JMP_POS_HALT:
 	mark_pid_free(pid);
 	restore_flags(flags);
 
-	return 0;
+	return halt_status;
 }
 
 
@@ -197,7 +199,7 @@ JMP_POS_HALT:
  * DESCRIPTION: halts the currently running process
  * INPUTS   : uint8_t status
  * OUTPUTS  : none
- * RETURN VALUE: always returns true
+ * RETURN VALUE: returns the value passed in by halt
  * RETURN VALUE: none
  * SIDE EFFECTS: restores the attributes of the parents process and then returns to the process that started the current process
  */
@@ -223,8 +225,11 @@ asmlinkage int32_t halt(uint8_t status)
     }
 	set_new_page_directory(pd);
 
+    // setting halting status
+    halt_status = status;
+
 	// restore esp and ebp for the KERNEL
-	set_esp_ebp_eax(pcb_curr->esp, pcb_curr->ebp, (int32_t)status);
+	set_esp_ebp(pcb_curr->esp, pcb_curr->ebp);
 
 	// jump to execute and return back to parent program
 	goto *execute_jmp_loc;
@@ -232,6 +237,49 @@ asmlinkage int32_t halt(uint8_t status)
 	return 0;
 }
 
+
+/*
+ * int32_t halt(uint8_t status)
+ * DESCRIPTION: halts the currently running process
+ * INPUTS   : int32_t status
+ * OUTPUTS  : none
+ * RETURN VALUE: returns 256 (i.e. the halting program received an exception)
+ * RETURN VALUE: none
+ * SIDE EFFECTS: restores the attributes of the parents process and then returns to the process that started the current process
+ */
+int32_t halt_excep(int32_t status)
+{
+    pde_t* pd;
+    pcb_t* pcb_parent;
+
+    /****** Restore parent data ******/
+    // get pointer to tss and curr pcb
+    tss_t* tss_base = (tss_t*)&tss;
+    pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+
+    // assign esp0 of parent back into tss
+    tss_base->esp0 = pcb_curr->esp0;
+    pcb_parent = pcb_curr->parentPCB;
+
+    // restore the PD of the parent
+    if(pcb_parent != NULL){
+        pd = get_page_directory_for_pid(pcb_parent->pid);
+    } else {
+        pd = get_kernel_page_directory();
+    }
+    set_new_page_directory(pd);
+
+    // setting halting status
+    halt_status = status;
+
+    // restore esp and ebp for the KERNEL
+    set_esp_ebp(pcb_curr->esp, pcb_curr->ebp);
+
+    // jump to execute and return back to parent program
+    goto *execute_jmp_loc;
+
+    return 0;
+}
 
 
 

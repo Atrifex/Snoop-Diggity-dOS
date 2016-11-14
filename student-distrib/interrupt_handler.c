@@ -17,8 +17,8 @@
 */
 void ignore_int_sub()
 {
-	printf("Unknown interrupt");
-	halt(0);
+	printf_t("Unknown interrupt");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /* 18 Exceptions */
@@ -35,8 +35,8 @@ void ignore_int_sub()
 void exception_handler_0_sub()
 {
 	clear_and_reset();
-	printf("EXCEPTION: DIVIDE BY ZERO ERROR\n");
-	halt(0);
+	printf_t("EXCEPTION: DIVIDE BY ZERO ERROR\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -49,8 +49,8 @@ void exception_handler_0_sub()
 */
 void exception_handler_2_sub()
 {
-	printf("EXCEPTION: NMI INTERRUPT\n");
-	halt(0);
+	printf_t("EXCEPTION: NMI INTERRUPT\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -63,8 +63,8 @@ void exception_handler_2_sub()
 */
 void exception_handler_3_sub()
 {
-	printf("EXCEPTION: BREAKPOINT\n");
-	halt(0);
+	printf_t("EXCEPTION: BREAKPOINT\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -77,8 +77,8 @@ void exception_handler_3_sub()
 */
 void exception_handler_4_sub()
 {
-	printf("EXCEPTION: OVERFLOW\n");
-	halt(0);
+	printf_t("EXCEPTION: OVERFLOW\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -91,8 +91,8 @@ void exception_handler_4_sub()
 */
 void exception_handler_5_sub()
 {
-	printf("EXCEPTION: BOUND RANGE EXCEEDED ERROR\n");
-	halt(0);
+	printf_t("EXCEPTION: BOUND RANGE EXCEEDED ERROR\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -105,8 +105,8 @@ void exception_handler_5_sub()
 */
 void exception_handler_6_sub()
 {
-	printf("EXCEPTION: INVALID OPCODE ERROR\n");
-	halt(0);
+	printf_t("EXCEPTION: INVALID OPCODE ERROR\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -119,8 +119,8 @@ void exception_handler_6_sub()
 */
 void exception_handler_7_sub()
 {
-	printf("EXCEPTION: DEVICE NOT AVAILABLE\n");
-	halt(0);
+	printf_t("EXCEPTION: DEVICE NOT AVAILABLE\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -133,8 +133,8 @@ void exception_handler_7_sub()
 */
 void exception_handler_8_sub()
 {
-	printf("EXCEPTION: DOUBLE FAULT\n");
-	halt(0);
+	printf_t("EXCEPTION: DOUBLE FAULT\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -147,8 +147,8 @@ void exception_handler_8_sub()
 */
 void exception_handler_9_sub()
 {
-	printf("EXCEPTION: COPROCESSOR SEGMENT OVERRUN\n");
-	halt(0);
+	printf_t("EXCEPTION: COPROCESSOR SEGMENT OVERRUN\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -161,8 +161,8 @@ void exception_handler_9_sub()
 */
 void exception_handler_10_sub()
 {
-	printf("EXCEPTION: INVALID TSS ERROR\n");
-	halt(0);
+	printf_t("EXCEPTION: INVALID TSS ERROR\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -175,8 +175,8 @@ void exception_handler_10_sub()
 */
 void exception_handler_11_sub()
 {
-	printf("EXCEPTION: SEGMENT NOT PRESENT ERROR\n");
-	halt(0);
+	printf_t("EXCEPTION: SEGMENT NOT PRESENT ERROR\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -189,8 +189,8 @@ void exception_handler_11_sub()
 */
 void exception_handler_12_sub()
 {
-	printf("EXCEPTION: STACK-SEGMENT FAULT\n");
-	halt(0);
+	printf_t("EXCEPTION: STACK-SEGMENT FAULT\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -203,8 +203,8 @@ void exception_handler_12_sub()
 */
 void exception_handler_13_sub()
 {
-	printf("EXCEPTION: GENERAL PROTECTION FAULT\n");
-	halt(0);
+	printf_t("EXCEPTION: GENERAL PROTECTION FAULT\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -217,8 +217,8 @@ void exception_handler_13_sub()
 */
 void exception_handler_14_sub()
 {
-	printf("EXCEPTION: PAGE FAULT ERROR\n");
-	halt(0);
+	printf_t("EXCEPTION: PAGE FAULT ERROR\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -231,8 +231,8 @@ void exception_handler_14_sub()
 */
 void exception_handler_16_sub()
 {
-	printf("EXCEPTION: x87 FPU FLOATING-POINT ERROR\n");
-	halt(0);
+	printf_t("EXCEPTION: x87 FPU FLOATING-POINT ERROR\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -245,8 +245,8 @@ void exception_handler_16_sub()
 */
 void exception_handler_17_sub()
 {
-	printf("EXCEPTION: ALIGNMENT CHECK\n");
-	halt(0);
+	printf_t("EXCEPTION: ALIGNMENT CHECK\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -259,8 +259,8 @@ void exception_handler_17_sub()
 */
 void exception_handler_18_sub()
 {
-	printf("EXCEPTION: MACHINE CHECK\n");
-	halt(0);
+	printf_t("EXCEPTION: MACHINE CHECK\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 /*
@@ -273,8 +273,8 @@ void exception_handler_18_sub()
 */
 void exception_handler_19_sub()
 {
-	printf("EXCEPTION: SIMD FLOATING-POINT EXCEPTION\n");
-	halt(0);
+	printf_t("EXCEPTION: SIMD FLOATING-POINT EXCEPTION\n");
+	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
 
 
@@ -295,7 +295,7 @@ void exception_handler_19_sub()
 */
 void IRQ0_handler_sub()
 {
-	printf("IRQ: Timer Chip\n");
+	printf_t("IRQ: Timer Chip\n");
 }
 
 /*
@@ -308,7 +308,7 @@ void IRQ0_handler_sub()
 */
 void IRQ1_handler_sub()
 {
-	// printf("IRQ: Keyboard\n");
+	// printf_t("IRQ: Keyboard\n");
 	process_sent_scancode();
 	send_eoi(KEYBOARD_LINE_NO);
 }
@@ -323,7 +323,7 @@ void IRQ1_handler_sub()
 */
 void IRQ3_handler_sub()
 {
-	printf("IRQ: COM2 Serial Port\n");
+	printf_t("IRQ: COM2 Serial Port\n");
 }
 
 /*
@@ -336,7 +336,7 @@ void IRQ3_handler_sub()
 */
 void IRQ4_handler_sub()
 {
-	printf("IRQ: COM1 Serial Port\n");
+	printf_t("IRQ: COM1 Serial Port\n");
 }
 
 /*
@@ -349,7 +349,7 @@ void IRQ4_handler_sub()
 */
 void IRQ5_handler_sub()
 {
-	printf("IRQ: LPT2\n");
+	printf_t("IRQ: LPT2\n");
 }
 
 /*
@@ -362,7 +362,7 @@ void IRQ5_handler_sub()
 */
 void IRQ6_handler_sub()
 {
-	printf("IRQ: Floppy Disk\n");
+	printf_t("IRQ: Floppy Disk\n");
 }
 
 /*
@@ -375,7 +375,7 @@ void IRQ6_handler_sub()
 */
 void IRQ7_handler_sub()
 {
-	printf("IRQ: LPT1\n");
+	printf_t("IRQ: LPT1\n");
 }
 
 /* Slave Interrupts */
@@ -389,7 +389,7 @@ void IRQ7_handler_sub()
 */
 void IRQ8_handler_sub()
 {
-	//printf("IRQ: Real Time Clock\n");	// uncomment for simple test
+	//printf_t("IRQ: Real Time Clock\n");	// uncomment for simple test
 	//test_interrupts();                // uncomment for more their test
 	outb(RTC_CREG_C, RTC_CONTROL_PORT); // selects control register C of the RTC
 	inb(RTC_DATA_PORT);
@@ -409,7 +409,7 @@ void IRQ8_handler_sub()
 */
 void IRQ9_handler_sub()
 {
-	printf("IRQ: Free for peripherals\n");
+	printf_t("IRQ: Free for peripherals\n");
 }
 
 /*
@@ -422,7 +422,7 @@ void IRQ9_handler_sub()
 */
 void IRQ10_handler_sub()
 {
-	printf("IRQ: Free for peripherals\n");
+	printf_t("IRQ: Free for peripherals\n");
 }
 
 /*
@@ -435,7 +435,7 @@ void IRQ10_handler_sub()
 */
 void IRQ11_handler_sub()
 {
-	printf("IRQ: Eth0 (network) \n");
+	printf_t("IRQ: Eth0 (network) \n");
 }
 
 /*
@@ -448,7 +448,7 @@ void IRQ11_handler_sub()
 */
 void IRQ12_handler_sub()
 {
-	printf("IRQ: PS/2 Mouse\n");
+	printf_t("IRQ: PS/2 Mouse\n");
 }
 
 /*
@@ -461,7 +461,7 @@ void IRQ12_handler_sub()
 */
 void IRQ13_handler_sub()
 {
-	printf("IRQ: FPU/Coprocessor/Inter-processor\n");
+	printf_t("IRQ: FPU/Coprocessor/Inter-processor\n");
 }
 
 /*
@@ -474,7 +474,7 @@ void IRQ13_handler_sub()
 */
 void IRQ14_handler_sub()
 {
-	printf("IRQ: Ide0 (hard drive)\n");
+	printf_t("IRQ: Ide0 (hard drive)\n");
 }
 
 /*
@@ -487,5 +487,5 @@ void IRQ14_handler_sub()
 */
 void IRQ15_handler_sub()
 {
-	printf("IRQ: Ide1 (hard drive)\n");
+	printf_t("IRQ: Ide1 (hard drive)\n");
 }

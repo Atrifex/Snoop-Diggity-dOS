@@ -112,6 +112,8 @@ extern void iret_to_user(unsigned long entry_point_address, unsigned long cs, un
 extern uint32_t get_esp();
 extern uint32_t get_ebp();
 
+extern int32_t halt_excep(int32_t status);
+
 
 /*
 # set_esp_ebp()
@@ -121,15 +123,14 @@ extern uint32_t get_ebp();
 # RETURN VALUE: none
 # REGISTER USAGE: esp and ebp
 */
-#define set_esp_ebp_eax(par_esp, par_ebp, ret_val) 										            \
+#define set_esp_ebp(par_esp, par_ebp) 													            \
     do {                                                                                            \
         asm volatile("\n                                                                            \
                         movl %0, %%esp      \n                                                      \
                         movl %1, %%ebp      \n                                                      \
-                        movl %2, %%eax      \n                                                      \
                      "     	                                                                        \
                      :                                                                              \
-                     : "r"(par_esp), "r"(par_ebp), "r"(ret_val)                                     \
+                     : "r"(par_esp), "r"(par_ebp)				                                    \
                      : "esp", "ebp", "eax"                                                          \
             );                                                                                      \
     } while(0)
