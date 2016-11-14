@@ -301,6 +301,10 @@ asmlinkage int32_t read(int32_t fd, void* buf, int32_t num_bytes)
     pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
     // If fd is not in-use, then we can't read
+    if(fd >= MAX_FD_PER_PROCESS)
+        return ERROR;
+
+    // If fd is not in-use, then we can't read
 	if(((pcb->fd_array[fd]).flags & ISOLATE_BIT_0) == 0)
         return ERROR;
 
@@ -321,6 +325,10 @@ asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
     // Grab esp0 from TSS so that we can access the PCB
     tss_t* tss_base = (tss_t*)&tss;
     pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+
+    // If fd is not in-use, then we can't read
+    if(fd >= MAX_FD_PER_PROCESS)
+        return ERROR;
 
     // If fd is not in-use, then we can't read
 	if(((pcb->fd_array[fd]).flags & ISOLATE_BIT_0) == 0)
