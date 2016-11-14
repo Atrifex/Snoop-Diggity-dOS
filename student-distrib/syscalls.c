@@ -6,7 +6,6 @@ void * execute_jmp_loc;
 // local functions
 void clear_fd_array(file_info_t * fd_array);
 
-static int32_t halt_status = 0;
 
 // file operations functions for rtc
 static file_operations_t rtc_table = {
@@ -58,6 +57,7 @@ asmlinkage int32_t execute(const uint8_t* command)
 	dentry_t entry;
 	int32_t result;
 	uint32_t proc_memory_start;
+    int32_t halt_status;
 
 	int pid;
 	char commandstring[MAX_EXECUTE_ARG_SIZE];
@@ -186,6 +186,8 @@ asmlinkage int32_t execute(const uint8_t* command)
 
 JMP_POS_HALT:
     // mark pid free and then restore flags
+    halt_status = (int32_t)pcb_child->ret_val;
+
 	mark_pid_free(pid);
 	restore_flags(flags);
 
@@ -226,7 +228,7 @@ asmlinkage int32_t halt(uint8_t status)
 	set_new_page_directory(pd);
 
     // setting halting status
-    halt_status = status;
+    pcb_curr->ret_val = (uint32_t)status;
 
 	// restore esp and ebp for the KERNEL
 	set_esp_ebp(pcb_curr->esp, pcb_curr->ebp);
@@ -270,7 +272,7 @@ int32_t halt_excep(int32_t status)
     set_new_page_directory(pd);
 
     // setting halting status
-    halt_status = status;
+    pcb_curr->ret_val = status;
 
     // restore esp and ebp for the KERNEL
     set_esp_ebp(pcb_curr->esp, pcb_curr->ebp);

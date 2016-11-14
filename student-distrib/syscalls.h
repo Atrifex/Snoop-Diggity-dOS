@@ -60,14 +60,15 @@ struct pcb_t
 
 	unsigned char* args; // Program's arguments
 	uint8_t pid; 	// Process id of current process
+    uint32_t ret_val;
 
 	// parent's info
 	pcb_t * parentPCB;
 	uint32_t esp0; 	// Parent's kernel stack pointer
-
-	// unused for now ---> may use during scheduling
 	uint32_t esp; 	// user stack pointer
 	uint32_t ebp; 	// user base pointer
+
+    // unused
 	uint32_t flags; // we'll use this for something
 };
 
