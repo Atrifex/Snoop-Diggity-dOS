@@ -16,6 +16,7 @@
 #define BACKSPACE_OFFSET        1
 #define FC_OFFSET               1
 #define ATTRIB 					0x7
+#define VIDEO 0xB8000
 
 
 // checkpoint 2 test defines
