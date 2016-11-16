@@ -474,6 +474,9 @@ asmlinkage int32_t vidmap(uint8_t** screen_start)
     tss_t* tss_base = (tss_t*)&tss;
     pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
+    pde_t* pd;
+    pd = get_page_directory_for_pid(pcb->pid);
+
     pte_t* pt;
     pt = get_base_page_table_for_pid(pcb->pid);
 
@@ -483,12 +486,13 @@ asmlinkage int32_t vidmap(uint8_t** screen_start)
 
     int current_shell = 1;
     if(current_shell == 1){
-        *screen_start = (VIDEO);
+        *screen_start = (uint8_t*)(VIDEO);
     } else{
-        *screen_start = (VIDEO + (pcb->pid)*LITERAL_4KB);
+        *screen_start = (uint8_t*)(VIDEO + (pcb->pid)*LITERAL_4KB);
     }
 
-    setup_user_access_to_vidmem(pt,*screen_start);
+    setup_user_access_pde(pd,*screen_start);
+    setup_user_access_pte(pt,*screen_start);
 
     return SUCCESS;
 }

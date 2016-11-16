@@ -180,15 +180,30 @@ void setup_base_page_table(pte_t* base_page_table)
 
 
 /*
- * void setup_user_access_to_vidmem(pte_t* base_page_table)
+ * void setup_user_access_to_vidmem(pte_t* base_page_table, uint8_t * videomem)
  * DESCRIPTION: Sets up a "base" (0MB-4MB) page table, pointed to by base_page_table, marking all entries as not present with the exception of video memory
  * INPUTS: base_page_table - pointer to base page table to set up
  * OUTPUTS: base_page_table - updates this table to be configured properly
  * RETURN VALUE: none
  * SIDE EFFECTS: updates base_page_table
 */
-void setup_user_access_to_vidmem(pte_t* base_page_table, uint8_t * videomem)
+void setup_user_access_pte(pte_t* base_page_table, uint8_t * videomem)
 {
 	int index = (int)videomem >> SHIFT_4KB;
+	index &= ISOLATE_PTE_IDX;
 	base_page_table[index] |= GRANT_USER_ACCESS; 
+}
+
+/*
+ * void setup_user_access_pd(pte_t* base_page_table, uint8_t * videomem)
+ * DESCRIPTION: Sets up a "base" (0MB-4MB) page table, pointed to by base_page_table, marking all entries as not present with the exception of video memory
+ * INPUTS: base_page_table - pointer to base page table to set up
+ * OUTPUTS: base_page_table - updates this table to be configured properly
+ * RETURN VALUE: none
+ * SIDE EFFECTS: updates base_page_table
+*/
+void setup_user_access_pde(pde_t* page_directory, uint8_t * videomem)
+{
+	int index = (int)videomem >> SHIFT_4MB;
+	page_directory[index] |= GRANT_USER_ACCESS; 
 }

@@ -37,7 +37,9 @@
 
 // user access to vidmem
 #define SHIFT_4KB 12
-#define GRANT_USER_ACCESS 0x0000004;
+#define SHIFT_4MB 22
+#define ISOLATE_PTE_IDX 0x003FF
+#define GRANT_USER_ACCESS 0x0000006
 
 
 #define TASK_VIRTUAL_BASE_ADDRESS 0x08000000 // (128MB)
@@ -59,7 +61,9 @@ extern void setup_task_paging(pde_t* page_directory, pte_t* base_page_table, uin
 extern void paging_hw_enable(pde_t* base);
 extern void set_new_page_directory(pde_t* base);
 
-extern void setup_user_access_to_vidmem(pte_t* base_page_table, uint8_t * videomem);
+// video mem access functions
+extern void setup_user_access_pte(pte_t* base_page_table, uint8_t * videomem);
+extern void setup_user_access_pde(pde_t* page_directory, uint8_t * videomem);
 
 
 #endif
