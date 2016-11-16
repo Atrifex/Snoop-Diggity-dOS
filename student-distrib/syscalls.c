@@ -178,8 +178,8 @@ asmlinkage int32_t execute(const uint8_t* command)
     unsigned long new_esp = (TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB);
     unsigned long new_flags = SET_INTERRUPTS | SET_IOPRIV_USER | SET_PF_RANDBIT;
 
-    pcb_child->esp = get_esp() + ACCOUNT_FOR_RET_ADDR;
-    pcb_child->ebp = get_ebp();
+    pcb_child->esp_k = get_esp() + ACCOUNT_FOR_RET_ADDR;
+    pcb_child->ebp_k = get_ebp();
 
     // iret to new program
     iret_to_user((unsigned long)entry_point_address, (unsigned long)USER_CS, (unsigned long)new_flags, (unsigned long)new_esp, (unsigned long)USER_DS);
@@ -231,7 +231,7 @@ asmlinkage int32_t halt(uint8_t status)
     pcb_curr->ret_val = (uint32_t)status;
 
 	// restore esp and ebp for the KERNEL
-	set_esp_ebp(pcb_curr->esp, pcb_curr->ebp);
+	set_esp_ebp(pcb_curr->esp_k, pcb_curr->ebp_k);
 
 	// jump to execute and return back to parent program
 	goto *execute_jmp_loc;
@@ -275,7 +275,7 @@ int32_t halt_excep(int32_t status)
     pcb_curr->ret_val = status;
 
     // restore esp and ebp for the KERNEL
-    set_esp_ebp(pcb_curr->esp, pcb_curr->ebp);
+    set_esp_ebp(pcb_curr->esp_k, pcb_curr->ebp_k);
 
     // jump to execute and return back to parent program
     goto *execute_jmp_loc;
@@ -491,8 +491,8 @@ asmlinkage int32_t vidmap(uint8_t** screen_start)
         *screen_start = (uint8_t*)(VIDEO + (pcb->pid)*LITERAL_4KB);
     }
 
-    setup_user_access_pde(pd,*screen_start);
-    setup_user_access_pte(pt,*screen_start);
+    setup_user_access_pde(pd, *screen_start);
+    setup_user_access_pte(pt, *screen_start);
 
     return SUCCESS;
 }

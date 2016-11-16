@@ -61,15 +61,18 @@ struct pcb_t
     unsigned char* args; // Program's arguments
 	// parent's info
 	pcb_t * parentPCB;
-	uint32_t esp0; 	// Parent's kernel stack pointer
-	uint32_t esp; 	// parent's kernel stack pointer
-	uint32_t ebp; 	// parent's kernel stack pointer
+	uint32_t esp0; 		// Parent's kernel stack pointer
+	uint32_t esp_k; 	// parents's kernel stack pointer
+	uint32_t ebp_k; 	// parents's kernel base pointer
+
+	uint32_t esp_u; 	// current's user stack pointer
+	uint32_t ebp_u; 	// current's user base pointer
 
     // unused
-	uint32_t flags; // we'll use this for something
+	uint32_t flags; 	// we'll use this for something
 
     // kept down here to maximize packing
-    uint8_t pid;    // Process id of current process
+    uint8_t pid;    	// Process id of current process
 };
 
 // System calls for our OS
