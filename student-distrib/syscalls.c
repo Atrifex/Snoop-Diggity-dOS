@@ -493,6 +493,32 @@ asmlinkage int32_t vidmap(uint8_t** screen_start)
     return SUCCESS;
 }
 
+/*
+ * int32_t set_handler()
+ * DESCRIPTION: to be implemented later for extra credit
+ * INPUTS   : Ignored for now
+ * OUTPUTS  : none
+ * RETURN VALUE: Returns -1
+ * SIDE EFFECTS: None for now
+ */
+asmlinkage int32_t set_handler(int32_t signum, void* handler_address)
+{
+    return FAILURE;
+}
+
+/*
+ * int32_t sigreturn()
+ * DESCRIPTION: to be implemented later for extra credit
+ * INPUTS   : none
+ * OUTPUTS  : none
+ * RETURN VALUE: Returns -1
+ * SIDE EFFECTS: None for now
+ */
+asmlinkage int32_t sigreturn()
+{
+    return FAILURE;
+}
+
 
 /*
  * void clear_fd_array()
