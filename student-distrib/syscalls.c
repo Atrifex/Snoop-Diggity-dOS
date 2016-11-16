@@ -462,51 +462,35 @@ asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes)
 /*
  * int32_t vidmap() - implemented in checkpoint 4
  * DESCRIPTION: maps video memory into the memory of a program so that the program can directly write to it.
- * INPUTS   : uint8_t * buf - the buffer to copy agrs into, int32_t num_bytes - number of bytes to copy
- * OUTPUTS  : none
+ * INPUTS   : uint8_t** screen_start - pointer to pointer of start of vid memory
+ * OUTPUTS  : uint8_t** screen_start - once modifed behaves as an ouput
  * RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
  * SIDE EFFECTS: allows access to video memory for the user
  */
 asmlinkage int32_t vidmap(uint8_t** screen_start)
 {
+
+    // Grab esp0 from TSS so that we can access the PCB
+    tss_t* tss_base = (tss_t*)&tss;
+    pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+
+    pte_t* pt;
+    pt = get_base_page_table_for_pid(pcb->pid);
+
     if(screen_start < (uint8_t**)TASK_VIRTUAL_BASE_ADDRESS || screen_start >= (uint8_t**)(TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB)){
         return FAILURE;
     }
 
+    int current_shell = 1;
+    if(current_shell == 1){
+        *screen_start = (VIDEO);
+    } else{
+        *screen_start = (VIDEO + (pcb->pid)*LITERAL_4KB);
+    }
 
-    *screen_start = (VIDEO);
-
-
-
-
+    setup_user_access_to_vidmem(pt,*screen_start);
 
     return SUCCESS;
-}
-
-/*
- * int32_t set_handler()
- * DESCRIPTION: to be implemented later for extra credit
- * INPUTS   : Ignored for now
- * OUTPUTS  : none
- * RETURN VALUE: Returns -1
- * SIDE EFFECTS: None for now
- */
-asmlinkage int32_t set_handler(int32_t signum, void* handler_address)
-{
-    return FAILURE;
-}
-
-/*
- * int32_t sigreturn()
- * DESCRIPTION: to be implemented later for extra credit
- * INPUTS   : none
- * OUTPUTS  : none
- * RETURN VALUE: Returns -1
- * SIDE EFFECTS: None for now
- */
-asmlinkage int32_t sigreturn()
-{
-    return FAILURE;
 }
 
 

@@ -62,8 +62,8 @@ struct pcb_t
 	// parent's info
 	pcb_t * parentPCB;
 	uint32_t esp0; 	// Parent's kernel stack pointer
-	uint32_t esp; 	// user stack pointer
-	uint32_t ebp; 	// user base pointer
+	uint32_t esp; 	// parent's kernel stack pointer
+	uint32_t ebp; 	// parent's kernel stack pointer
 
     // unused
 	uint32_t flags; // we'll use this for something
@@ -101,6 +101,7 @@ extern asmlinkage int32_t sigreturn();
 #define SET_PF_RANDBIT 0x0006
 #define LITERAL_4MB FOUR_MEGS
 #define LITERAL_8KB 0x00002000
+#define LITERAL_4KB 0x00001000
 #define KERNEL_STACK_START (0x800000 - LITERAL_8KB)
 #define ACCOUNT_FOR_RET_ADDR 4
 #define ENTRY_POINT_INDEX 24

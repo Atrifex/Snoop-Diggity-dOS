@@ -35,6 +35,10 @@
 #define MAX_TASKS 6
 #define NOT_PRESENT_MEMORY_START (PROCESS_BLOCKS_START + MAX_TASKS)
 
+// user access to vidmem
+#define SHIFT_4KB 12
+#define GRANT_USER_ACCESS 0x0000004;
+
 
 #define TASK_VIRTUAL_BASE_ADDRESS 0x08000000 // (128MB)
 #define TASK_PROGRAM_IMAGE_OFFSET 0x00048000
@@ -54,5 +58,8 @@ extern void setup_task_paging(pde_t* page_directory, pte_t* base_page_table, uin
 /* written in paging_asm.S */
 extern void paging_hw_enable(pde_t* base);
 extern void set_new_page_directory(pde_t* base);
+
+extern void setup_user_access_to_vidmem(pte_t* base_page_table, uint8_t * videomem);
+
 
 #endif
