@@ -1,4 +1,12 @@
 
+.data
+
+# Offset to add to ESP to pop arguments from the stack
+
+	POP_ONE_ARG 	= 4
+	POP_TWO_ARGS 	= 8
+	POP_THREE_ARGS 	= 12
+
 # the jump table that contains pointers to all of the functions
 .globl idt_jmp_table
 idt_jmp_table:
@@ -13,6 +21,11 @@ idt_jmp_table:
 	.long IRQ6_handler, IRQ7_handler, IRQ8_handler, IRQ9_handler, IRQ10_handler, IRQ11_handler
 	.long IRQ12_handler, IRQ13_handler, IRQ14_handler, IRQ15_handler
 	.long system_call_handler
+
+syscall_C_jmp_table:
+	.long 0x0, halt, execute, read
+	.long write, open, close, getargs
+	.long vidmap, set_handler, sigreturn
 
 .text
 
@@ -834,9 +847,15 @@ system_call_handler:
 	cmpl $8, %eax
 	jg error
 
+	# Push arguments
+	pushl %edx
+	pushl %ecx
+	pushl %ebx
 
 	# Call the appropriate syscall assembly wrapper based on the syscall number
-	call *syscall_jmp_table(, %eax, 4) # EAX stores the call number
+	call *syscall_C_jmp_table(, %eax, 4) # EAX stores the call number
+
+	addl $POP_THREE_ARGS, %esp # Pop arguments
 
 	# Restore caller save registers
 	popl %edx
