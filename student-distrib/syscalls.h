@@ -81,7 +81,8 @@ extern asmlinkage int32_t open(const uint8_t* filename);
 extern asmlinkage int32_t close(int32_t fd);
 extern asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes);
 extern asmlinkage int32_t vidmap(uint8_t** screen_start);
-
+extern asmlinkage int32_t set_handler(int32_t signum, void* handler_address);
+extern asmlinkage int32_t sigreturn();
 
 
 // set_handler and sigreturn: TODO for extra credit
