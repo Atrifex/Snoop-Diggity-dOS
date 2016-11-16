@@ -86,8 +86,11 @@
 
 // attribute related defines
 #define ASCII_SIX  54
+#define ASCII_SEVEN 55
 #define MAX_ATTRIB 0x0F
 #define MIN_ATTRIB 0x01
+#define MAX_BACKGROUD_ATTRIB 0x0F
+#define MIN_BACKGROUD_ATTRIB 0x00
 
 /* Process the sent scancode after an interrupt */
 extern unsigned long process_sent_scancode();

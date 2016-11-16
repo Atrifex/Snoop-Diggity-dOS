@@ -6,6 +6,7 @@
 
 // specifies the color on the screen
 int curr_attribute = ATTRIB;
+int curr_back_attribute = 0;
 
 // variables associated with reading
 volatile int allowed_to_read = 0;          // allows read to stop blocking
@@ -255,7 +256,13 @@ unsigned long process_sent_scancode()
             curr_attribute++;
             if(curr_attribute > MAX_ATTRIB)
                 curr_attribute = MIN_ATTRIB;
-            change_atribute(curr_attribute);
+            change_atribute((curr_back_attribute << 4) | curr_attribute);
+        } else if(mapped.result == ASCII_SEVEN){
+            // ctrl + 7 is pressed then change color
+            curr_back_attribute++;
+            if(curr_back_attribute > MAX_BACKGROUD_ATTRIB)
+                curr_back_attribute = MIN_BACKGROUD_ATTRIB;
+            change_atribute((curr_back_attribute << 4) | curr_attribute);
         }
         return keyboard_state;
 	} else if(BACKSPACE_ON(keyboard_state)){
