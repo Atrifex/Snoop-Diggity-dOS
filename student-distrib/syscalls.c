@@ -304,6 +304,10 @@ asmlinkage int32_t read(int32_t fd, void* buf, int32_t num_bytes)
     tss_t* tss_base = (tss_t*)&tss;
     pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
+    if(buf < (void*)TASK_VIRTUAL_BASE_ADDRESS || buf >= (void*)(TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB)){
+        return FAILURE;
+    }
+
     // If fd is not in-use, then we can't read
     if(fd >= MAX_FD_PER_PROCESS || fd < 0)
         return ERROR;
@@ -329,6 +333,10 @@ asmlinkage int32_t write(int32_t fd, const void* buf, int32_t num_bytes)
     // Grab esp0 from TSS so that we can access the PCB
     tss_t* tss_base = (tss_t*)&tss;
     pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+
+    if(buf < (void*)TASK_VIRTUAL_BASE_ADDRESS || buf >= (void*)(TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB)){
+        return FAILURE;
+    }
 
     // If fd is not in-use, then we can't read
     if(fd >= MAX_FD_PER_PROCESS || fd < 0)
@@ -357,6 +365,10 @@ asmlinkage int32_t open(const uint8_t* filename)
     pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
 	dentry_t entry;
+
+    if(filename < (uint8_t*)TASK_VIRTUAL_BASE_ADDRESS || filename >= (uint8_t*)(TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB)){
+        return FAILURE;
+    }
 
 	// Get dentry for this file
 	if(read_dentry_by_name(filename, &entry) == FAILURE)
@@ -447,6 +459,10 @@ asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes)
     if(num_bytes < 0)
         return FAILURE;
 
+    if(buf < (uint8_t*)TASK_VIRTUAL_BASE_ADDRESS || buf >= (uint8_t*)(TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB)){
+        return FAILURE;
+    }
+
     // Grab esp0 from TSS so that we can access the PCB
     tss_t* tss_base = (tss_t*)&tss;
     pcb_t* pcb = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
@@ -488,12 +504,7 @@ asmlinkage int32_t vidmap(uint8_t** screen_start)
         return FAILURE;
     }
 
-    int current_shell = 1;
-    if(current_shell == 1){
-        *screen_start = (uint8_t*)(VIDEO);
-    } else{
-        *screen_start = (uint8_t*)(VIDEO + (pcb->pid)*LITERAL_4KB);
-    }
+    *screen_start = (uint8_t*)(VIDEO);
 
     setup_user_access_pde(pd, *screen_start);
     setup_user_access_pte(pt, *screen_start);
