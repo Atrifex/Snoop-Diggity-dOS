@@ -62,8 +62,8 @@ struct pcb_t
 	// parent's info
 	pcb_t * parentPCB;
 	uint32_t esp0; 		// Parent's kernel stack pointer
-	uint32_t esp_k; 	// parents's kernel stack pointer
-	uint32_t ebp_k; 	// parents's kernel base pointer
+	uint32_t esp_k; 	// current's kernel stack pointer
+	uint32_t ebp_k; 	// current's kernel base pointer
 
 	uint32_t esp_u; 	// current's user stack pointer
 	uint32_t ebp_u; 	// current's user base pointer
@@ -72,7 +72,7 @@ struct pcb_t
 	uint32_t flags; 	// we'll use this for something
 
     // kept down here to maximize packing
-    uint8_t pid;    	// Process id of current process
+    int32_t pid;    	// Process id of current process
 };
 
 // System calls for our OS

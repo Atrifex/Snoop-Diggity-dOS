@@ -71,7 +71,11 @@ asmlinkage int32_t execute(const uint8_t* command)
     cli_and_save(flags);
 
     if(all_pids_available()) {
-    	pcb_curr = NULL;
+    	pcb_curr->pid = -1;
+        pcb_curr->parentPCB = NULL;
+        pcb_curr->args = NULL;
+        pcb_curr->ret_val = 0;
+        pcb_curr->esp0 = 0;
     }
 
 	// if we can't execute since we're out of processes, return failure immediately
@@ -178,8 +182,8 @@ asmlinkage int32_t execute(const uint8_t* command)
     unsigned long new_esp = (TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB);
     unsigned long new_flags = SET_INTERRUPTS | SET_IOPRIV_USER | SET_PF_RANDBIT;
 
-    pcb_child->esp_k = get_esp() + ACCOUNT_FOR_RET_ADDR;
-    pcb_child->ebp_k = get_ebp();
+    pcb_curr->esp_k = get_esp() + ACCOUNT_FOR_RET_ADDR;
+    pcb_curr->ebp_k = get_ebp();
 
     // iret to new program
     iret_to_user((unsigned long)entry_point_address, (unsigned long)USER_CS, (unsigned long)new_flags, (unsigned long)new_esp, (unsigned long)USER_DS);
@@ -220,10 +224,10 @@ asmlinkage int32_t halt(uint8_t status)
 	pcb_parent = pcb_curr->parentPCB;
 
 	// restore the PD of the parent
-    if(pcb_parent != NULL){
-		pd = get_page_directory_for_pid(pcb_parent->pid);
+    if(pcb_parent->pid == -1){
+        pd = get_kernel_page_directory();
     } else {
-		pd = get_kernel_page_directory();
+        pd = get_page_directory_for_pid(pcb_parent->pid);
     }
 	set_new_page_directory(pd);
 
@@ -231,7 +235,7 @@ asmlinkage int32_t halt(uint8_t status)
     pcb_curr->ret_val = (uint32_t)status;
 
 	// restore esp and ebp for the KERNEL
-	set_esp_ebp(pcb_curr->esp_k, pcb_curr->ebp_k);
+	set_esp_ebp(pcb_parent->esp_k, pcb_parent->ebp_k);
 
 	// jump to execute and return back to parent program
 	goto *execute_jmp_loc;
@@ -275,7 +279,7 @@ int32_t halt_excep(int32_t status)
     pcb_curr->ret_val = status;
 
     // restore esp and ebp for the KERNEL
-    set_esp_ebp(pcb_curr->esp_k, pcb_curr->ebp_k);
+    set_esp_ebp(pcb_parent->esp_k, pcb_parent->ebp_k);
 
     // jump to execute and return back to parent program
     goto *execute_jmp_loc;
