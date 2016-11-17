@@ -71,7 +71,7 @@ asmlinkage int32_t execute(const uint8_t* command)
     cli_and_save(flags);
 
     if(all_pids_available()) {
-    	pcb_curr->pid = -1;
+    	pcb_curr->pid = KERNEL_PID;
         pcb_curr->parentPCB = NULL;
         pcb_curr->args = NULL;
         pcb_curr->ret_val = 0;
@@ -224,7 +224,7 @@ asmlinkage int32_t halt(uint8_t status)
 	pcb_parent = pcb_curr->parentPCB;
 
 	// restore the PD of the parent
-    if(pcb_parent->pid == -1){
+    if(pcb_parent->pid == KERNEL_PID){
         pd = get_kernel_page_directory();
     } else {
         pd = get_page_directory_for_pid(pcb_parent->pid);
@@ -268,7 +268,7 @@ int32_t halt_excep(int32_t status)
     pcb_parent = pcb_curr->parentPCB;
 
     // restore the PD of the parent
-    if(pcb_parent->pid == -1){
+    if(pcb_parent->pid == KERNEL_PID){
         pd = get_kernel_page_directory();
     } else {
         pd = get_page_directory_for_pid(pcb_parent->pid);

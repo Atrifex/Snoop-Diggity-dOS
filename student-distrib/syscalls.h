@@ -16,6 +16,7 @@
 #define MAX_FD_PER_PROCESS 8
 #define MAX_EXECUTE_ARG_SIZE 128
 #define FOUR_MEGS 0x400000
+#define KERNEL_PID -1
 
 // Jump table sub-types
 typedef int32_t (*open_func)(const uint8_t*);
