@@ -268,10 +268,10 @@ int32_t halt_excep(int32_t status)
     pcb_parent = pcb_curr->parentPCB;
 
     // restore the PD of the parent
-    if(pcb_parent != NULL){
-        pd = get_page_directory_for_pid(pcb_parent->pid);
-    } else {
+    if(pcb_parent->pid == -1){
         pd = get_kernel_page_directory();
+    } else {
+        pd = get_page_directory_for_pid(pcb_parent->pid);
     }
     set_new_page_directory(pd);
 
