@@ -23,6 +23,14 @@ typedef int32_t (*close_func)(int32_t);
 typedef int32_t (*write_func)(int32_t, const void*, int32_t);
 typedef int32_t (*read_func)(int32_t, void*, int32_t);
 
+
+typedef struct
+{
+    int screen_x;
+    int screen_y;
+    uint8_t ** vidmem;
+} terminal_t;
+
 // Jump table type
 typedef struct
 {
