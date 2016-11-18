@@ -19,7 +19,7 @@
 #define BACKSPACE_MASK 0x8
 #define ENTER_MASK 0x10
 #define R_SHIFT_MASK 0x20
-#define ALT_MASK 0x30
+#define ALT_MASK 0x40
 
 // keyboad buffer attributes
 #define KEYBOARD_BUFF_SIZE 128
