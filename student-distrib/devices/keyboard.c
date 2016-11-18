@@ -236,6 +236,7 @@ unsigned long process_sent_scancode()
             break;
         case (CONTROL_RELEASE):
             TURN_CONTROL_OFF(keyboard_state);
+            break;
         case (ALT_PRESS):
             TURN_ALT_ON(keyboard_state);
             break;
@@ -274,6 +275,7 @@ unsigned long process_sent_scancode()
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_TWO_MASK)){
                         terminals_launched |= TERMINAL_TWO_MASK;
+                        send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
                     }
                 }
@@ -287,6 +289,7 @@ unsigned long process_sent_scancode()
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_THREE_MASK)){
                         terminals_launched |= TERMINAL_THREE_MASK;
+                        send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
                     }
                 }
