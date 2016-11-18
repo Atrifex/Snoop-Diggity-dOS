@@ -17,6 +17,8 @@
 #define MAX_EXECUTE_ARG_SIZE 128
 #define FOUR_MEGS 0x400000
 #define KERNEL_PID -1
+#define USER_EXECUTE 0
+#define FIRST_TERM_SHELL 1
 
 // Jump table sub-types
 typedef int32_t (*open_func)(const uint8_t*);
@@ -96,7 +98,7 @@ extern asmlinkage int32_t getargs(uint8_t* buf, int32_t num_bytes);
 extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 extern asmlinkage int32_t set_handler(int32_t signum, void* handler_address);
 extern asmlinkage int32_t sigreturn();
-
+extern int32_t internal_execute(const uint8_t* command, uint32_t flags);
 
 // set_handler and sigreturn: TODO for extra credit
 
@@ -117,6 +119,7 @@ extern asmlinkage int32_t sigreturn();
 #define KERNEL_STACK_START (0x800000 - LITERAL_8KB)
 #define ACCOUNT_FOR_RET_ADDR 4
 #define ENTRY_POINT_INDEX 24
+
 
 #define ELF_ID_BYTE_0 0
 #define ELF_ID_BYTE_1 1

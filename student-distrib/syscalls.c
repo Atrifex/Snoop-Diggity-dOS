@@ -42,7 +42,7 @@ static file_operations_t directory_table = {
 
 /*
  * int32_t execute(uint8_t * command)
- * DESCRIPTION: parses input and determines if it is valid. If is valid, then set up paging, stack, and other properties of new process, then start new process by creating a fake iret context and returning
+ * DESCRIPTION: wrapper funtion for actual execute
  * INPUTS   : uint8_t * command - pointer to command
  * OUTPUTS  : int32_t - used to check for FAILURE or SUCCESS
  * RETURN VALUE: int32_t - used to check for FAILURE or SUCCESS
@@ -50,9 +50,22 @@ static file_operations_t directory_table = {
  */
 asmlinkage int32_t execute(const uint8_t* command)
 {
+    return internal_execute(command, USER_EXECUTE);
+}
+
+/*
+ * int32_t execute(uint8_t * command)
+ * DESCRIPTION: parses input and determines if it is valid. If is valid, then set up paging, stack, and other properties of new process, then start new process by creating a fake iret context and returning
+ * INPUTS   : uint8_t * command - pointer to command, uint32_t flags - sets the flags
+ * OUTPUTS  : int32_t - used to check for FAILURE or SUCCESS
+ * RETURN VALUE: int32_t - used to check for FAILURE or SUCCESS
+ * SIDE EFFECTS: Starts a new process and executes it.
+ */
+int32_t internal_execute(const uint8_t* command, uint32_t flags)
+{
     // local variables used in execute
 	int i;
-    unsigned long flags;
+    unsigned long interrupt_flags;
 	char* argstring = NULL;
 	dentry_t entry;
 	int32_t result;
@@ -68,7 +81,7 @@ asmlinkage int32_t execute(const uint8_t* command)
     tss_t* tss_base = (tss_t*)&tss;
     pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
-    cli_and_save(flags);
+    cli_and_save(interrupt_flags);
 
     if(all_pids_available()) {
     	pcb_curr->pid = KERNEL_PID;
@@ -146,6 +159,7 @@ asmlinkage int32_t execute(const uint8_t* command)
     pcb_child->parentPCB = pcb_curr;
     pcb_child->pid = pid;
     pcb_child->args = (unsigned char *)argstring;
+    pcb_child->flags = flags;
 
     // set up kernel stack for child process
     tss_base->esp0 = (uint32_t)(KERNEL_STACK_START - pid*LITERAL_8KB);
@@ -193,7 +207,7 @@ JMP_POS_HALT:
     halt_status = (int32_t)pcb_child->ret_val;
 
 	mark_pid_free(pid);
-	restore_flags(flags);
+	restore_flags(interrupt_flags);
 
 	return halt_status;
 }
@@ -222,6 +236,14 @@ asmlinkage int32_t halt(uint8_t status)
     // assign esp0 of parent back into tss
     tss_base->esp0 = pcb_curr->esp0;
 	pcb_parent = pcb_curr->parentPCB;
+
+
+    // check if first termainl shell
+    if(pcb_curr->flags == FIRST_TERM_SHELL){
+        cli();
+        mark_pid_free(pcb_curr->pid);
+        internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
+    }
 
 	// restore the PD of the parent
     if(pcb_parent->pid == KERNEL_PID){
