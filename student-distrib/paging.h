@@ -6,7 +6,7 @@
 /* base address of kernel in both physical and virtual memory */
 #define KERNEL_BASE_ADDRESS 0x400000
 #define TWENTY_BIT_ADDRESS_MASK 0xFFFFF000
-#define VIDEO_MEM_BASE 0xB8000
+#define VIDEO_MEM_BASE VIDEO
 
 /* Macros that return the aligned address values of the directory and table entries */
 #define PDE_ADDRESS(directory_entry) (directory_entry & (TWENTY_BIT_ADDRESS_MASK))
@@ -64,6 +64,6 @@ extern void set_new_page_directory(pde_t* base);
 // video mem access functions
 extern void setup_user_access_pte(pte_t* base_page_table, uint8_t * videomem);
 extern void setup_user_access_pde(pde_t* page_directory, uint8_t * videomem);
-
+extern void change_table_mapping(pte_t* table, uint32_t address_of_entry, uint32_t new_value);
 
 #endif

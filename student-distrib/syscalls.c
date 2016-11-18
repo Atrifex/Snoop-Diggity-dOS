@@ -1,5 +1,4 @@
 #include "syscalls.h"
-#include "scheduling.h"
 
 void * execute_jmp_loc;
 
@@ -147,7 +146,7 @@ int32_t internal_execute(const uint8_t* command, uint32_t flags)
 	// load the file to this address + the offset given
 	// load a max of 4MB-offset
 	// possibly TODO some error checkign here, but wouldn't be much.
-	read_data(entry.inode, 0, (uint8_t*) ( proc_memory_start + TASK_PROGRAM_IMAGE_OFFSET ), FOUR_MEGS - TASK_PROGRAM_IMAGE_OFFSET);
+	read_data(entry.inode, 0, (uint8_t*) ( proc_memory_start + TASK_PROGRAM_IMAGE_OFFSET ), LITERAL_4MB - TASK_PROGRAM_IMAGE_OFFSET);
 
 	// set up page table
 	setup_task_paging(pd, base_pt, proc_memory_start);
@@ -160,6 +159,7 @@ int32_t internal_execute(const uint8_t* command, uint32_t flags)
     pcb_child->pid = pid;
     pcb_child->args = (unsigned char *)argstring;
     pcb_child->flags = flags;
+    pcb_child->owned_by_terminal = get_terminal_state();
 
     // set up kernel stack for child process
     tss_base->esp0 = (uint32_t)(KERNEL_STACK_START - pid*LITERAL_8KB);

@@ -1,7 +1,7 @@
 #include "scheduling.h"
 
 // bit-map to store which pids are in use
-uint8_t pid_avail = 0x00;
+uint32_t pid_avail = 0x00;
 
 /*
  * int all_pids_available()
@@ -27,7 +27,7 @@ uint8_t all_pids_available()
 int get_available_pid() 
 { // return FAILURE (-1) if none left (MAX_TASKS) reached
 	int i;
-	int8_t current = BITMASK;
+	uint32_t current = BITMASK;
 	
 	for(i = 0; i < MAX_NUM_PROCS; ++i)
 	{
@@ -73,6 +73,23 @@ int mark_pid_free(int pid)
 		return SUCCESS;
 	}
 	return FAILURE;
+}
+
+/*
+ * uint8_t is_pid_used(int pid)
+ * DESCRIPTION: returns whether or not the given PID is currently in use
+ * INPUTS: int pid - PID
+ * OUTPUTS: NONE
+ * RETURN VALUE: 0 or 1 (true if in use, false if not)
+ * SIDE EFFECTS: none
+*/
+uint8_t is_pid_used(int pid)
+{
+	if(pid < 0 || pid >= MAX_NUM_PROCS) {
+		return FAILURE;
+	}
+
+	return (uint8_t) ( ( pid_avail & ( 1 << pid ) ) >> pid );
 }
 
 /*

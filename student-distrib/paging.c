@@ -168,7 +168,11 @@ void setup_base_page_table(pte_t* base_page_table)
 
 	// loop all entries of the page table. set the video memory entry to map to physical video memory, mark everything else as not present.
 	for(i=0; i < PT_ENTRIES; i++) {
-		if(i*BYTES_TO_ALIGN_TO == VIDEO_MEM_BASE) {
+		if(i*BYTES_TO_ALIGN_TO == VIDEO_MEM_BASE 
+				|| i*BYTES_TO_ALIGN_TO == VIDEO_MEM_BASE + LITERAL_4KB
+				|| i*BYTES_TO_ALIGN_TO == VIDEO_MEM_BASE + LITERAL_8KB
+				|| i*BYTES_TO_ALIGN_TO == VIDEO_MEM_BASE + LITERAL_12KB)
+	 	{
 			base_page_table[i] = PTE_ADDRESS_ASSIGN(i*BYTES_TO_ALIGN_TO);
 			base_page_table[i] |= PTE_ENTRY_PRESENT;
 		} else {
@@ -178,32 +182,46 @@ void setup_base_page_table(pte_t* base_page_table)
 	}
 }
 
+/*
+ * void change_table_mapping(pte_t* table, uint32_t address_of_entry, uint32_t new_value)
+ * DESCRIPTION: Updates the entry in table corresponding to address_of_entry, setting it to new_value
+ * INPUTS: pte_t* table - table to execute, uint32_t address_of_entry - the address of the entry to update, provided it is in table, uint32_t the new value
+ * OUTPUTS: none
+ * RETURN VALUE: none
+ * SIDE EFFECTS: updates the given table	
+*/
+void change_table_mapping(pte_t* table, uint32_t address_of_entry, uint32_t new_value)
+{
+	int index = (int) ( (uint32_t) address_of_entry >> SHIFT_4KB );
+	table[index] |= PTE_ADDRESS_ASSIGN((uint32_t) new_value);
+}
+
 
 /*
  * void setup_user_access_to_vidmem(pte_t* base_page_table, uint8_t * videomem)
- * DESCRIPTION: Sets up a "base" (0MB-4MB) page table, pointed to by base_page_table, marking all entries as not present with the exception of video memory
- * INPUTS: base_page_table - pointer to base page table to set up
+ * DESCRIPTION: Sets memory address pointed to by videomem as user accessible in the given page table
+ * INPUTS: base_page_table - pointer to page table to configure, videomem address of video mem to update
  * OUTPUTS: base_page_table - updates this table to be configured properly
  * RETURN VALUE: none
  * SIDE EFFECTS: updates base_page_table
 */
 void setup_user_access_pte(pte_t* base_page_table, uint8_t * videomem)
 {
-	int index = (int)videomem >> SHIFT_4KB;
+	int index = (int) ( (uint32_t)videomem >> SHIFT_4KB );
 	index &= ISOLATE_PTE_IDX;
 	base_page_table[index] |= GRANT_USER_ACCESS; 
 }
 
 /*
- * void setup_user_access_pd(pte_t* base_page_table, uint8_t * videomem)
- * DESCRIPTION: Sets up a "base" (0MB-4MB) page table, pointed to by base_page_table, marking all entries as not present with the exception of video memory
- * INPUTS: base_page_table - pointer to base page table to set up
- * OUTPUTS: base_page_table - updates this table to be configured properly
+ * void setup_user_access_pde(pde_t* page_directory, uint8_t * videomem)
+ * DESCRIPTION: Sets directory of memory address pointed to by videomem as user accessible in the given page directory
+ * INPUTS: page_directory - pointer to page directory to configure, videomem address of video mem to update
+ * OUTPUTS: page_directory - updates this directory to be configured properly
  * RETURN VALUE: none
- * SIDE EFFECTS: updates base_page_table
+ * SIDE EFFECTS: updates page_directory
 */
 void setup_user_access_pde(pde_t* page_directory, uint8_t * videomem)
 {
-	int index = (int)videomem >> SHIFT_4MB;
+	int index = (int) ( (uint32_t)videomem >> SHIFT_4MB );
 	page_directory[index] |= GRANT_USER_ACCESS; 
 }

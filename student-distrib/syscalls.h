@@ -8,6 +8,7 @@
 #include "keyboard.h"
 #include "x86_desc.h"
 #include "paging.h"
+#include "scheduling.h"
 
 // constants and other masks
 #define MASK_8KB_ALIGNED 0xFFFFE000
@@ -15,7 +16,6 @@
 #define MIN_FD_PER_PROCESS 2
 #define MAX_FD_PER_PROCESS 8
 #define MAX_EXECUTE_ARG_SIZE 128
-#define FOUR_MEGS 0x400000
 #define KERNEL_PID -1
 #define USER_EXECUTE 0
 #define FIRST_TERM_SHELL 1
@@ -27,12 +27,7 @@ typedef int32_t (*write_func)(int32_t, const void*, int32_t);
 typedef int32_t (*read_func)(int32_t, void*, int32_t);
 
 
-typedef struct
-{
-    int screen_x;
-    int screen_y;
-    uint8_t ** vidmem;
-} terminal_t;
+
 
 // Jump table type
 typedef struct
@@ -83,7 +78,10 @@ struct pcb_t
 	uint32_t flags; 	// we'll use this for something
 
     // kept down here to maximize packing
-    int32_t pid;    	// Process id of current process
+    int8_t pid;    	// Process id of current process
+
+    // terminal from which this process started
+    uint8_t owned_by_terminal;
 };
 
 // System calls for our OS
@@ -113,9 +111,6 @@ extern int32_t internal_execute(const uint8_t* command, uint32_t flags);
 #define SET_IOPRIV_USER 0x00003000
 #define SET_INTERRUPTS 0x0000200
 #define SET_PF_RANDBIT 0x0006
-#define LITERAL_4MB FOUR_MEGS
-#define LITERAL_8KB 0x00002000
-#define LITERAL_4KB 0x00001000
 #define KERNEL_STACK_START (0x800000) //- LITERAL_8KB)
 #define ACCOUNT_FOR_RET_ADDR 4
 #define ENTRY_POINT_INDEX 24

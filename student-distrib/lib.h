@@ -34,6 +34,12 @@ int8_t *strrev(int8_t* s);
 uint32_t strlen(const int8_t* s);
 void clear(void);
 void clear_and_reset(void);
+void clear_video_and_backing_stores();
+extern void initialize_video_memory();
+void set_screen_x_y(int x, int y);
+int get_screen_x();
+int get_screen_y();
+
 void change_atribute(uint8_t attribute);
 void shift_screen_up(void);
 void change_atribute_specific(int32_t position, uint8_t attribute);

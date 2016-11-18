@@ -108,16 +108,38 @@
 #define MAX_BACKGROUD_ATTRIB 0x0F
 #define MIN_BACKGROUD_ATTRIB 0x00
 
+#define NUM_TERMINALS 3
+#define STATE_ONE 1
+#define STATE_TWO 2
+#define STATE_THREE 3
+
 /* Process the sent scancode after an interrupt */
 extern unsigned long process_sent_scancode();
 /* Initialize the keyboard device */
 extern void init_kbd();
+
+/* Returns the currently active terminal number */
+extern uint8_t get_terminal_state();
 
 /* Driver related functions */
 extern int32_t open_terminal(const uint8_t *pathname);
 extern int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes);
 extern int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes);
 extern int32_t close_terminal(int32_t fd);
+
+
+typedef struct
+{
+    int screen_x;
+    int screen_y;
+    // Stdin and index
+	uint8_t stdin[KEYBOARD_BUFF_SIZE];   // number of chars in a row is 80 ---> why do we want 128 then?
+	int stdin_index;                     // points to current free spot in stdin
+
+	// variables associated with reading
+	volatile int allowed_to_read;    // allows read to stop blocking
+	volatile int read_waiting;
+} terminal_t;
 
 
 #endif

@@ -41,6 +41,11 @@ typedef unsigned char uint8_t;
 typedef int ssize_t;
 typedef unsigned int size_t;
 
+#define LITERAL_4MB 0x400000
+#define LITERAL_4KB 0x00001000
+#define LITERAL_8KB  (LITERAL_4KB*2)
+#define LITERAL_12KB (LITERAL_4KB*3)
+
 #endif /* ASM */
 
 #endif /* _TYPES_H */

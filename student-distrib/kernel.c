@@ -252,7 +252,8 @@ entry (unsigned long magic, unsigned long addr)
 	// Initialize filesystem
 	init_filesystem(filesys_start_addr, filesys_size);
 
-	clear_and_reset();
+	// Reset the video mem backing store for each terminal and reset video memory
+	initialize_video_memory();
 
 	/* Enable interrupts */
     sti();

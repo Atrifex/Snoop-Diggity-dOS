@@ -12,6 +12,37 @@ static int screen_y;
 static char* video_mem = (char *)VIDEO;
 static int curr_attribute = ATTRIB;
 
+void set_screen_x_y(int x, int y)
+{
+	screen_x = x;
+	screen_y = y;
+	set_cursor_location(screen_x, screen_y);
+}
+
+/*
+* void get_screen_x();
+*   Description: getter function for screen_x
+*   Inputs: void
+*   Return Value: screen_x
+*	Side effects: see description
+*/
+int get_screen_x()
+{
+	return screen_x;
+}
+
+/*
+* void get_screen_y();
+*   Description: getter function for screen_y
+*   Inputs: void
+*   Return Value: screen_y
+*	Side effects: see description
+*/
+int get_screen_y()
+{
+	return screen_y;
+}
+
 /*
 * void clear(void);
 *   Inputs: void
@@ -23,6 +54,22 @@ clear(void)
 {
     int32_t i;
     for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + (i << 1)) = ' ';
+        *(uint8_t *)(video_mem + (i << 1) + 1) = curr_attribute;
+    }
+}
+
+/*
+* void clear_video_and_backing_stores();
+*   Description: Clears video memory and backing stores for all 3 terminals
+*   Inputs: void
+*   Return Value: none
+*	Side effects: see description
+*/
+void clear_video_and_backing_stores()
+{
+    int32_t i;
+    for(i=0; i<(NUM_ROWS*NUM_COLS)*(NUM_TERMINALS+1); i++) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = curr_attribute;
     }
@@ -58,6 +105,19 @@ void set_cursor_location(int x, int y) {
 void clear_and_reset(void)
 {
 	clear();
+	screen_x = 0;
+	screen_y = 0;
+}
+
+/*
+* void initialize_video_memory();
+* Inputs: NONE
+* Return value: NONE
+* Function: Initializes video memory and sets global cursor pos to 0
+*/
+void initialize_video_memory()
+{
+	clear_video_and_backing_stores();
 	screen_x = 0;
 	screen_y = 0;
 }
