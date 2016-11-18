@@ -9,15 +9,19 @@ int curr_attribute = ATTRIB;
 int curr_back_attribute = 0;
 
 // variables associated with reading
-volatile int allowed_to_read = 0;          // allows read to stop blocking
+volatile int allowed_to_read = 0;    // allows read to stop blocking
 volatile int read_waiting = 0;
 
 // holds state of "command" keys
 uint8_t keyboard_state = 0;
 
 // Stdin and index
-uint8_t stdin[KEYBOARD_BUFF_SIZE];       // number of chars in a row is 80 ---> why do we want 128 then?
+uint8_t stdin[KEYBOARD_BUFF_SIZE];   // number of chars in a row is 80 ---> why do we want 128 then?
 int stdin_index;                     // points to current free spot in stdin
+
+
+uint8_t terminals_launched = 1;      // the first terminal is launched by default
+uint8_t terminal_state = 1;
 
 
 //TODO: make seperate drivers for keybord and terminal
@@ -232,6 +236,11 @@ unsigned long process_sent_scancode()
             break;
         case (CONTROL_RELEASE):
             TURN_CONTROL_OFF(keyboard_state);
+        case (ALT_PRESS):
+            TURN_ALT_ON(keyboard_state);
+            break;
+        case (ALT_RELEASE):
+            TURN_ALT_OFF(keyboard_state);
             break;
     }
 
@@ -240,6 +249,49 @@ unsigned long process_sent_scancode()
 
     // if not a make scancode then return
     if(!IS_MAKE_SC(mapped)) {
+        return keyboard_state;
+    }
+
+    // switching terminals
+    if(ALT_ON(keyboard_state)){
+        switch(mapped.result) {
+            case (ASCII_ONE):
+                if(terminal_state != 1){
+                    // copy memory from video memory
+
+                    // change the configuration of video memory
+
+
+                    terminal_state = 1;
+                }
+                break;
+            case (ASCII_TWO):
+                if(terminal_state != 2){
+                    // change the configuration of video memory
+
+
+                    terminal_state = 2;
+                    // execute the shell corresponding to the terminal
+                    if(!(terminals_launched & TERMINAL_TWO_MASK)){
+                        terminals_launched |= TERMINAL_TWO_MASK;
+                        internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
+                    }
+                }
+                break;
+            case (ASCII_THREE):
+                if(terminal_state != 3){
+                    // change the configuration of video memory
+
+
+                    terminal_state = 3;
+                    // execute the shell corresponding to the terminal
+                    if(!(terminals_launched & TERMINAL_THREE_MASK)){
+                        terminals_launched |= TERMINAL_THREE_MASK;
+                        internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
+                    }
+                }
+                break;
+            }
         return keyboard_state;
     }
 

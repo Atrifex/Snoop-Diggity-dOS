@@ -3,10 +3,14 @@
 
 #include "scancodes.h"
 #include "types.h"
+#include "syscalls.h"
 
 #define CLEAR_SCREEN_SHORTCUT 'l' // control-L clears screen
 
-
+// terminal masks
+#define TERMINAL_ONE_MASK   0x01
+#define TERMINAL_TWO_MASK   0x02
+#define TERMINAL_THREE_MASK 0x04
 
 // state mask bits
 #define SHIFT_MASK 0x1
@@ -15,6 +19,7 @@
 #define BACKSPACE_MASK 0x8
 #define ENTER_MASK 0x10
 #define R_SHIFT_MASK 0x20
+#define ALT_MASK 0x30
 
 // keyboad buffer attributes
 #define KEYBOARD_BUFF_SIZE 128
@@ -29,6 +34,7 @@
 #define TURN_CONTROL_ON(state) (state = state | CONTROL_MASK)
 #define TURN_BACKSPACE_ON(state) (state = state | BACKSPACE_MASK)
 #define TURN_ENTER_ON(state) (state = state | ENTER_MASK)
+#define TURN_ALT_ON(state) (state = state | ALT_MASK)
 #define TOGGLE_CAPS_LOCK(state) (state = state ^ CAPS_LOCK_MASK)
 
 #define TURN_SHIFT_OFF(state) (state = state & ~SHIFT_MASK)
@@ -36,6 +42,7 @@
 #define TURN_CONTROL_OFF(state) (state = state & ~CONTROL_MASK)
 #define TURN_BACKSPACE_OFF(state) (state = state & ~BACKSPACE_MASK)
 #define TURN_ENTER_OFF(state) (state = state & ~ENTER_MASK)
+#define TURN_ALT_OFF(state) (state = state & ~ALT_MASK)
 
 // check state macros
 #define CAPS_LOCK_ON(state) (state & CAPS_LOCK_MASK)
@@ -43,6 +50,7 @@
 #define BACKSPACE_ON(state) (state & BACKSPACE_MASK)
 #define ENTER_ON(state) (state & ENTER_MASK)
 #define SHIFT_ON(state) (state & SHIFT_MASK)
+#define ALT_ON(state) (state & ALT_MASK)
 #define R_SHIFT_ON(state) (state & R_SHIFT_MASK)
 
 // initializer for a multibyte scancode sequence
@@ -84,8 +92,16 @@
 #define ENTER_PRESS 0x1C
 #define ENTER_RELEASE 0x9C
 
+#define ALT_PRESS 0x38
+#define ALT_RELEASE 0xB8
+
 // attribute related defines
-#define ASCII_SIX  54
+#define ASCII_ONE   49
+#define ASCII_TWO   50
+#define ASCII_THREE 51
+#define ASCII_FOUR  52
+#define ASCII_FIVE  53
+#define ASCII_SIX   54
 #define ASCII_SEVEN 55
 #define MAX_ATTRIB 0x0F
 #define MIN_ATTRIB 0x01

@@ -116,7 +116,7 @@ extern int32_t internal_execute(const uint8_t* command, uint32_t flags);
 #define LITERAL_4MB FOUR_MEGS
 #define LITERAL_8KB 0x00002000
 #define LITERAL_4KB 0x00001000
-#define KERNEL_STACK_START (0x800000 - LITERAL_8KB)
+#define KERNEL_STACK_START (0x800000) //- LITERAL_8KB)
 #define ACCOUNT_FOR_RET_ADDR 4
 #define ENTRY_POINT_INDEX 24
 
