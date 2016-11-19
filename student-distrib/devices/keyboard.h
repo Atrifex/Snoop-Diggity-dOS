@@ -4,6 +4,7 @@
 #include "scancodes.h"
 #include "types.h"
 #include "syscalls.h"
+#include "paging.h"
 
 #define CLEAR_SCREEN_SHORTCUT 'l' // control-L clears screen
 
@@ -127,6 +128,7 @@ extern int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes);
 extern int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes);
 extern int32_t close_terminal(int32_t fd);
 
+extern void vm_flush_page(pte_t entry);
 
 typedef struct
 {

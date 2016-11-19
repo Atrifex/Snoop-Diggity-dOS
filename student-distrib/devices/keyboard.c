@@ -237,6 +237,8 @@ void change_terminal_state(int from, int to)
         }
     }
 
+    vm_flush_page(VIDEO);
+
     terminal_state = to;
     restore_flags(flags);
 }
@@ -326,6 +328,8 @@ unsigned long process_sent_scancode()
                         terminals_launched |= TERMINAL_TWO_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
+                    } else{
+
                     }
                 }
                 break;
@@ -338,6 +342,8 @@ unsigned long process_sent_scancode()
                         terminals_launched |= TERMINAL_THREE_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
+                    } else{
+
                     }
                 }
                 break;

@@ -9,7 +9,7 @@
 #define FREE_MASK 0xcf
 #define START_MEM 0x800000 //8 MB
 #define PID_SPACE 0x400000
-#define MAX_NUM_PROCS 32
+#define MAX_NUM_PROCS 6
 
 extern int get_available_pid();
 extern int mark_pid_used(int pid);

@@ -743,6 +743,7 @@ memset_dword(void* s, int32_t c, uint32_t n)
 	return s;
 }
 
+
 /*
 * void* memcpy(void* dest, const void* src, uint32_t n);
 *   Inputs: void* dest = destination of copy

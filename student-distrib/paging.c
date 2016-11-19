@@ -168,7 +168,7 @@ void setup_base_page_table(pte_t* base_page_table)
 
 	// loop all entries of the page table. set the video memory entry to map to physical video memory, mark everything else as not present.
 	for(i=0; i < PT_ENTRIES; i++) {
-		if(i*BYTES_TO_ALIGN_TO == VIDEO_MEM_BASE 
+		if(i*BYTES_TO_ALIGN_TO == VIDEO_MEM_BASE
 				|| i*BYTES_TO_ALIGN_TO == VIDEO_MEM_BASE + LITERAL_4KB
 				|| i*BYTES_TO_ALIGN_TO == VIDEO_MEM_BASE + LITERAL_8KB
 				|| i*BYTES_TO_ALIGN_TO == VIDEO_MEM_BASE + LITERAL_12KB)
@@ -188,12 +188,20 @@ void setup_base_page_table(pte_t* base_page_table)
  * INPUTS: pte_t* table - table to execute, uint32_t address_of_entry - the address of the entry to update, provided it is in table, uint32_t the new value
  * OUTPUTS: none
  * RETURN VALUE: none
- * SIDE EFFECTS: updates the given table	
+ * SIDE EFFECTS: updates the given table
 */
 void change_table_mapping(pte_t* table, uint32_t address_of_entry, uint32_t new_value)
 {
-	int index = (int) ( (uint32_t) address_of_entry >> SHIFT_4KB );
-	table[index] |= PTE_ADDRESS_ASSIGN((uint32_t) new_value);
+	// determine index into the page table
+	int index = (int) ( (uint32_t)address_of_entry >> SHIFT_4KB );
+	index &= ISOLATE_PTE_IDX;
+
+	// grab current entry
+	unsigned long entry = table[index];
+
+	// set new mapping
+	table[index] = PTE_ADDRESS_ASSIGN((uint32_t) new_value);
+	table[index] |= (entry&ISOLATE_BTM_12BITS);
 }
 
 
@@ -209,7 +217,7 @@ void setup_user_access_pte(pte_t* base_page_table, uint8_t * videomem)
 {
 	int index = (int) ( (uint32_t)videomem >> SHIFT_4KB );
 	index &= ISOLATE_PTE_IDX;
-	base_page_table[index] |= GRANT_USER_ACCESS; 
+	base_page_table[index] |= GRANT_USER_ACCESS;
 }
 
 /*
@@ -223,5 +231,5 @@ void setup_user_access_pte(pte_t* base_page_table, uint8_t * videomem)
 void setup_user_access_pde(pde_t* page_directory, uint8_t * videomem)
 {
 	int index = (int) ( (uint32_t)videomem >> SHIFT_4MB );
-	page_directory[index] |= GRANT_USER_ACCESS; 
+	page_directory[index] |= GRANT_USER_ACCESS;
 }
