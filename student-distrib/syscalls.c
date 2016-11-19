@@ -161,6 +161,8 @@ int32_t internal_execute(const uint8_t* command, uint32_t flags)
     pcb_child->flags = flags;
     pcb_child->owned_by_terminal = get_terminal_state();
 
+    set_current_terminal_pid(pid);
+
     // set up kernel stack for child process
     tss_base->esp0 = (uint32_t)(KERNEL_STACK_START - pid*LITERAL_8KB);
 

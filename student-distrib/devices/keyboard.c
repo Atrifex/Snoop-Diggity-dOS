@@ -12,13 +12,21 @@ int curr_back_attribute = 0;
 uint8_t keyboard_state = 0;
 
 uint8_t terminals_launched = 1;      // the first terminal is launched by default
-uint8_t terminal_state = 1;
+uint8_t terminal_state = 0;
 
 terminal_t terminals[NUM_TERMINALS];
 
 void change_terminal_state(int from, int to);
 
 //TODO: make seperate drivers for keybord and terminal
+
+
+void set_current_terminal_pid(int8_t pid)
+{
+    terminals[terminal_state].pid = pid;
+}
+
+
 
 /*
  * get_terminal_state
@@ -28,7 +36,8 @@ void change_terminal_state(int from, int to);
  * RETURN VALUE: currently active terminal number
  * SIDE EFFECTS: low blood pressure
 */
-uint8_t get_terminal_state() {
+uint8_t get_terminal_state()
+{
     return terminal_state;
 }
 
@@ -211,8 +220,11 @@ void change_terminal_state(int from, int to)
     pcb_t* cur_pcb;
 
     cli_and_save(flags);
-    // copy memory from video memory
+    // copy memory from video memory    (dest, src, num bytes)
     memcpy((void*)(VIDEO+(from*LITERAL_4KB)),(void*)(VIDEO),LITERAL_4KB);
+    // memcpy((void*)(VIDEO),(void*)(VIDEO+(1*LITERAL_4KB)),LITERAL_4KB);
+    // memcpy((void*)(VIDEO),(void*)(VIDEO+(2*LITERAL_4KB)),LITERAL_4KB);
+    // memcpy((void*)(VIDEO),(void*)(VIDEO+(3*LITERAL_4KB)),LITERAL_4KB);
     memcpy((void*)(VIDEO),(void*)(VIDEO+(to*LITERAL_4KB)),LITERAL_4KB);
 
     // set screen locations
@@ -239,7 +251,7 @@ void change_terminal_state(int from, int to)
 
     vm_flush_page(VIDEO);
 
-    terminal_state = to;
+    terminal_state = to-1;
     restore_flags(flags);
 }
 
@@ -316,15 +328,16 @@ unsigned long process_sent_scancode()
         switch(mapped.result) {
             case (ASCII_ONE):
                 if(terminal_state != STATE_ONE){
-                    change_terminal_state(terminal_state, STATE_ONE);
+                    change_terminal_state(terminal_state+1, STATE_ONE);
                 }
                 break;
             case (ASCII_TWO):
                 if(terminal_state != STATE_TWO){
                     // change the configuration of video memory
-                    change_terminal_state(terminal_state, STATE_TWO);
+                    change_terminal_state(terminal_state+1, STATE_TWO);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_TWO_MASK)){
+                        cli();
                         terminals_launched |= TERMINAL_TWO_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
@@ -336,9 +349,10 @@ unsigned long process_sent_scancode()
             case (ASCII_THREE):
                 if(terminal_state != STATE_THREE){
                     // change the configuration of video memory
-                    change_terminal_state(terminal_state, STATE_THREE);
+                    change_terminal_state(terminal_state+1, STATE_THREE);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_THREE_MASK)){
+                        cli();
                         terminals_launched |= TERMINAL_THREE_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);

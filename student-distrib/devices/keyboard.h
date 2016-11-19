@@ -141,7 +141,10 @@ typedef struct
 	// variables associated with reading
 	volatile int allowed_to_read;    // allows read to stop blocking
 	volatile int read_waiting;
+    uint8_t pid;
 } terminal_t;
+
+extern void set_current_terminal_pid(int8_t pid);
 
 
 #endif
