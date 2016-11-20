@@ -209,11 +209,11 @@ void change_terminal_state(int from, int to)
     pcb_t* cur_pcb;
 
     // copy memory from video memory    (dest, src, num bytes)
-    memcpy((void*)(VIDEO+(from*LITERAL_4KB)),(void*)(VIDEO),LITERAL_4KB);
+    memcpy((void*)(VIDEO+((from+1)*LITERAL_4KB)),(void*)(VIDEO),LITERAL_4KB);
     // memcpy((void*)(VIDEO),(void*)(VIDEO+(1*LITERAL_4KB)),LITERAL_4KB);
     // memcpy((void*)(VIDEO),(void*)(VIDEO+(2*LITERAL_4KB)),LITERAL_4KB);
     // memcpy((void*)(VIDEO),(void*)(VIDEO+(3*LITERAL_4KB)),LITERAL_4KB);
-    memcpy((void*)(VIDEO),(void*)(VIDEO+(to*LITERAL_4KB)),LITERAL_4KB);
+    memcpy((void*)(VIDEO),(void*)(VIDEO+((to+1)*LITERAL_4KB)),LITERAL_4KB);
 
     // set screen locations
     terminals[from].screen_x = get_screen_x();
@@ -228,7 +228,7 @@ void change_terminal_state(int from, int to)
         cur_pcb = (pcb_t*)(KERNEL_STACK_START - (i+1)*LITERAL_8KB);
         if(cur_pcb->owned_by_terminal == from) {
             // write to a backing store
-            change_table_mapping(get_base_page_table_for_pid(i), VIDEO, VIDEO+(from*LITERAL_4KB));
+            change_table_mapping(get_base_page_table_for_pid(i), VIDEO, VIDEO+((from+1)*LITERAL_4KB));
         }
 
         if(cur_pcb->owned_by_terminal == to) {
@@ -239,7 +239,7 @@ void change_terminal_state(int from, int to)
 
     vm_flush_page(VIDEO);
 
-    terminal_state = to-1;
+    terminal_state = to;
 }
 
 /*
@@ -314,26 +314,26 @@ unsigned long process_sent_scancode()
     if(ALT_ON(keyboard_state)){
         switch(mapped.result) {
             case (ASCII_ONE):
-                if(terminal_state != (STATE_ONE-1)){
+                if(terminal_state != STATE_ONE){
                     cli();
 
                     // save information about currently running process
                     save_process_infromation(terminals[terminal_state].pid);
                     // change the configuration of video memory
-                    change_terminal_state(terminal_state+1, STATE_ONE);
+                    change_terminal_state(terminal_state, STATE_ONE);
                     // start proces in current terminal
                     go_to_process(terminals[terminal_state].pid);
                 }
                 break;
             case (ASCII_TWO):
-                if(terminal_state != (STATE_TWO-1)){
+                if(terminal_state != STATE_TWO){
                     cli();
 
                     // save information about currently running process
                     save_process_infromation(terminals[terminal_state].pid);
 
                     // change the configuration of video memory
-                    change_terminal_state(terminal_state+1, STATE_TWO);
+                    change_terminal_state(terminal_state, STATE_TWO);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_TWO_MASK)){
                         terminals_launched |= TERMINAL_TWO_MASK;
@@ -345,14 +345,14 @@ unsigned long process_sent_scancode()
                 }
                 break;
             case (ASCII_THREE):
-                if(terminal_state != (STATE_THREE-1)){
+                if(terminal_state != STATE_THREE){
                     cli();
 
                     // save information about currently running process
                     save_process_infromation(terminals[terminal_state].pid);
 
                     // change the configuration of video memory
-                    change_terminal_state(terminal_state+1, STATE_THREE);
+                    change_terminal_state(terminal_state, STATE_THREE);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_THREE_MASK)){
                         terminals_launched |= TERMINAL_THREE_MASK;

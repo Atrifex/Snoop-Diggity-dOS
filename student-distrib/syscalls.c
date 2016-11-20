@@ -258,6 +258,9 @@ asmlinkage int32_t halt(uint8_t status)
     // setting halting status
     pcb_curr->ret_val = (uint32_t)status;
 
+    // set pid of terminal to parent
+    terminals[get_terminal_state()].pid = pcb_parent->pid;
+
 	// restore esp and ebp for the KERNEL
 	set_esp_ebp(pcb_parent->esp_k, pcb_parent->ebp_k);
 
@@ -592,4 +595,8 @@ void save_process_infromation(uint8_t pid)
 void go_to_process(int8_t pid)
 {
 
+
+
+    // set page directory
+    set_new_page_directory(get_page_directory_for_pid(pid));
 }

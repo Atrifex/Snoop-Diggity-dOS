@@ -110,9 +110,9 @@
 #define MIN_BACKGROUD_ATTRIB 0x00
 
 #define NUM_TERMINALS 3
-#define STATE_ONE 1
-#define STATE_TWO 2
-#define STATE_THREE 3
+#define STATE_ONE 0
+#define STATE_TWO 1
+#define STATE_THREE 2
 
 /* Process the sent scancode after an interrupt */
 extern unsigned long process_sent_scancode();
