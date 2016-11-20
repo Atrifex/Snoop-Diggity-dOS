@@ -94,6 +94,8 @@ extern asmlinkage int32_t vidmap(uint8_t** screen_start);
 extern asmlinkage int32_t set_handler(int32_t signum, void* handler_address);
 extern asmlinkage int32_t sigreturn();
 extern int32_t internal_execute(const uint8_t* command, uint32_t flags);
+extern void go_to_process(int8_t pid);
+extern void save_process_infromation(uint8_t pid);
 
 // set_handler and sigreturn: TODO for extra credit
 

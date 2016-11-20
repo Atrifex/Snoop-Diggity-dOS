@@ -18,16 +18,6 @@ terminal_t terminals[NUM_TERMINALS];
 
 void change_terminal_state(int from, int to);
 
-//TODO: make seperate drivers for keybord and terminal
-
-
-void set_current_terminal_pid(int8_t pid)
-{
-    terminals[terminal_state].pid = pid;
-}
-
-
-
 /*
  * get_terminal_state
  * DESCRIPTION: returns the currently active terminal number
@@ -215,11 +205,9 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
 */
 void change_terminal_state(int from, int to)
 {
-    unsigned long flags;
     int i;
     pcb_t* cur_pcb;
 
-    cli_and_save(flags);
     // copy memory from video memory    (dest, src, num bytes)
     memcpy((void*)(VIDEO+(from*LITERAL_4KB)),(void*)(VIDEO),LITERAL_4KB);
     // memcpy((void*)(VIDEO),(void*)(VIDEO+(1*LITERAL_4KB)),LITERAL_4KB);
@@ -252,7 +240,6 @@ void change_terminal_state(int from, int to)
     vm_flush_page(VIDEO);
 
     terminal_state = to-1;
-    restore_flags(flags);
 }
 
 /*
@@ -327,37 +314,52 @@ unsigned long process_sent_scancode()
     if(ALT_ON(keyboard_state)){
         switch(mapped.result) {
             case (ASCII_ONE):
-                if(terminal_state != STATE_ONE){
+                if(terminal_state != (STATE_ONE-1)){
+                    cli();
+
+                    // save information about currently running process
+                    save_process_infromation(terminals[terminal_state].pid);
+                    // change the configuration of video memory
                     change_terminal_state(terminal_state+1, STATE_ONE);
+                    // start proces in current terminal
+                    go_to_process(terminals[terminal_state].pid);
                 }
                 break;
             case (ASCII_TWO):
-                if(terminal_state != STATE_TWO){
+                if(terminal_state != (STATE_TWO-1)){
+                    cli();
+
+                    // save information about currently running process
+                    save_process_infromation(terminals[terminal_state].pid);
+
                     // change the configuration of video memory
                     change_terminal_state(terminal_state+1, STATE_TWO);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_TWO_MASK)){
-                        cli();
                         terminals_launched |= TERMINAL_TWO_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
                     } else{
-
+                        go_to_process(terminals[terminal_state].pid);
                     }
                 }
                 break;
             case (ASCII_THREE):
-                if(terminal_state != STATE_THREE){
+                if(terminal_state != (STATE_THREE-1)){
+                    cli();
+
+                    // save information about currently running process
+                    save_process_infromation(terminals[terminal_state].pid);
+
                     // change the configuration of video memory
                     change_terminal_state(terminal_state+1, STATE_THREE);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_THREE_MASK)){
-                        cli();
                         terminals_launched |= TERMINAL_THREE_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
                     } else{
-
+                        go_to_process(terminals[terminal_state].pid);
                     }
                 }
                 break;

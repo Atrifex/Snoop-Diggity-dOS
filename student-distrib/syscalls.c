@@ -161,7 +161,7 @@ int32_t internal_execute(const uint8_t* command, uint32_t flags)
     pcb_child->flags = flags;
     pcb_child->owned_by_terminal = get_terminal_state();
 
-    set_current_terminal_pid(pid);
+    terminals[get_terminal_state()].pid = pid;
 
     // set up kernel stack for child process
     tss_base->esp0 = (uint32_t)(KERNEL_STACK_START - pid*LITERAL_8KB);
@@ -581,4 +581,15 @@ void clear_fd_array(file_info_t * fd_array)
         fd_array[i].position = 0;
         fd_array[i].flags = 0;
     }
+}
+
+
+void save_process_infromation(uint8_t pid)
+{
+
+}
+
+void go_to_process(int8_t pid)
+{
+
 }

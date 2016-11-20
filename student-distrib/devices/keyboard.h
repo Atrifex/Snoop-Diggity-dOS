@@ -139,12 +139,11 @@ typedef struct
 	int stdin_index;                     // points to current free spot in stdin
 
 	// variables associated with reading
-	volatile int allowed_to_read;    // allows read to stop blocking
+	volatile int allowed_to_read;        // allows read to stop blocking
 	volatile int read_waiting;
     uint8_t pid;
 } terminal_t;
 
-extern void set_current_terminal_pid(int8_t pid);
-
+extern terminal_t terminals[NUM_TERMINALS];
 
 #endif
