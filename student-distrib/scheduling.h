@@ -18,4 +18,23 @@ extern uint32_t block_address_for_process(int pid);
 extern uint8_t all_pids_available();
 extern uint8_t is_pid_used(int pid);
 
+
+/*
+ *
+ * Task 1
+ * | Time Chip (dont switch)                                  |
+ * | IRQ (save state, clear flag, perform work, restore flag) |
+ * | IRQ (save state, clear flag, perform work, restore flag) |
+ * | sys call (set flag)                                      |
+
+ * Task 1
+ * | Time Chip (switch using in place IRET) |
+ * | sys call (set flag)                    |
+ *
+ * Task 2
+ * | Time Chip (switch using in place IRET) |
+ *
+ */
+
+
 #endif

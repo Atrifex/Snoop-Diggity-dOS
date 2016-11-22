@@ -587,7 +587,7 @@ void clear_fd_array(file_info_t * fd_array)
 }
 
 
-void save_process_infromation(uint8_t pid)
+void save_process_information(uint8_t pid)
 {
 
 }
@@ -595,6 +595,7 @@ void save_process_infromation(uint8_t pid)
 void go_to_process(int8_t pid)
 {
 
+    // iret to program that we want to go to
 
 
     // set page directory

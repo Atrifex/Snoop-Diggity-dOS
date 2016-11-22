@@ -312,13 +312,12 @@ unsigned long process_sent_scancode()
 
     // switching terminals
     if(ALT_ON(keyboard_state)){
+        cli();
         switch(mapped.result) {
             case (ASCII_ONE):
                 if(terminal_state != STATE_ONE){
-                    cli();
-
                     // save information about currently running process
-                    save_process_infromation(terminals[terminal_state].pid);
+                    save_process_information(terminals[terminal_state].pid);
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_ONE);
                     // start proces in current terminal
@@ -327,10 +326,8 @@ unsigned long process_sent_scancode()
                 break;
             case (ASCII_TWO):
                 if(terminal_state != STATE_TWO){
-                    cli();
-
                     // save information about currently running process
-                    save_process_infromation(terminals[terminal_state].pid);
+                    save_process_information(terminals[terminal_state].pid);
 
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_TWO);
@@ -346,10 +343,8 @@ unsigned long process_sent_scancode()
                 break;
             case (ASCII_THREE):
                 if(terminal_state != STATE_THREE){
-                    cli();
-
                     // save information about currently running process
-                    save_process_infromation(terminals[terminal_state].pid);
+                    save_process_information(terminals[terminal_state].pid);
 
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_THREE);
