@@ -41,11 +41,17 @@ ignore_int:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call ignore_int_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -64,11 +70,17 @@ exception_handler_0:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_0_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -88,11 +100,17 @@ exception_handler_2:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_2_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -112,11 +130,17 @@ exception_handler_3:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_3_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -136,11 +160,17 @@ exception_handler_4:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_4_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -160,11 +190,17 @@ exception_handler_5:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_5_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -184,11 +220,17 @@ exception_handler_6:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_6_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -208,11 +250,17 @@ exception_handler_7:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_7_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -232,11 +280,17 @@ exception_handler_8:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_8_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -256,11 +310,17 @@ exception_handler_9:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_9_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -280,11 +340,17 @@ exception_handler_10:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_10_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -304,11 +370,17 @@ exception_handler_11:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_11_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -328,11 +400,17 @@ exception_handler_12:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_12_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -352,11 +430,17 @@ exception_handler_13:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_13_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -376,11 +460,17 @@ exception_handler_14:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_14_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -400,11 +490,17 @@ exception_handler_16:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_16_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -424,11 +520,17 @@ exception_handler_17:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_17_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -448,11 +550,17 @@ exception_handler_18:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_18_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -472,11 +580,17 @@ exception_handler_19:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call exception_handler_19_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -495,11 +609,17 @@ IRQ0_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ0_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -518,11 +638,17 @@ IRQ1_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ1_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -541,11 +667,17 @@ IRQ3_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ3_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -564,11 +696,17 @@ IRQ4_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ4_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -587,11 +725,17 @@ IRQ5_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ5_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -610,11 +754,17 @@ IRQ6_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ6_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -633,11 +783,17 @@ IRQ7_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ7_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -656,11 +812,17 @@ IRQ8_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ8_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -679,11 +841,17 @@ IRQ9_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ9_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -702,11 +870,17 @@ IRQ10_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ10_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -725,11 +899,17 @@ IRQ11_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ11_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -748,11 +928,17 @@ IRQ12_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ12_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -771,11 +957,17 @@ IRQ13_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ13_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -794,11 +986,17 @@ IRQ14_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ14_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax
@@ -817,11 +1015,17 @@ IRQ15_handler:
 	pushl %eax
 	pushl %ecx
 	pushl %edx
+    pushl %ebx
+    pushl %esi
+    pushl %edi
 
 	# Call subroutine to print
 	call IRQ15_handler_sub
 
 	# Restore caller save registers
+    popl %edi
+    popl %esi
+    popl %ebx
 	popl %edx
 	popl %ecx
 	popl %eax

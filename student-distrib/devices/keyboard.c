@@ -352,7 +352,6 @@ unsigned long process_sent_scancode()
                 }
                 break;
             }
-SWITCH_BACK_FROM_TERM_SWITCH:
         return keyboard_state;
     }
 
