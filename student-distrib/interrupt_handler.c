@@ -294,7 +294,10 @@ void IRQ0_handler_sub()
 	if(in_hardware_int() == TRUE){
 		return;
 	}
-	
+
+	round_robin_scheduler();
+
+	send_eoi(TIMER_CHIP_LINE_NO);
 }
 
 /*

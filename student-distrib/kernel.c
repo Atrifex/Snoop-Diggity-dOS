@@ -12,6 +12,7 @@
 #include "devices/keyboard.h"
 #include "filesystem.h"
 #include "syscalls.h"
+#include "scheduling.h"
 
 extern unsigned long* idt_jmp_table;
 
@@ -254,6 +255,10 @@ entry (unsigned long magic, unsigned long addr)
 
 	// Reset the video mem backing store for each terminal and reset video memory
 	initialize_video_memory();
+
+	// inits scheduling
+	init_scheduling();
+
 
 	/* Enable interrupts */
     sti();

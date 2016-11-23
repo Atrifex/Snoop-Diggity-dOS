@@ -2,6 +2,7 @@
 
 // bit-map to store which pids are in use
 uint32_t pid_avail = 0x00;
+uint8_t terminal_being_serviced = 0;
 
 /*
  * int all_pids_available()
@@ -197,7 +198,7 @@ SWITCH_CONTEXT:
  */
 void init_scheduling()
 {
-
+	enable_irq(TIMER_CHIP_LINE_NO);
 }
 
 /*
@@ -210,5 +211,20 @@ void init_scheduling()
  */
 void round_robin_scheduler()
 {
+		uint8_t terminals_launched = get_launched_terminals();
+		int i;
 
+		// if only one terminal is running, there is no nead for scheduling
+		if(terminals_launched == 1){
+			return;
+		}
+
+		for(i = 0; i < NUM_TERMINALS; i++){
+			terminal_being_serviced = (terminal_being_serviced + 1) % NUM_TERMINALS;
+			if(((terminals_launched >> terminal_being_serviced)) & 1){
+				save_and_switch_process_context(terminals[terminal_being_serviced].pid);
+				break;
+			}
+		}
+		return;
 }

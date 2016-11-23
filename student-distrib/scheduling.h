@@ -1,6 +1,7 @@
 #ifndef SCHEDULING_H_
 #define SCHEDULING_H_
 
+#include "i8259.h"
 #include "filesystem.h"
 #include "syscalls.h"
 
@@ -11,8 +12,8 @@
 #define PID_SPACE 0x400000
 #define MAX_NUM_PROCS 6
 
-#define CHANNEL_0 0x40      // Channel 0 data port (read/write)
-
+#define CHANNEL_0_PORT 0x40      // Channel 0 data port (read/write)
+#define TIMER_CHIP_LINE_NO 0
 
 extern int get_available_pid();
 extern int mark_pid_used(int pid);
@@ -23,6 +24,8 @@ extern uint8_t is_pid_used(int pid);
 extern int in_hardware_int();
 extern void save_process_context(uint32_t eip, uint32_t esp, uint32_t ebp);
 extern void save_and_switch_process_context(int8_t pid);
+extern void init_scheduling();
+extern void round_robin_scheduler();
 
 /*
  * Task 1
