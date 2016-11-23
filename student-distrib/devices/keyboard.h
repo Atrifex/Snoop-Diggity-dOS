@@ -114,6 +114,12 @@
 #define STATE_TWO 1
 #define STATE_THREE 2
 
+// used to check if terminals is viable to switch to
+#define CAN_SWITCH_TWO(launched, mask, state) (((!(launched&mask) && (get_available_pid() != FAILURE))|| (launched & mask)) && state != STATE_TWO)
+#define CAN_SWITCH_THREE(launched, mask, state) (((!(launched&mask) && (get_available_pid() != FAILURE))|| (launched & mask)) && state != STATE_THREE)
+
+
+
 /* Process the sent scancode after an interrupt */
 extern unsigned long process_sent_scancode();
 /* Initialize the keyboard device */

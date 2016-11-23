@@ -193,6 +193,7 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
 */
 int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
 {
+    unsigned long flags;
     // error checks
     if(fd != STDOUT){
         return ERROR;
@@ -200,10 +201,21 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
     if(nbytes < 0){
         return FAILURE;
     }
+    cli_and_save(flags);
+    // set screen locations
+    terminals[terminal_state].screen_x = get_screen_x();
+    terminals[terminal_state].screen_y = get_screen_y();
+    set_screen_x_y(terminals[get_terminal_of_current_process()].screen_x, terminals[get_terminal_of_current_process()].screen_y);
 
     // print buf to the screen
     put_t((uint8_t *)buf, nbytes, 1);
 
+    // set screen locations
+    terminals[get_terminal_of_current_process()].screen_x = get_screen_x();
+    terminals[get_terminal_of_current_process()].screen_y = get_screen_y();
+    set_screen_x_y(terminals[terminal_state].screen_x, terminals[terminal_state].screen_y);
+
+    restore_flags(flags);
     // return number of bytes read
     return nbytes;
 }
@@ -267,10 +279,6 @@ void change_terminal_state(int from, int to)
 unsigned long process_sent_scancode()
 {
     scancode_t mapped;
-
-    // tss_t* tss_base = (tss_t*)&tss;
-    // pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
-    // int pid = pcb_curr->pid;
 
     // get scancode
     uint8_t raw_scancode = get_char();
@@ -339,29 +347,37 @@ unsigned long process_sent_scancode()
                 }
                 break;
             case (ASCII_TWO):
-                if(terminal_state != STATE_TWO){
+                if(CAN_SWITCH_TWO(terminals_launched, TERMINAL_TWO_MASK, terminal_state)){
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_TWO);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_TWO_MASK)){
+                        set_terminal_of_current_process(terminal_state);
                         save_process_context((uint32_t)&&SWITCH_TERMINAL_CONTEXT, get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
                         terminals_launched |= TERMINAL_TWO_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
                     }
+                }else if(terminal_state != STATE_TWO){
+                    printf_t("\nCould not start new terminal: max processes running\n");
+                    printf_t("391OS> ");            // prints prompt for shell
                 }
                 break;
             case (ASCII_THREE):
-                if(terminal_state != STATE_THREE){
+                if(CAN_SWITCH_THREE(terminals_launched, TERMINAL_THREE_MASK, terminal_state)){
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_THREE);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_THREE_MASK)){
+                        set_terminal_of_current_process(terminal_state);
                         save_process_context((uint32_t)&&SWITCH_TERMINAL_CONTEXT, get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
                         terminals_launched |= TERMINAL_THREE_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
                     }
+                }else if(terminal_state != STATE_THREE){
+                    printf_t("\nCould not start new terminal: max processes running\n");
+                    printf_t("391OS> ");            // prints prompt for shell
                 }
                 break;
             }
@@ -375,7 +391,9 @@ SWITCH_TERMINAL_CONTEXT:
         if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
             // ctrl + l is pressed then clear screen
             clear_and_reset();
-            set_cursor_location(0,0);
+            set_screen_x_y(0, 0);
+            terminals[terminal_state].screen_x = 0;
+            terminals[terminal_state].screen_y = 0;
             printf_t("391OS> ");            // prints prompt for shell
             printf_t("%s",terminals[terminal_state].stdin);           // print current buffered value
         } else if(mapped.result == ASCII_SIX){

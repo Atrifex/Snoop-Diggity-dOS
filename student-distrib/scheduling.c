@@ -30,6 +30,20 @@ uint8_t get_terminal_of_current_process()
 	return terminal_being_serviced;
 }
 
+/*
+ * void set_terminal_of_current_process()
+ * DESCRIPTION: sets terminal being serviced
+ * INPUTS   : uint8_t dest_terminal - terminal to swtich to
+ * OUTPUTS  : none
+ * RETURN VALUE: see DESCRIPTION
+ * SIDE EFFECTS: see DESCRIPTION
+ */
+void set_terminal_of_current_process(uint8_t dest_terminal)
+{
+	 terminal_being_serviced = dest_terminal;
+}
+
+
 
 
 /*
@@ -215,7 +229,7 @@ SWITCH_CONTEXT:
 void init_scheduling()
 {
 	unsigned long flags;
-	
+
 	// save flags and halt interrupts for critical section
 	cli_and_save(flags);
 
@@ -227,8 +241,9 @@ void init_scheduling()
 	// Now, output the low byte then the high byte of the reload value to the Channel 0 data port
 	// Frequency = 1193182/PIT_RELOAD_VAL Hz
 
-	outb(CHANNEL_0_PORT, PIT_RELOAD_VAL & MASK_UPPER_BYTES); // low byte
-	outb(CHANNEL_0_PORT, (PIT_RELOAD_VAL >> ISOLATE_SECOND_BYTE) & MASK_UPPER_BYTES); // high byte
+	// low and high bytes
+	outb(CHANNEL_0_PORT, PIT_RELOAD_VAL & MASK_UPPER_BYTES);
+	outb(CHANNEL_0_PORT, (PIT_RELOAD_VAL >> ISOLATE_SECOND_BYTE) & MASK_UPPER_BYTES);
 
 	// restore flags
 	restore_flags(flags);
@@ -256,7 +271,7 @@ void round_robin_scheduler()
 
 		for(i = 0; i < NUM_TERMINALS; i++){
 			terminal_being_serviced = (terminal_being_serviced + 1) % NUM_TERMINALS;
-			if(((terminals_launched >> terminal_being_serviced)) & 1){
+			if(((terminals_launched >> terminal_being_serviced)) & ISOLATE_LEAST_SIG_BIT){
 				save_and_switch_process_context(terminals[terminal_being_serviced].pid);
 				break;
 			}
