@@ -321,17 +321,17 @@ unsigned long process_sent_scancode()
             case (ASCII_ONE):
                 if(terminal_state != STATE_ONE){
                     // save information about currently running process
-                    save_process_information(terminals[terminal_state].pid);
+                    save_process_context(terminals[terminal_state].pid);
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_ONE);
                     // start proces in current terminal
-                    go_to_process(terminals[terminal_state].pid);
+                    load_process_context(terminals[terminal_state].pid);
                 }
                 break;
             case (ASCII_TWO):
                 if(terminal_state != STATE_TWO){
                     // save information about currently running process
-                    save_process_information(terminals[terminal_state].pid);
+                    save_process_context(terminals[terminal_state].pid);
 
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_TWO);
@@ -341,14 +341,14 @@ unsigned long process_sent_scancode()
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
                     } else{
-                        go_to_process(terminals[terminal_state].pid);
+                        load_process_context(terminals[terminal_state].pid);
                     }
                 }
                 break;
             case (ASCII_THREE):
                 if(terminal_state != STATE_THREE){
                     // save information about currently running process
-                    save_process_information(terminals[terminal_state].pid);
+                    save_process_context(terminals[terminal_state].pid);
 
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_THREE);
@@ -358,7 +358,7 @@ unsigned long process_sent_scancode()
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
                     } else{
-                        go_to_process(terminals[terminal_state].pid);
+                        load_process_context(terminals[terminal_state].pid);
                     }
                 }
                 break;

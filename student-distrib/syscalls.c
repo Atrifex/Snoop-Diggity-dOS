@@ -588,19 +588,3 @@ void clear_fd_array(file_info_t * fd_array)
         fd_array[i].flags = 0;
     }
 }
-
-
-void save_process_information(uint8_t pid)
-{
-
-}
-
-void go_to_process(int8_t pid)
-{
-
-    // iret to program that we want to go to
-
-
-    // set page directory
-    set_new_page_directory(get_page_directory_for_pid(pid));
-}

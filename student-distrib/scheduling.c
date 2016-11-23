@@ -131,3 +131,36 @@ int in_hardware_int()
 			return FALSE;
 		}
 }
+
+
+
+/*
+ * void save_process_context(int8_t pid)
+ * DESCRIPTION: will save the information related to the current process such as the esp, ebp, eip, etc.
+ * INPUTS   : int pid - used to access pcb
+ * OUTPUTS  : changes pcb
+ * RETURN VALUE: none
+ * SIDE EFFECTS: see DESCRIPTION
+ */
+void save_process_context(int8_t pid)
+{
+
+	
+
+}
+
+/*
+ * void load_process_context(int8_t pid)
+ * DESCRIPTION: used to jump to the process that we want to execute next
+ * INPUTS   : int pid - used to access pcb
+ * OUTPUTS  : none
+ * RETURN VALUE: none
+ * SIDE EFFECTS: see DESCRIPTION
+ */
+void load_process_context(int8_t pid)
+{
+    // iret to program that we want to go to
+
+    // set page directory
+    set_new_page_directory(get_page_directory_for_pid(pid));
+}
