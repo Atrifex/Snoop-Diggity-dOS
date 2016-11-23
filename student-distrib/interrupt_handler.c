@@ -294,8 +294,7 @@ void IRQ0_handler_sub()
 	if(in_hardware_int() == TRUE){
 		return;
 	}
-
-	printf_t("IRQ: Timer Chip\n");
+	
 }
 
 /*

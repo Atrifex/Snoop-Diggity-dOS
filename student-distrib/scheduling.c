@@ -142,11 +142,12 @@ int in_hardware_int()
  * RETURN VALUE: none
  * SIDE EFFECTS: see DESCRIPTION
  */
-void save_process_context(uint32_t esp, uint32_t ebp)
+void save_process_context(uint32_t eip, uint32_t esp, uint32_t ebp)
 {
 	tss_t* tss_base = (tss_t*)&tss;
 	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
+	pcb_curr->eip  = eip;
 	pcb_curr->esp_k = esp;
 	pcb_curr->ebp_k = ebp;
 	get_flags(pcb_curr->eflags);
@@ -171,7 +172,7 @@ void save_and_switch_process_context(int8_t pid)
     set_new_page_directory(get_page_directory_for_pid(pid));
 
 		// save information about currently running process
-		save_process_context(get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
+		save_process_context((uint32_t)&&SWITCH_CONTEXT, get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
 
 		tss_base->esp0 = (KERNEL_STACK_START - (pid)*LITERAL_8KB);
 
@@ -180,5 +181,23 @@ void save_and_switch_process_context(int8_t pid)
 		restore_flags(pcb_next->eflags);
 		set_esp_ebp(pcb_next->esp_k, pcb_next->ebp_k);
 
+		jmp_to_addr(pcb_next->eip);
+
+SWITCH_CONTEXT:
 		asm("leave;ret");
 }
+
+
+
+/*
+ * void round_robin_scheduler()
+ * DESCRIPTION: implements a round robin schduler for the processes running in the three terminals
+ * INPUTS   : none
+ * OUTPUTS  : switches to next task in list
+ * RETURN VALUE: none
+ * SIDE EFFECTS: see DESCRIPTION and OUTPUTS
+ */
+ void round_robin_scheduler()
+ {
+
+ }

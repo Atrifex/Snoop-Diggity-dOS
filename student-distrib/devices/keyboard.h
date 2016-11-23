@@ -121,6 +121,7 @@ extern void init_kbd();
 
 /* Returns the currently active terminal number */
 extern uint8_t get_terminal_state();
+extern uint8_t get_launched_terminals();
 
 /* Driver related functions */
 extern int32_t open_terminal(const uint8_t *pathname);

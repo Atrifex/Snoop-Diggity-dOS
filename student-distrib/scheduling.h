@@ -18,7 +18,7 @@ extern uint32_t block_address_for_process(int pid);
 extern uint8_t all_pids_available();
 extern uint8_t is_pid_used(int pid);
 extern int in_hardware_int();
-extern void save_process_context(uint32_t esp, uint32_t ebp);
+extern void save_process_context(uint32_t eip, uint32_t esp, uint32_t ebp);
 extern void save_and_switch_process_context(int8_t pid);
 
 /*
@@ -36,6 +36,26 @@ extern void save_and_switch_process_context(int8_t pid);
  * | Time Chip (switch using in place IRET) |
  *
  */
+
+
+ /*
+ # jmp_to_addr()
+ # DESCRIPTION: sets the esp and ebp to a given value
+ # INPUTS   : uint32_t par_esp, uint32_t par_ebp
+ # OUTPUTS  : none
+ # RETURN VALUE: none
+ # REGISTER USAGE: esp and ebp
+ */
+ #define jmp_to_addr(addr) 													                                                 \
+     do {                                                                                            \
+         asm volatile("\n                                                                            \
+                         jmp *%0              \n                                                      \
+                      "     	                                                                       \
+                      :                                                                              \
+                      : "r"(addr)                 				                                           \
+             );                                                                                      \
+     } while(0)
+
 
 
 #endif

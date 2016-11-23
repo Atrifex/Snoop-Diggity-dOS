@@ -23,11 +23,24 @@ void change_terminal_state(int from, int to);
  * INPUT: none
  * OUTPUTS: none
  * RETURN VALUE: currently active terminal number
- * SIDE EFFECTS: low blood pressure
+ * SIDE EFFECTS: see DESCRIPTION
 */
 uint8_t get_terminal_state()
 {
     return terminal_state;
+}
+
+/*
+ * get_launched_terminals
+ * DESCRIPTION: returns the mask that shows which termainals have been launched
+ * INPUT: none
+ * OUTPUTS: none
+ * RETURN VALUE: currently active terminal launched
+ * SIDE EFFECTS: see DESCRIPTION
+*/
+uint8_t get_launched_terminals()
+{
+    return terminals_launched;
 }
 
 /*
@@ -317,8 +330,6 @@ unsigned long process_sent_scancode()
                 if(terminal_state != STATE_ONE){
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_ONE);
-                    // start proces in current terminal
-                    save_and_switch_process_context(terminals[terminal_state].pid);
                 }
                 break;
             case (ASCII_TWO):
@@ -327,12 +338,10 @@ unsigned long process_sent_scancode()
                     change_terminal_state(terminal_state, STATE_TWO);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_TWO_MASK)){
-                        save_process_context(get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
+                        save_process_context((uint32_t)&&SWITCH_TERMINAL_CONTEXT, get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
                         terminals_launched |= TERMINAL_TWO_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
-                    } else{
-                        save_and_switch_process_context(terminals[terminal_state].pid);
                     }
                 }
                 break;
@@ -342,16 +351,15 @@ unsigned long process_sent_scancode()
                     change_terminal_state(terminal_state, STATE_THREE);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_THREE_MASK)){
-                        save_process_context(get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
+                        save_process_context((uint32_t)&&SWITCH_TERMINAL_CONTEXT, get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
                         terminals_launched |= TERMINAL_THREE_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
-                    } else{
-                        save_and_switch_process_context(terminals[terminal_state].pid);
                     }
                 }
                 break;
             }
+SWITCH_TERMINAL_CONTEXT:
         return keyboard_state;
     }
 
