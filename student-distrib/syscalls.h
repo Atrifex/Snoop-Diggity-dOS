@@ -60,33 +60,35 @@ typedef struct pcb_t pcb_t;
 struct pcb_t
 {
 	file_info_t fd_array[MAX_FD_PER_PROCESS]; // File descriptors allocated for this process
-    uint32_t ret_val;
-    unsigned char* args; // Program's arguments
+  uint32_t ret_val;
+  unsigned char* args; // Program's arguments
 	// parent's info
 	pcb_t * parentPCB;
 	uint32_t esp0; 		// Parent's kernel stack pointer
+
 	uint32_t esp_k; 	// current's kernel stack pointer
 	uint32_t ebp_k; 	// current's kernel base pointer
+	uint32_t eflags;  // eflags of current process - kernel or user
 
-	uint32_t esp_u; 	// current's user stack pointer
-	uint32_t ebp_u; 	// current's user base pointer
-
-   /*
-    * If set then the corresponding conditions are being met:
-    * |-----------+-------------------+---------------|
-    * | bits 31-2 | bit 1             | bit 0         |
-    * |-----------+-------------------+---------------|
-    * | Reserved  | in hard interrupt | initial shell |
-    * |-----------+-------------------+---------------|
-    */
+	 /*
+	  * If set then the corresponding conditions are being met:
+	  * |-----------+-------------------+---------------|
+	  * | bits 31-2 | bit 1             | bit 0         |
+	  * |-----------+-------------------+---------------|
+	  * | Reserved  | in hard interrupt | initial shell |
+	  * |-----------+-------------------+---------------|
+	  */
 	uint32_t flags; 	// we'll use this for something
 
-    // kept down here to maximize packing
-    int8_t pid;    	// Process id of current process
+  // kept down here to maximize packing
+  int8_t pid;    	// Process id of current process
 
-    // terminal from which this process started
-    uint8_t owned_by_terminal;
+  // terminal from which this process started
+  uint8_t owned_by_terminal;
 };
+
+// pcb constants
+#define IN_INTERRUPT_FLAG 0x0002
 
 // System calls for our OS
 // Use asmlinkage to ensure arguments are passed via the stack (useful b/c assembly linkage)

@@ -1,6 +1,12 @@
 #ifndef INTERRUPT_HANDLER_H
 #define INTERRUPT_HANDLER_H
 
+#include "lib.h"
+#include "rtc.h"
+#include "i8259.h"
+#include "keyboard.h"
+#include "syscalls.h"
+
 #define EXCEPTION_HALT_RET_VAL 256
 
 // Flag cleared by the RTC interrupt handler
@@ -58,6 +64,5 @@ extern void IRQ13_handler_sub();
 extern void IRQ14_handler_sub();
 extern void IRQ15_handler_sub();
 
-#define IN_INTERRUPT_FLAG 0x0002
 
 #endif

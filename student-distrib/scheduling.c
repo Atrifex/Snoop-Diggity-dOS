@@ -125,7 +125,7 @@ int in_hardware_int()
 		pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
 		// currently in hardware interrupt and should return
-		if(!(pcb_curr->flags & IN_INTERRUPT_FLAG)){
+		if(pcb_curr->flags & IN_INTERRUPT_FLAG){
 			return TRUE;
 		}else{
 			return FALSE;
@@ -142,11 +142,16 @@ int in_hardware_int()
  * RETURN VALUE: none
  * SIDE EFFECTS: see DESCRIPTION
  */
-void save_process_context(int8_t pid)
+void save_process_context(uint32_t esp, uint32_t ebp)
 {
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
 
-	
+	pcb_curr->esp_k = esp;
+	pcb_curr->ebp_k = ebp;
+	get_flags(pcb_curr->eflags);
 
+	return;
 }
 
 /*
@@ -157,10 +162,24 @@ void save_process_context(int8_t pid)
  * RETURN VALUE: none
  * SIDE EFFECTS: see DESCRIPTION
  */
-void load_process_context(int8_t pid)
+void save_and_switch_process_context(int8_t pid)
 {
-    // iret to program that we want to go to
+		pcb_t* pcb_next;
+		tss_t* tss_base = (tss_t*)&tss;
 
     // set page directory
     set_new_page_directory(get_page_directory_for_pid(pid));
+
+		// save information about currently running process
+		save_process_context(get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
+
+		tss_base->esp0 = (KERNEL_STACK_START - (pid)*LITERAL_8KB);
+
+		// set esp, ebp, and flags
+		pcb_next = (pcb_t*)(KERNEL_STACK_START - (pid+1)*LITERAL_8KB);
+		restore_flags(pcb_next->eflags);
+		set_esp_ebp(pcb_next->esp_k, pcb_next->ebp_k);
+
+		asm("leave;ret");
+
 }

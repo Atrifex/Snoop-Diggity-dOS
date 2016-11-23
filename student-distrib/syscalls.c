@@ -198,8 +198,10 @@ int32_t internal_execute(const uint8_t* command, uint32_t flags)
     unsigned long new_esp = (TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB);
     unsigned long new_flags = SET_INTERRUPTS | SET_IOPRIV_USER | SET_PF_RANDBIT;
 
-    pcb_curr->esp_k = get_esp() + ACCOUNT_FOR_RET_ADDR;
-    pcb_curr->ebp_k = get_ebp();
+    if(!(flags & 1)){
+      pcb_curr->esp_k = get_esp() + ACCOUNT_FOR_RET_ADDR;
+      pcb_curr->ebp_k = get_ebp();
+    }
 
     // iret to new program
     iret_to_user((unsigned long)entry_point_address, (unsigned long)USER_CS, (unsigned long)new_flags, (unsigned long)new_esp, (unsigned long)USER_DS);

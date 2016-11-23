@@ -1,12 +1,4 @@
 #include "interrupt_handler.h"
-#include "lib.h"
-#include "rtc.h"
-#include "i8259.h"
-#include "keyboard.h"
-#include "syscalls.h"
-
-
-
 
 
 /*
