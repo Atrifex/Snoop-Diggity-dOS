@@ -71,7 +71,14 @@ struct pcb_t
 	uint32_t esp_u; 	// current's user stack pointer
 	uint32_t ebp_u; 	// current's user base pointer
 
-    // unused
+   /*
+    * If set then the corresponding conditions are being met:
+    * |-----------+-------------------+---------------|
+    * | bits 31-2 | bit 1             | bit 0         |
+    * |-----------+-------------------+---------------|
+    * | Reserved  | in hard interrupt | initial shell |
+    * |-----------+-------------------+---------------|
+    */
 	uint32_t flags; 	// we'll use this for something
 
     // kept down here to maximize packing

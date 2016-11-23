@@ -5,6 +5,10 @@
 #include "keyboard.h"
 #include "syscalls.h"
 
+
+
+
+
 /*
  * void ignore_int_sub()
  * A subroutine used by our null interrupt handler.
@@ -295,6 +299,10 @@ void exception_handler_19_sub()
 */
 void IRQ0_handler_sub()
 {
+	if(in_hardware_int() == TRUE){
+		return;
+	}
+
 	printf_t("IRQ: Timer Chip\n");
 }
 
@@ -308,9 +316,20 @@ void IRQ0_handler_sub()
 */
 void IRQ1_handler_sub()
 {
-	// printf_t("IRQ: Keyboard\n");
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	process_sent_scancode();
 	send_eoi(KEYBOARD_LINE_NO);
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -323,7 +342,19 @@ void IRQ1_handler_sub()
 */
 void IRQ3_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: COM2 Serial Port\n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -336,7 +367,19 @@ void IRQ3_handler_sub()
 */
 void IRQ4_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: COM1 Serial Port\n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -349,7 +392,19 @@ void IRQ4_handler_sub()
 */
 void IRQ5_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: LPT2\n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -362,7 +417,19 @@ void IRQ5_handler_sub()
 */
 void IRQ6_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: Floppy Disk\n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -375,7 +442,19 @@ void IRQ6_handler_sub()
 */
 void IRQ7_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: LPT1\n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /* Slave Interrupts */
@@ -389,6 +468,15 @@ void IRQ7_handler_sub()
 */
 void IRQ8_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	//printf_t("IRQ: Real Time Clock\n");	// uncomment for simple test
 	//test_interrupts();                // uncomment for more their test
 	outb(RTC_CREG_C, RTC_CONTROL_PORT); // selects control register C of the RTC
@@ -397,6 +485,9 @@ void IRQ8_handler_sub()
 	rtc_flag = 0; // Clear flag used in rtc_read()
 
 	send_eoi(RTC_LINE_NO);
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -409,7 +500,19 @@ void IRQ8_handler_sub()
 */
 void IRQ9_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: Free for peripherals\n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -422,7 +525,19 @@ void IRQ9_handler_sub()
 */
 void IRQ10_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: Free for peripherals\n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -435,7 +550,19 @@ void IRQ10_handler_sub()
 */
 void IRQ11_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: Eth0 (network) \n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -448,7 +575,19 @@ void IRQ11_handler_sub()
 */
 void IRQ12_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: PS/2 Mouse\n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -461,7 +600,19 @@ void IRQ12_handler_sub()
 */
 void IRQ13_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: FPU/Coprocessor/Inter-processor\n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -474,7 +625,19 @@ void IRQ13_handler_sub()
 */
 void IRQ14_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: Ide0 (hard drive)\n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }
 
 /*
@@ -487,5 +650,17 @@ void IRQ14_handler_sub()
 */
 void IRQ15_handler_sub()
 {
+	// set PCB flag for in hard interrupt
+	uint32_t flags;
+	tss_t* tss_base = (tss_t*)&tss;
+	pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+	flags = pcb_curr->flags;
+	pcb_curr->flags |= IN_INTERRUPT_FLAG;
+
+	// set interrupts and call specific handler
+	sti();
 	printf_t("IRQ: Ide1 (hard drive)\n");
+
+	// restore flags
+	pcb_curr->flags = flags;
 }

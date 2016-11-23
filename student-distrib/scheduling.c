@@ -11,7 +11,7 @@ uint32_t pid_avail = 0x00;
  * RETURN VALUE: Returns true "1" if this is the kernel pid. Otherwise, if returns false "0".
  * SIDE EFFECTS: none
  */
-uint8_t all_pids_available() 
+uint8_t all_pids_available()
 {
 	return (pid_avail == 0);
 }
@@ -24,11 +24,11 @@ uint8_t all_pids_available()
  * RETURN VALUE: returns available pid at any given time. If max procs have already been reached, then return FAILURE.
  * SIDE EFFECTS: none
  */
-int get_available_pid() 
+int get_available_pid()
 { // return FAILURE (-1) if none left (MAX_TASKS) reached
 	int i;
 	uint32_t current = BITMASK;
-	
+
 	for(i = 0; i < MAX_NUM_PROCS; ++i)
 	{
 		if(!(pid_avail&current))
@@ -49,7 +49,7 @@ int get_available_pid()
  * RETURN VALUE: int to show FAILURE or SUCCESS based on if input PID in within PID bounds
  * SIDE EFFECTS: sets a given PID as used
  */
-int mark_pid_used(int pid) 
+int mark_pid_used(int pid)
 {
 	if(pid >= 0 && pid < MAX_NUM_PROCS){
 		pid_avail = pid_avail | (1 << pid);
@@ -66,7 +66,7 @@ int mark_pid_used(int pid)
  * RETURN VALUE: int to show FAILURE or SUCCESS based on if input PID in within PID bounds
  * SIDE EFFECTS: sets a given PID as free
  */
-int mark_pid_free(int pid) 
+int mark_pid_free(int pid)
 {
 	if(pid >= 0 && pid < MAX_NUM_PROCS){
 		pid_avail = pid_avail & (~(1<<pid));
@@ -100,7 +100,7 @@ uint8_t is_pid_used(int pid)
  * RETURN VALUE: int to show FAILURE or SUCCESS based on if input PID in within PID bounds
  * SIDE EFFECTS: none
  */
-uint32_t block_address_for_process(int pid) 
+uint32_t block_address_for_process(int pid)
 { // 8MB + (4MB*pid)
     uint32_t meme;
     if(pid >= 0 && pid < MAX_NUM_PROCS){
@@ -110,3 +110,24 @@ uint32_t block_address_for_process(int pid)
     return FAILURE;
 }
 
+/*
+ * int in_hardware_int(int pid)
+ * DESCRIPTION: returns physical address to set place the program into
+ * INPUTS   : none
+ * OUTPUTS  : none
+ * RETURN VALUE: returns true if we are in a nested hardware interrupt, else returns false
+ * SIDE EFFECTS: none
+ */
+int in_hardware_int()
+{
+		// set PCB flag for in hard interrupt
+		tss_t* tss_base = (tss_t*)&tss;
+		pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+
+		// currently in hardware interrupt and should return
+		if(!(pcb_curr->flags & IN_INTERRUPT_FLAG)){
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+}

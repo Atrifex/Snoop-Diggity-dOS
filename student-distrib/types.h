@@ -16,6 +16,8 @@
 #define SUCCESS 0
 #define ERROR -1
 #define FAILURE -1
+#define TRUE 1
+#define FALSE 0
 
 // globally necessary constants
 #define STDIN 0

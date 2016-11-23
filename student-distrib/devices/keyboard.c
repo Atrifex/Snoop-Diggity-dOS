@@ -312,6 +312,10 @@ unsigned long process_sent_scancode()
 
     // switching terminals
     if(ALT_ON(keyboard_state)){
+        // TODO: DELETE LATER
+        if(in_hardware_int() == TRUE){
+          return keyboard_state;
+        }
         cli();
         switch(mapped.result) {
             case (ASCII_ONE):

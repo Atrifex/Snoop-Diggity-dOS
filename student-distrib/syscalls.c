@@ -305,6 +305,9 @@ int32_t halt_excep(int32_t status)
     // setting halting status
     pcb_curr->ret_val = status;
 
+    // set pid of terminal to parent
+    terminals[get_terminal_state()].pid = pcb_parent->pid;
+
     // restore esp and ebp for the KERNEL
     set_esp_ebp(pcb_parent->esp_k, pcb_parent->ebp_k);
 

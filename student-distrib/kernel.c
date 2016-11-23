@@ -58,7 +58,7 @@ void init_idt()
 			SET_IDT_ENTRY(idt[i],idt_handler[i]);
 			idt[i].seg_selector = KERNEL_CS;
 			idt[i].reserved4 = RESERVED_4_DEFAULT;
-			idt[i].reserved3 = TRAP_GATE;
+			idt[i].reserved3 = INTERRUPT_GATE;
 			idt[i].reserved2 = RESERVED_2_DEFAULT;
 			idt[i].reserved1 = RESERVED_1_DEFAULT;
 			idt[i].size = DEFAULT_SIZE;
