@@ -279,9 +279,10 @@ void change_terminal_state(int from, int to)
 unsigned long process_sent_scancode()
 {
     scancode_t mapped;
-
+    unsigned long flags;
     // get scancode
     uint8_t raw_scancode = get_char();
+    uint8_t current_process_terminal;
 
     if(raw_scancode == DELETE_SCAN_CODE)
         return keyboard_state;
@@ -390,12 +391,17 @@ SWITCH_TERMINAL_CONTEXT:
     if(CONTROL_ON(keyboard_state)) {
         if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
             // ctrl + l is pressed then clear screen
+            cli_and_save(flags);
+            current_process_terminal = get_terminal_of_current_process();
             clear_and_reset();
             set_screen_x_y(0, 0);
             terminals[terminal_state].screen_x = 0;
             terminals[terminal_state].screen_y = 0;
+            set_terminal_of_current_process(terminal_state);
             printf_t("391OS> ");            // prints prompt for shell
             printf_t("%s",terminals[terminal_state].stdin);           // print current buffered value
+            set_terminal_of_current_process(current_process_terminal);
+            restore_flags(flags);
         } else if(mapped.result == ASCII_SIX){
             // ctrl + 6 is pressed then change color
             curr_attribute++;

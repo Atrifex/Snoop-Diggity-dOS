@@ -229,6 +229,7 @@ JMP_POS_HALT:
  */
 asmlinkage int32_t halt(uint8_t status)
 {
+  cli();
 	pde_t* pd;
 	pcb_t* pcb_parent;
 
@@ -261,7 +262,7 @@ asmlinkage int32_t halt(uint8_t status)
     pcb_curr->ret_val = (uint32_t)status;
 
     // set pid of terminal to parent
-    terminals[get_terminal_state()].pid = pcb_parent->pid;
+    terminals[pcb_parent->owned_by_terminal].pid = pcb_parent->pid;
 
 	// restore esp and ebp for the KERNEL
 	set_esp_ebp(pcb_parent->esp_k, pcb_parent->ebp_k);
@@ -284,6 +285,7 @@ asmlinkage int32_t halt(uint8_t status)
  */
 int32_t halt_excep(int32_t status)
 {
+    cli();
     pde_t* pd;
     pcb_t* pcb_parent;
 
@@ -308,7 +310,7 @@ int32_t halt_excep(int32_t status)
     pcb_curr->ret_val = status;
 
     // set pid of terminal to parent
-    terminals[get_terminal_state()].pid = pcb_parent->pid;
+    terminals[pcb_parent->owned_by_terminal].pid = pcb_parent->pid;
 
     // restore esp and ebp for the KERNEL
     set_esp_ebp(pcb_parent->esp_k, pcb_parent->ebp_k);
