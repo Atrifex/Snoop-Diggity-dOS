@@ -187,7 +187,18 @@ SWITCH_CONTEXT:
 		asm("leave;ret");
 }
 
+/*
+ * void init_scheduling()
+ * DESCRIPTION: initializes the timer chip to start interrupting and sets frequency
+ * INPUTS   : none
+ * OUTPUTS  : switches to next task in list
+ * RETURN VALUE: none
+ * SIDE EFFECTS: see DESCRIPTION and OUTPUTS
+ */
+void init_scheduling()
+{
 
+}
 
 /*
  * void round_robin_scheduler()
@@ -197,7 +208,7 @@ SWITCH_CONTEXT:
  * RETURN VALUE: none
  * SIDE EFFECTS: see DESCRIPTION and OUTPUTS
  */
- void round_robin_scheduler()
- {
+void round_robin_scheduler()
+{
 
- }
+}
