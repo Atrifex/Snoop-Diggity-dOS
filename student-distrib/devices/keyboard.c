@@ -268,6 +268,10 @@ unsigned long process_sent_scancode()
 {
     scancode_t mapped;
 
+    // tss_t* tss_base = (tss_t*)&tss;
+    // pcb_t* pcb_curr = (pcb_t*)((tss_base->esp0-1) & MASK_8KB_ALIGNED);
+    // int pid = pcb_curr->pid;
+
     // get scancode
     uint8_t raw_scancode = get_char();
 
@@ -322,6 +326,8 @@ unsigned long process_sent_scancode()
         return keyboard_state;
     }
 
+    set_new_page_directory(get_page_directory_for_pid(terminals[terminal_state].pid));
+
     // switching terminals
     if(ALT_ON(keyboard_state)){
         cli();
@@ -360,6 +366,7 @@ unsigned long process_sent_scancode()
                 break;
             }
 SWITCH_TERMINAL_CONTEXT:
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
     }
 
@@ -384,6 +391,7 @@ SWITCH_TERMINAL_CONTEXT:
                 curr_back_attribute = MIN_BACKGROUD_ATTRIB;
             change_atribute((curr_back_attribute << 4) | curr_attribute);
         }
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
 	} else if(BACKSPACE_ON(keyboard_state)){
         // if there are values in terminals[terminal_state].stdin BKSP_CHAR is seen, then delete last char
@@ -408,11 +416,13 @@ SWITCH_TERMINAL_CONTEXT:
             terminals[terminal_state].stdin_index = 0;
             terminals[terminal_state].allowed_to_read = 0;
         }
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
     }
 
     // stop user from adding greater than 128 keyboard inputs
     if(terminals[terminal_state].stdin_index >= KEYBOARD_BUFF_SIZE-NULL_NL_PADDING) {
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
     }
 
@@ -458,5 +468,6 @@ SWITCH_TERMINAL_CONTEXT:
         }
     }
 
+    set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
     return keyboard_state; // return current kb state
 }

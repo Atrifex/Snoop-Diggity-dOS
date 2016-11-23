@@ -295,9 +295,9 @@ void IRQ0_handler_sub()
 		return;
 	}
 
+	send_eoi(TIMER_CHIP_LINE_NO);
 	round_robin_scheduler();
 
-	send_eoi(TIMER_CHIP_LINE_NO);
 }
 
 /*

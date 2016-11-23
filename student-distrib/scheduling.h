@@ -26,7 +26,7 @@ extern void save_process_context(uint32_t eip, uint32_t esp, uint32_t ebp);
 extern void save_and_switch_process_context(int8_t pid);
 extern void init_scheduling();
 extern void round_robin_scheduler();
-
+extern uint8_t get_terminal_of_current_process();
 /*
  * Task 1
  * | Time Chip (dont switch)                                  |

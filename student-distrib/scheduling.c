@@ -18,6 +18,21 @@ uint8_t all_pids_available()
 }
 
 /*
+ * uint8_t get_terminal_of_current_process()
+ * DESCRIPTION: returns terminal_being_serviced
+ * INPUTS   : none
+ * OUTPUTS  : none
+ * RETURN VALUE: see DESCRIPTION
+ * SIDE EFFECTS: see DESCRIPTION
+ */
+uint8_t get_terminal_of_current_process()
+{
+	return terminal_being_serviced;
+}
+
+
+
+/*
  * int get_available_pid()
  * DESCRIPTION: returns the next available pid. Useful for schduling and multiple shells
  * INPUTS   : none
@@ -166,9 +181,9 @@ void save_process_context(uint32_t eip, uint32_t esp, uint32_t ebp)
  */
 void save_and_switch_process_context(int8_t pid)
 {
-		pcb_t* pcb_next;
 		tss_t* tss_base = (tss_t*)&tss;
-
+		pcb_t* pcb_next;
+		void * jmp_addr;
     // set page directory
     set_new_page_directory(get_page_directory_for_pid(pid));
 
@@ -179,10 +194,11 @@ void save_and_switch_process_context(int8_t pid)
 
 		// set esp, ebp, and flags
 		pcb_next = (pcb_t*)(KERNEL_STACK_START - (pid+1)*LITERAL_8KB);
+		jmp_addr = (void *)pcb_next->eip;
 		restore_flags(pcb_next->eflags);
 		set_esp_ebp(pcb_next->esp_k, pcb_next->ebp_k);
 
-		jmp_to_addr(pcb_next->eip);
+		goto *jmp_addr;
 
 SWITCH_CONTEXT:
 		asm("leave;ret");
