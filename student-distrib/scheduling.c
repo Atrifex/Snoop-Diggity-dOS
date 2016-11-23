@@ -268,7 +268,7 @@ void round_robin_scheduler()
 		if(terminals_launched == 1){
 			return;
 		}
-
+		
 		for(i = 0; i < NUM_TERMINALS; i++){
 			terminal_being_serviced = (terminal_being_serviced + 1) % NUM_TERMINALS;
 			if(((terminals_launched >> terminal_being_serviced)) & ISOLATE_LEAST_SIG_BIT){

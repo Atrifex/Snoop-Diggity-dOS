@@ -141,7 +141,7 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
     int i = 0;
     unsigned long flags;
 
-    uint8_t terminal_state_local = terminal_state;
+    uint8_t terminal_state_local = get_terminal_of_current_process();
 
     // fixes type confussion
     uint8_t * buffer = (uint8_t*) buf;
