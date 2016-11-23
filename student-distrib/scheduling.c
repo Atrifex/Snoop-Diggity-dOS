@@ -208,12 +208,31 @@ SWITCH_CONTEXT:
  * void init_scheduling()
  * DESCRIPTION: initializes the timer chip to start interrupting and sets frequency
  * INPUTS   : none
- * OUTPUTS  : switches to next task in list
+ * OUTPUTS  : none
  * RETURN VALUE: none
- * SIDE EFFECTS: see DESCRIPTION and OUTPUTS
+ * SIDE EFFECTS: Initializes the timer chip by writing to its I/O ports
  */
 void init_scheduling()
 {
+	unsigned long flags;
+	
+	// save flags and halt interrupts for critical section
+	cli_and_save(flags);
+
+	// Output to the timer chip command port
+	// Select channel 0, select lowbyte + highbyte transmission method,
+	// use the timer chip as a rate generator (Mode 2)
+	outb(PIT_CMD_PORT, PIT_COMMAND);
+
+	// Now, output the low byte then the high byte of the reload value to the Channel 0 data port
+	// Frequency = 1193182/PIT_RELOAD_VAL Hz
+
+	outb(CHANNEL_0_PORT, PIT_RELOAD_VAL & MASK_UPPER_BYTES); // low byte
+	outb(CHANNEL_0_PORT, (PIT_RELOAD_VAL >> ISOLATE_SECOND_BYTE) & MASK_UPPER_BYTES); // high byte
+
+	// restore flags
+	restore_flags(flags);
+
 	enable_irq(TIMER_CHIP_LINE_NO);
 }
 

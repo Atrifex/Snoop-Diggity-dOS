@@ -13,6 +13,11 @@
 #define MAX_NUM_PROCS 6
 
 #define CHANNEL_0_PORT 0x40      // Channel 0 data port (read/write)
+#define PIT_CMD_PORT 0x43 		 // Timer chip command port (write only, used to select a mode etc.)
+#define PIT_COMMAND 0x36		 // Command to send to the timer chip to select correct mode
+#define PIT_RELOAD_VAL 35794	 // Frequency = 1193182/PIT_RELOAD_VAL Hertz
+#define MASK_UPPER_BYTES 0x000000FF
+#define ISOLATE_SECOND_BYTE 8
 #define TIMER_CHIP_LINE_NO 0
 
 extern int get_available_pid();
