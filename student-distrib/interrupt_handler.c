@@ -290,11 +290,11 @@ void exception_handler_19_sub()
 */
 void IRQ0_handler_sub()
 {
+	send_eoi(TIMER_CHIP_LINE_NO);
+
 	if(in_hardware_int() == TRUE){
 		return;
 	}
-
-	send_eoi(TIMER_CHIP_LINE_NO);
 	round_robin_scheduler();
 }
 

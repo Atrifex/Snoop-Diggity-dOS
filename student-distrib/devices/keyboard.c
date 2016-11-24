@@ -214,6 +214,7 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
     terminals[get_terminal_of_current_process()].screen_x = get_screen_x();
     terminals[get_terminal_of_current_process()].screen_y = get_screen_y();
     set_screen_x_y(terminals[terminal_state].screen_x, terminals[terminal_state].screen_y);
+    set_cursor_location(terminals[terminal_state].screen_x, terminals[terminal_state].screen_y);
 
     restore_flags(flags);
     // return number of bytes read
@@ -243,6 +244,7 @@ void change_terminal_state(int from, int to)
     terminals[from].screen_x = get_screen_x();
     terminals[from].screen_y = get_screen_y();
     set_screen_x_y(terminals[to].screen_x, terminals[to].screen_y);
+    set_cursor_location(terminals[to].screen_x, terminals[to].screen_y);
 
     // page table entry for VIDEO in terminal state processes to pt to backing store
     // change page table entry for VIDEO in t1 processes to point to video memory
@@ -395,6 +397,7 @@ SWITCH_TERMINAL_CONTEXT:
             current_process_terminal = get_terminal_of_current_process();
             clear_and_reset();
             set_screen_x_y(0, 0);
+            set_cursor_location(0, 0);
             terminals[terminal_state].screen_x = 0;
             terminals[terminal_state].screen_y = 0;
             set_terminal_of_current_process(terminal_state);
