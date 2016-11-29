@@ -2,6 +2,8 @@
 #include "lib.h"
 #include "i8259.h"
 
+uint8_t been_inited = 0;
+
 // TODO: Change open() and close() once we've loaded the filesystem.
 // And again for MP3.3
 
@@ -135,9 +137,16 @@ int write_rtc(int32_t fd, const void* buf, int32_t num_bytes)
 */
 int open_rtc()
 {
-	// TODO: For CP3, allocate the file descriptor
+	unsigned long flags;
 
-	init_rtc(); // Set interrupt rate to 2 Hz by default
+	cli_and_save(flags);
+
+	if(been_inited == 0){
+		init_rtc(); // Set interrupt rate to 2 Hz by default
+	}
+
+	been_inited = 1;
+	restore_flags(flags);
 	return 0;
 }
 
@@ -151,6 +160,5 @@ int open_rtc()
 */
 int close_rtc(int32_t fd)
 {
-	// TODO: For CP3, close the file descriptor
 	return 0;
 }
