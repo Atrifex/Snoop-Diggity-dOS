@@ -13,7 +13,6 @@ uint8_t keyboard_state = 0;
 
 uint8_t terminals_launched = 1;      // the first terminal is launched by default
 uint8_t terminal_state = 0;
-
 terminal_t terminals[NUM_TERMINALS];
 
 void change_terminal_state(int from, int to);
@@ -24,11 +23,24 @@ void change_terminal_state(int from, int to);
  * INPUT: none
  * OUTPUTS: none
  * RETURN VALUE: currently active terminal number
- * SIDE EFFECTS: low blood pressure
+ * SIDE EFFECTS: see DESCRIPTION
 */
 uint8_t get_terminal_state()
 {
     return terminal_state;
+}
+
+/*
+ * get_launched_terminals
+ * DESCRIPTION: returns the mask that shows which termainals have been launched
+ * INPUT: none
+ * OUTPUTS: none
+ * RETURN VALUE: currently active terminal launched
+ * SIDE EFFECTS: see DESCRIPTION
+*/
+uint8_t get_launched_terminals()
+{
+    return terminals_launched;
 }
 
 /*
@@ -129,7 +141,7 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
     int i = 0;
     unsigned long flags;
 
-    uint8_t terminal_state_local = terminal_state;
+    uint8_t terminal_state_local = get_terminal_of_current_process();
 
     // fixes type confussion
     uint8_t * buffer = (uint8_t*) buf;
@@ -181,6 +193,7 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
 */
 int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
 {
+    unsigned long flags;
     // error checks
     if(fd != STDOUT){
         return ERROR;
@@ -188,10 +201,22 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
     if(nbytes < 0){
         return FAILURE;
     }
+    cli_and_save(flags);
+    // set screen locations
+    terminals[terminal_state].screen_x = get_screen_x();
+    terminals[terminal_state].screen_y = get_screen_y();
+    set_screen_x_y(terminals[get_terminal_of_current_process()].screen_x, terminals[get_terminal_of_current_process()].screen_y);
 
     // print buf to the screen
     put_t((uint8_t *)buf, nbytes, 1);
 
+    // set screen locations
+    terminals[get_terminal_of_current_process()].screen_x = get_screen_x();
+    terminals[get_terminal_of_current_process()].screen_y = get_screen_y();
+    set_screen_x_y(terminals[terminal_state].screen_x, terminals[terminal_state].screen_y);
+    set_cursor_location(terminals[terminal_state].screen_x, terminals[terminal_state].screen_y);
+
+    restore_flags(flags);
     // return number of bytes read
     return nbytes;
 }
@@ -219,6 +244,7 @@ void change_terminal_state(int from, int to)
     terminals[from].screen_x = get_screen_x();
     terminals[from].screen_y = get_screen_y();
     set_screen_x_y(terminals[to].screen_x, terminals[to].screen_y);
+    set_cursor_location(terminals[to].screen_x, terminals[to].screen_y);
 
     // page table entry for VIDEO in terminal state processes to pt to backing store
     // change page table entry for VIDEO in t1 processes to point to video memory
@@ -255,9 +281,10 @@ void change_terminal_state(int from, int to)
 unsigned long process_sent_scancode()
 {
     scancode_t mapped;
-
+    unsigned long flags;
     // get scancode
     uint8_t raw_scancode = get_char();
+    uint8_t current_process_terminal;
 
     if(raw_scancode == DELETE_SCAN_CODE)
         return keyboard_state;
@@ -310,55 +337,55 @@ unsigned long process_sent_scancode()
         return keyboard_state;
     }
 
+    set_new_page_directory(get_page_directory_for_pid(terminals[terminal_state].pid));
+
     // switching terminals
     if(ALT_ON(keyboard_state)){
         cli();
         switch(mapped.result) {
             case (ASCII_ONE):
                 if(terminal_state != STATE_ONE){
-                    // save information about currently running process
-                    save_process_information(terminals[terminal_state].pid);
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_ONE);
-                    // start proces in current terminal
-                    go_to_process(terminals[terminal_state].pid);
                 }
                 break;
             case (ASCII_TWO):
-                if(terminal_state != STATE_TWO){
-                    // save information about currently running process
-                    save_process_information(terminals[terminal_state].pid);
-
+                if(CAN_SWITCH_TWO(terminals_launched, TERMINAL_TWO_MASK, terminal_state)){
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_TWO);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_TWO_MASK)){
+                        set_terminal_of_current_process(terminal_state);
+                        save_process_context((uint32_t)&&SWITCH_TERMINAL_CONTEXT, get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
                         terminals_launched |= TERMINAL_TWO_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
-                    } else{
-                        go_to_process(terminals[terminal_state].pid);
                     }
+                }else if(terminal_state != STATE_TWO){
+                    printf_t("\nCould not start new terminal: max processes running\n");
+                    printf_t("391OS> ");            // prints prompt for shell
                 }
                 break;
             case (ASCII_THREE):
-                if(terminal_state != STATE_THREE){
-                    // save information about currently running process
-                    save_process_information(terminals[terminal_state].pid);
-
+                if(CAN_SWITCH_THREE(terminals_launched, TERMINAL_THREE_MASK, terminal_state)){
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_THREE);
                     // execute the shell corresponding to the terminal
                     if(!(terminals_launched & TERMINAL_THREE_MASK)){
+                        set_terminal_of_current_process(terminal_state);
+                        save_process_context((uint32_t)&&SWITCH_TERMINAL_CONTEXT, get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
                         terminals_launched |= TERMINAL_THREE_MASK;
                         send_eoi(KEYBOARD_LINE_NO);
                         internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
-                    } else{
-                        go_to_process(terminals[terminal_state].pid);
                     }
+                }else if(terminal_state != STATE_THREE){
+                    printf_t("\nCould not start new terminal: max processes running\n");
+                    printf_t("391OS> ");            // prints prompt for shell
                 }
                 break;
             }
+SWITCH_TERMINAL_CONTEXT:
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
     }
 
@@ -366,10 +393,18 @@ unsigned long process_sent_scancode()
     if(CONTROL_ON(keyboard_state)) {
         if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
             // ctrl + l is pressed then clear screen
+            cli_and_save(flags);
+            current_process_terminal = get_terminal_of_current_process();
             clear_and_reset();
-            set_cursor_location(0,0);
+            set_screen_x_y(0, 0);
+            set_cursor_location(0, 0);
+            terminals[terminal_state].screen_x = 0;
+            terminals[terminal_state].screen_y = 0;
+            set_terminal_of_current_process(terminal_state);
             printf_t("391OS> ");            // prints prompt for shell
             printf_t("%s",terminals[terminal_state].stdin);           // print current buffered value
+            set_terminal_of_current_process(current_process_terminal);
+            restore_flags(flags);
         } else if(mapped.result == ASCII_SIX){
             // ctrl + 6 is pressed then change color
             curr_attribute++;
@@ -383,6 +418,7 @@ unsigned long process_sent_scancode()
                 curr_back_attribute = MIN_BACKGROUD_ATTRIB;
             change_atribute((curr_back_attribute << 4) | curr_attribute);
         }
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
 	} else if(BACKSPACE_ON(keyboard_state)){
         // if there are values in terminals[terminal_state].stdin BKSP_CHAR is seen, then delete last char
@@ -407,11 +443,13 @@ unsigned long process_sent_scancode()
             terminals[terminal_state].stdin_index = 0;
             terminals[terminal_state].allowed_to_read = 0;
         }
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
     }
 
     // stop user from adding greater than 128 keyboard inputs
     if(terminals[terminal_state].stdin_index >= KEYBOARD_BUFF_SIZE-NULL_NL_PADDING) {
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
     }
 
@@ -457,5 +495,6 @@ unsigned long process_sent_scancode()
         }
     }
 
+    set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
     return keyboard_state; // return current kb state
 }

@@ -198,8 +198,10 @@ int32_t internal_execute(const uint8_t* command, uint32_t flags)
     unsigned long new_esp = (TASK_VIRTUAL_BASE_ADDRESS + LITERAL_4MB);
     unsigned long new_flags = SET_INTERRUPTS | SET_IOPRIV_USER | SET_PF_RANDBIT;
 
-    pcb_curr->esp_k = get_esp() + ACCOUNT_FOR_RET_ADDR;
-    pcb_curr->ebp_k = get_ebp();
+    if(!(flags & 1)){
+      pcb_curr->esp_k = get_esp() + ACCOUNT_FOR_RET_ADDR;
+      pcb_curr->ebp_k = get_ebp();
+    }
 
     // iret to new program
     iret_to_user((unsigned long)entry_point_address, (unsigned long)USER_CS, (unsigned long)new_flags, (unsigned long)new_esp, (unsigned long)USER_DS);
@@ -227,6 +229,7 @@ JMP_POS_HALT:
  */
 asmlinkage int32_t halt(uint8_t status)
 {
+  cli();
 	pde_t* pd;
 	pcb_t* pcb_parent;
 
@@ -259,7 +262,7 @@ asmlinkage int32_t halt(uint8_t status)
     pcb_curr->ret_val = (uint32_t)status;
 
     // set pid of terminal to parent
-    terminals[get_terminal_state()].pid = pcb_parent->pid;
+    terminals[pcb_parent->owned_by_terminal].pid = pcb_parent->pid;
 
 	// restore esp and ebp for the KERNEL
 	set_esp_ebp(pcb_parent->esp_k, pcb_parent->ebp_k);
@@ -282,6 +285,7 @@ asmlinkage int32_t halt(uint8_t status)
  */
 int32_t halt_excep(int32_t status)
 {
+    cli();
     pde_t* pd;
     pcb_t* pcb_parent;
 
@@ -304,6 +308,9 @@ int32_t halt_excep(int32_t status)
 
     // setting halting status
     pcb_curr->ret_val = status;
+
+    // set pid of terminal to parent
+    terminals[pcb_parent->owned_by_terminal].pid = pcb_parent->pid;
 
     // restore esp and ebp for the KERNEL
     set_esp_ebp(pcb_parent->esp_k, pcb_parent->ebp_k);
@@ -584,20 +591,4 @@ void clear_fd_array(file_info_t * fd_array)
         fd_array[i].position = 0;
         fd_array[i].flags = 0;
     }
-}
-
-
-void save_process_information(uint8_t pid)
-{
-
-}
-
-void go_to_process(int8_t pid)
-{
-
-    // iret to program that we want to go to
-
-
-    // set page directory
-    set_new_page_directory(get_page_directory_for_pid(pid));
 }

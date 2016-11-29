@@ -185,4 +185,15 @@ do {                                    \
 			);                      \
 } while(0)
 
+
+#define get_flags(flags)             \
+do {                                    \
+	asm volatile("pushfl        \n      \
+			popl %0"                \
+			: "=r"(flags)           \
+			:                       \
+			: "memory", "cc"        \
+			);                      \
+} while(0)
+
 #endif /* _LIB_H */

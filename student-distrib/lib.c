@@ -16,7 +16,7 @@ void set_screen_x_y(int x, int y)
 {
 	screen_x = x;
 	screen_y = y;
-	set_cursor_location(screen_x, screen_y);
+	// set_cursor_location(screen_x, screen_y);
 }
 
 /*
@@ -199,6 +199,61 @@ putc_kbd(uint8_t c)
 }
 
 
+
+/*
+* void putc_screen(uint8_t c);
+*   Description: puts character onto screen
+*   Inputs: uint_8* c = character to print
+*   Return Value: void
+*	Side Effect: makes a character appear on the screen
+*/
+void
+putc_screen(uint8_t c)
+{
+    if(c == '\n' || c == '\r') {
+        // if new line, make the screen point to the next line
+        screen_y++;
+        screen_x=0;
+    } else if(c == BKSP_CHAR){
+        // if BKSP_CHAR, then decrement appropriate values
+    	screen_x--;
+
+        // if screen_x becomes < 0, then make it wrap around decrement y
+    	if(screen_x < 0)
+    	{
+    		screen_x = NUM_COLS -1;
+    		screen_y--;
+            // if screen_y becomes < 0, then reset it to 0
+    		if(screen_y < 0)
+    			screen_y = 0;
+    	}
+        // place EMPTY_SPACE char at correct position in memory
+    	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = EMPTY_SPACE;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = curr_attribute;
+    } else {
+        // place given character on screen with its specific attribute
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = curr_attribute;
+
+		/*
+		 * I am very angry because in their code the had the assignment of screen_y after screen_x %= NUM_COLS
+		 * This basically made it have no effect and wasted hours of my time.
+		 */
+        screen_x++;
+        screen_y = (screen_y + (screen_x / NUM_COLS)); // % NUM_ROWS;
+        screen_x %= NUM_COLS;
+    }
+
+    // if screen_y becomes >= NUM_ROWS during this process, then shift the screen up
+    if(screen_y >= NUM_ROWS) {
+			shift_screen_up();
+	}
+
+    // set cursor to appropriate location
+    // set_cursor_location(screen_x, screen_y);
+}
+
+
 /*
 * int32_t put_t(int8_t* s);
 *   Inputs: int_8* s = pointer to a string of characters, uint32_t size, int32_t flag
@@ -210,7 +265,7 @@ put_t(uint8_t* s, uint32_t size, int32_t flag)
 {
     register int32_t index = 0;
     while(s[index] != NULL_CHAR && index < size) {
-    	putc_kbd(s[index]);
+    	putc_screen(s[index]);
         index++;
     }
     return index;
