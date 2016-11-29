@@ -1,24 +1,30 @@
 #ifndef INTERRUPT_HANDLER_H
 #define INTERRUPT_HANDLER_H
 
+#include "lib.h"
+#include "rtc.h"
+#include "i8259.h"
+#include "keyboard.h"
+#include "syscalls.h"
+
 #define EXCEPTION_HALT_RET_VAL 256
 
 // Flag cleared by the RTC interrupt handler
 volatile int rtc_flag;
 
-/* 
- * Functions used by interrupt handlers to execute the core functionality 
+/*
+ * Functions used by interrupt handlers to execute the core functionality
  * of the handlers. These functions are called by the exception handlers once
  * the stack operations have been performed correctly.
  *
  * The functions below are placed in order of how they are found in the IDT
- */ 
+ */
 
 /* called when an invalid interrupt is asked to be executed */
 extern void ignore_int_sub();
 
 /* Exceptions */
-extern void exception_handler_0_sub();					
+extern void exception_handler_0_sub();
 // exception 1 is reserved for intel use only
 extern void exception_handler_2_sub();
 extern void exception_handler_3_sub();
@@ -57,5 +63,6 @@ extern void IRQ12_handler_sub();
 extern void IRQ13_handler_sub();
 extern void IRQ14_handler_sub();
 extern void IRQ15_handler_sub();
+
 
 #endif

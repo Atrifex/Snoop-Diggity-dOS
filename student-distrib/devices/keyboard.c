@@ -8,19 +8,40 @@
 int curr_attribute = ATTRIB;
 int curr_back_attribute = 0;
 
-// variables associated with reading
-volatile int allowed_to_read = 0;          // allows read to stop blocking
-volatile int read_waiting = 0;
-
 // holds state of "command" keys
 uint8_t keyboard_state = 0;
 
-// Stdin and index
-uint8_t stdin[KEYBOARD_BUFF_SIZE];       // number of chars in a row is 80 ---> why do we want 128 then?
-int stdin_index;                     // points to current free spot in stdin
+uint8_t terminals_launched = 1;      // the first terminal is launched by default
+uint8_t terminal_state = 0;
+terminal_t terminals[NUM_TERMINALS];
 
+void change_terminal_state(int from, int to);
 
-//TODO: make seperate drivers for keybord and terminal
+/*
+ * get_terminal_state
+ * DESCRIPTION: returns the currently active terminal number
+ * INPUT: none
+ * OUTPUTS: none
+ * RETURN VALUE: currently active terminal number
+ * SIDE EFFECTS: see DESCRIPTION
+*/
+uint8_t get_terminal_state()
+{
+    return terminal_state;
+}
+
+/*
+ * get_launched_terminals
+ * DESCRIPTION: returns the mask that shows which termainals have been launched
+ * INPUT: none
+ * OUTPUTS: none
+ * RETURN VALUE: currently active terminal launched
+ * SIDE EFFECTS: see DESCRIPTION
+*/
+uint8_t get_launched_terminals()
+{
+    return terminals_launched;
+}
 
 /*
  * get_char
@@ -57,11 +78,16 @@ void init_kbd()
     // set up the scancode table
     init_scancode_table();
 
-    // init keyboard buffer attributes and fill keyboard buffer w/ null bytes
-    stdin_index = 0;
-    memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-
-    //TODO: try to change the mode of the keyboard
+    // initiallizes the memeber values of the terminal
+    int i;
+    for(i = 0; i < NUM_TERMINALS; i++){
+        terminals[i].screen_x = 0;
+        terminals[i].screen_y = 0;
+        memset(terminals[i].stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
+        terminals[i].stdin_index = 0;
+        terminals[i].allowed_to_read = 0;
+        terminals[i].read_waiting = 0;
+    }
 
     // enable the interrupt on the PIC
     enable_irq(KEYBOARD_LINE_NO);
@@ -100,10 +126,10 @@ int32_t close_terminal(int32_t fd)
  * INPUT:   int32_t fd - file descriptor to open fil
  *          void * buf - pointer to buf to copy to
  *          int32_t nbytes - number of bytes to copy to user (stops at null or this number)
- * OUTPUTS: copy stdin to user buf
+ * OUTPUTS: copy terminals[terminal_state].stdin to user buf
  * RETURN VALUE: int copied - succes: the number of bytes copied
  *                            error: -1
- * SIDE EFFECTS: user gets copy of the current stdin
+ * SIDE EFFECTS: user gets copy of the current terminals[terminal_state].stdin
 */
 int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
 {
@@ -115,6 +141,8 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
     int i = 0;
     unsigned long flags;
 
+    uint8_t terminal_state_local = get_terminal_of_current_process();
+
     // fixes type confussion
     uint8_t * buffer = (uint8_t*) buf;
 
@@ -123,28 +151,28 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
         return FAILURE;
 
     // tells interrupt that there is a read waiting
-    read_waiting = 1;
+    terminals[terminal_state_local].read_waiting = 1;
 
     // if we haven't seen a new line then not allowed to read
-    while(allowed_to_read == 0);
+    while(terminals[terminal_state_local].allowed_to_read == 0);
 
     // critical section
     cli_and_save(flags);
 
     // copy all information uptil the null char char
-    while(stdin[i] != NULL_CHAR && i < KEYBOARD_BUFF_SIZE)
+    while(terminals[terminal_state_local].stdin[i] != NULL_CHAR && i < KEYBOARD_BUFF_SIZE)
     {
-        buffer[i] = stdin[i];
+        buffer[i] = terminals[terminal_state_local].stdin[i];
         i++;
     }
 
-    // flush buffer and set stdin_index to 0
-    memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-    stdin_index = 0;
+    // flush buffer and set terminals[terminal_state].stdin_index to 0
+    memset(terminals[terminal_state_local].stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
+    terminals[terminal_state_local].stdin_index = 0;
 
     // disallow reading
-    allowed_to_read = 0;
-    read_waiting = 0;
+    terminals[terminal_state_local].allowed_to_read = 0;
+    terminals[terminal_state_local].read_waiting = 0;
     restore_flags(flags);
 
     // return number of bytes read
@@ -157,14 +185,15 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
  * INPUT:   int32_t fd - file descriptor to open fil
  *          void * buf - pointer to buf to copy from
  *          int32_t nbytes - number of bytes to copy from user
- *          int32_t flag  - tells us if we are trying to redirect stdin
- * OUTPUTS: copy stdin from user buf
+ *          int32_t flag  - tells us if we are trying to redirect terminals[terminal_state].stdin
+ * OUTPUTS: copy terminals[terminal_state].stdin from user buf
  * RETURN VALUE: int copied - succes: the number of bytes copied
  *                            error: -1
  * SIDE EFFECTS: user outputs their string
 */
 int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
 {
+    unsigned long flags;
     // error checks
     if(fd != STDOUT){
         return ERROR;
@@ -172,14 +201,72 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
     if(nbytes < 0){
         return FAILURE;
     }
+    cli_and_save(flags);
+    // set screen locations
+    terminals[terminal_state].screen_x = get_screen_x();
+    terminals[terminal_state].screen_y = get_screen_y();
+    set_screen_x_y(terminals[get_terminal_of_current_process()].screen_x, terminals[get_terminal_of_current_process()].screen_y);
 
     // print buf to the screen
     put_t((uint8_t *)buf, nbytes, 1);
 
+    // set screen locations
+    terminals[get_terminal_of_current_process()].screen_x = get_screen_x();
+    terminals[get_terminal_of_current_process()].screen_y = get_screen_y();
+    set_screen_x_y(terminals[terminal_state].screen_x, terminals[terminal_state].screen_y);
+    set_cursor_location(terminals[terminal_state].screen_x, terminals[terminal_state].screen_y);
+
+    restore_flags(flags);
     // return number of bytes read
     return nbytes;
 }
 
+/*
+ * void change_terminal_state(int from, int to)
+ * DESCRIPTION: Perform page table and video memory switches corresponding to a terminal switch.
+ * INPUTS: int from - terminal we are switching from, to - terminal we are switching to
+ * OUTPUTS: NONE
+ * SIDE EFFECTS: updates terminal_state
+*/
+void change_terminal_state(int from, int to)
+{
+    int i;
+    pcb_t* cur_pcb;
+
+    // copy memory from video memory    (dest, src, num bytes)
+    memcpy((void*)(VIDEO+((from+1)*LITERAL_4KB)),(void*)(VIDEO),LITERAL_4KB);
+    // memcpy((void*)(VIDEO),(void*)(VIDEO+(1*LITERAL_4KB)),LITERAL_4KB);
+    // memcpy((void*)(VIDEO),(void*)(VIDEO+(2*LITERAL_4KB)),LITERAL_4KB);
+    // memcpy((void*)(VIDEO),(void*)(VIDEO+(3*LITERAL_4KB)),LITERAL_4KB);
+    memcpy((void*)(VIDEO),(void*)(VIDEO+((to+1)*LITERAL_4KB)),LITERAL_4KB);
+
+    // set screen locations
+    terminals[from].screen_x = get_screen_x();
+    terminals[from].screen_y = get_screen_y();
+    set_screen_x_y(terminals[to].screen_x, terminals[to].screen_y);
+    set_cursor_location(terminals[to].screen_x, terminals[to].screen_y);
+
+    // page table entry for VIDEO in terminal state processes to pt to backing store
+    // change page table entry for VIDEO in t1 processes to point to video memory
+    for(i = 0; i < MAX_NUM_PROCS; i++) {
+        if(!is_pid_used(i)) continue;
+        // read the PCB for this PID
+        cur_pcb = (pcb_t*)(KERNEL_STACK_START - (i+1)*LITERAL_8KB);
+        if(cur_pcb->owned_by_terminal == from) {
+            // write to a backing store
+            change_table_mapping(get_base_page_table_for_pid(i), VIDEO, VIDEO+((from+1)*LITERAL_4KB));
+        }
+
+        if(cur_pcb->owned_by_terminal == to) {
+            // this process should now actually write to video memory
+            change_table_mapping(get_base_page_table_for_pid(i), VIDEO, VIDEO);
+        }
+    }
+
+    vm_flush_page(VIDEO);
+
+    terminal_state = to;
+}
 
 /*
  * process_sent_scancode
@@ -194,9 +281,10 @@ int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes)
 unsigned long process_sent_scancode()
 {
     scancode_t mapped;
-
+    unsigned long flags;
     // get scancode
     uint8_t raw_scancode = get_char();
+    uint8_t current_process_terminal;
 
     if(raw_scancode == DELETE_SCAN_CODE)
         return keyboard_state;
@@ -233,6 +321,12 @@ unsigned long process_sent_scancode()
         case (CONTROL_RELEASE):
             TURN_CONTROL_OFF(keyboard_state);
             break;
+        case (ALT_PRESS):
+            TURN_ALT_ON(keyboard_state);
+            break;
+        case (ALT_RELEASE):
+            TURN_ALT_OFF(keyboard_state);
+            break;
     }
 
     // get mapped value of scancode
@@ -243,14 +337,74 @@ unsigned long process_sent_scancode()
         return keyboard_state;
     }
 
+    set_new_page_directory(get_page_directory_for_pid(terminals[terminal_state].pid));
+
+    // switching terminals
+    if(ALT_ON(keyboard_state)){
+        cli();
+        switch(mapped.result) {
+            case (ASCII_ONE):
+                if(terminal_state != STATE_ONE){
+                    // change the configuration of video memory
+                    change_terminal_state(terminal_state, STATE_ONE);
+                }
+                break;
+            case (ASCII_TWO):
+                if(CAN_SWITCH_TWO(terminals_launched, TERMINAL_TWO_MASK, terminal_state)){
+                    // change the configuration of video memory
+                    change_terminal_state(terminal_state, STATE_TWO);
+                    // execute the shell corresponding to the terminal
+                    if(!(terminals_launched & TERMINAL_TWO_MASK)){
+                        set_terminal_of_current_process(terminal_state);
+                        save_process_context((uint32_t)&&SWITCH_TERMINAL_CONTEXT, get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
+                        terminals_launched |= TERMINAL_TWO_MASK;
+                        send_eoi(KEYBOARD_LINE_NO);
+                        internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
+                    }
+                }else if(terminal_state != STATE_TWO){
+                    printf_t("\nCould not start new terminal: max processes running\n");
+                    printf_t("391OS> ");            // prints prompt for shell
+                }
+                break;
+            case (ASCII_THREE):
+                if(CAN_SWITCH_THREE(terminals_launched, TERMINAL_THREE_MASK, terminal_state)){
+                    // change the configuration of video memory
+                    change_terminal_state(terminal_state, STATE_THREE);
+                    // execute the shell corresponding to the terminal
+                    if(!(terminals_launched & TERMINAL_THREE_MASK)){
+                        set_terminal_of_current_process(terminal_state);
+                        save_process_context((uint32_t)&&SWITCH_TERMINAL_CONTEXT, get_esp() + ACCOUNT_FOR_RET_ADDR, get_ebp());
+                        terminals_launched |= TERMINAL_THREE_MASK;
+                        send_eoi(KEYBOARD_LINE_NO);
+                        internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
+                    }
+                }else if(terminal_state != STATE_THREE){
+                    printf_t("\nCould not start new terminal: max processes running\n");
+                    printf_t("391OS> ");            // prints prompt for shell
+                }
+                break;
+            }
+SWITCH_TERMINAL_CONTEXT:
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
+        return keyboard_state;
+    }
+
     // check if control is pressed
     if(CONTROL_ON(keyboard_state)) {
         if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
             // ctrl + l is pressed then clear screen
+            cli_and_save(flags);
+            current_process_terminal = get_terminal_of_current_process();
             clear_and_reset();
-            set_cursor_location(0,0);
+            set_screen_x_y(0, 0);
+            set_cursor_location(0, 0);
+            terminals[terminal_state].screen_x = 0;
+            terminals[terminal_state].screen_y = 0;
+            set_terminal_of_current_process(terminal_state);
             printf_t("391OS> ");            // prints prompt for shell
-            printf_t("%s",stdin);           // print current buffered value
+            printf_t("%s",terminals[terminal_state].stdin);           // print current buffered value
+            set_terminal_of_current_process(current_process_terminal);
+            restore_flags(flags);
         } else if(mapped.result == ASCII_SIX){
             // ctrl + 6 is pressed then change color
             curr_attribute++;
@@ -264,35 +418,38 @@ unsigned long process_sent_scancode()
                 curr_back_attribute = MIN_BACKGROUD_ATTRIB;
             change_atribute((curr_back_attribute << 4) | curr_attribute);
         }
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
 	} else if(BACKSPACE_ON(keyboard_state)){
-        // if there are values in stdin BKSP_CHAR is seen, then delete last char
-        if(stdin_index > 0) {
+        // if there are values in terminals[terminal_state].stdin BKSP_CHAR is seen, then delete last char
+        if(terminals[terminal_state].stdin_index > 0) {
             putc_kbd(BKSP_CHAR);
-            stdin[--stdin_index] = NULL_CHAR;
+            terminals[terminal_state].stdin[--terminals[terminal_state].stdin_index] = NULL_CHAR;
         }
-    } else if(mapped.result == NEW_LINE && stdin_index < KEYBOARD_BUFF_SIZE-1) {
+    } else if(mapped.result == NEW_LINE && terminals[terminal_state].stdin_index < KEYBOARD_BUFF_SIZE-1) {
         // play new line on screen
         putc_kbd(NEW_LINE);
         // place NEW_LINE in buffer followed by a NULL_CHAR
-        stdin[stdin_index++] = NEW_LINE;
-        stdin[stdin_index] = NULL_CHAR;
+        terminals[terminal_state].stdin[terminals[terminal_state].stdin_index++] = NEW_LINE;
+        terminals[terminal_state].stdin[terminals[terminal_state].stdin_index] = NULL_CHAR;
 
-        if(read_waiting == 1){
+        if(terminals[terminal_state].read_waiting == 1){
             // if shell is trying to read, then allow reading
-            allowed_to_read = 1;
+            terminals[terminal_state].allowed_to_read = 1;
         }
         else{
-            //else clear stdin and disallow reading
-            memset(stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-            stdin_index = 0;
-            allowed_to_read = 0;
+            //else clear terminals[terminal_state].stdin and disallow reading
+            memset(terminals[terminal_state].stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
+            terminals[terminal_state].stdin_index = 0;
+            terminals[terminal_state].allowed_to_read = 0;
         }
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
     }
 
     // stop user from adding greater than 128 keyboard inputs
-    if(stdin_index >= KEYBOARD_BUFF_SIZE-NULL_NL_PADDING) {
+    if(terminals[terminal_state].stdin_index >= KEYBOARD_BUFF_SIZE-NULL_NL_PADDING) {
+        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
     }
 
@@ -301,42 +458,43 @@ unsigned long process_sent_scancode()
         if(IS_LETTER_SC(mapped)) {
             // if letter, then print capital version
             putc_kbd(mapped.result - ASCII_SHIFT_VAL);
-            stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL);
-            stdin[stdin_index] = NULL_CHAR;
+            terminals[terminal_state].stdin[terminals[terminal_state].stdin_index++] = (mapped.result - ASCII_SHIFT_VAL);
+            terminals[terminal_state].stdin[terminals[terminal_state].stdin_index] = NULL_CHAR;
         } else if(IS_PRINTABLE_SC(mapped)) {
             // if not letter but printable, then print the car directly
             putc_kbd(mapped.result);
-            stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
-            stdin[stdin_index] = NULL_CHAR;
+            terminals[terminal_state].stdin[terminals[terminal_state].stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
+            terminals[terminal_state].stdin[terminals[terminal_state].stdin_index] = NULL_CHAR;
         }
     } else if(SHIFT_ON(keyboard_state) || R_SHIFT_ON(keyboard_state)) {
         if(IS_LETTER_SC(mapped) && !CAPS_LOCK_ON(keyboard_state)) {
             // if shift and caps is not on, then print the capital version of the letter
             putc_kbd(mapped.result - ASCII_SHIFT_VAL);
-            stdin[stdin_index++] = (mapped.result - ASCII_SHIFT_VAL); // shifting letters is simple
-            stdin[stdin_index] = NULL_CHAR;
+            terminals[terminal_state].stdin[terminals[terminal_state].stdin_index++] = (mapped.result - ASCII_SHIFT_VAL); // shifting letters is simple
+            terminals[terminal_state].stdin[terminals[terminal_state].stdin_index] = NULL_CHAR;
         } else if(IS_PRINTABLE_SC(mapped)) {
             // if printable, then check futher characteristics
             if(non_alpha_shift_table[mapped.result] != 0) {
                 // if it as char like '1', then print its shited value
                 putc_kbd(non_alpha_shift_table[mapped.result]);
-                stdin[stdin_index++] = (non_alpha_shift_table[mapped.result]);
-                stdin[stdin_index] = NULL_CHAR;
+                terminals[terminal_state].stdin[terminals[terminal_state].stdin_index++] = (non_alpha_shift_table[mapped.result]);
+                terminals[terminal_state].stdin[terminals[terminal_state].stdin_index] = NULL_CHAR;
             } else {
                 // if its not shiftable, then just print directly
                 putc_kbd(mapped.result);
-                stdin[stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
-                stdin[stdin_index] = NULL_CHAR;
+                terminals[terminal_state].stdin[terminals[terminal_state].stdin_index++] = (mapped.result); // general printable characters unaffected by caps lock
+                terminals[terminal_state].stdin[terminals[terminal_state].stdin_index] = NULL_CHAR;
             }
         }
     } else {
         if(IS_PRINTABLE_SC(mapped)) {
             // if no spcial conditions and input is printable, then print the input.
             putc_kbd(mapped.result);
-            stdin[stdin_index++] = (mapped.result);
-            stdin[stdin_index] = NULL_CHAR;
+            terminals[terminal_state].stdin[terminals[terminal_state].stdin_index++] = (mapped.result);
+            terminals[terminal_state].stdin[terminals[terminal_state].stdin_index] = NULL_CHAR;
         }
     }
 
+    set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
     return keyboard_state; // return current kb state
 }

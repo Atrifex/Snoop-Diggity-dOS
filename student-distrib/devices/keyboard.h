@@ -3,10 +3,15 @@
 
 #include "scancodes.h"
 #include "types.h"
+#include "syscalls.h"
+#include "paging.h"
 
 #define CLEAR_SCREEN_SHORTCUT 'l' // control-L clears screen
 
-
+// terminal masks
+#define TERMINAL_ONE_MASK   0x01
+#define TERMINAL_TWO_MASK   0x02
+#define TERMINAL_THREE_MASK 0x04
 
 // state mask bits
 #define SHIFT_MASK 0x1
@@ -15,6 +20,7 @@
 #define BACKSPACE_MASK 0x8
 #define ENTER_MASK 0x10
 #define R_SHIFT_MASK 0x20
+#define ALT_MASK 0x40
 
 // keyboad buffer attributes
 #define KEYBOARD_BUFF_SIZE 128
@@ -29,6 +35,7 @@
 #define TURN_CONTROL_ON(state) (state = state | CONTROL_MASK)
 #define TURN_BACKSPACE_ON(state) (state = state | BACKSPACE_MASK)
 #define TURN_ENTER_ON(state) (state = state | ENTER_MASK)
+#define TURN_ALT_ON(state) (state = state | ALT_MASK)
 #define TOGGLE_CAPS_LOCK(state) (state = state ^ CAPS_LOCK_MASK)
 
 #define TURN_SHIFT_OFF(state) (state = state & ~SHIFT_MASK)
@@ -36,6 +43,7 @@
 #define TURN_CONTROL_OFF(state) (state = state & ~CONTROL_MASK)
 #define TURN_BACKSPACE_OFF(state) (state = state & ~BACKSPACE_MASK)
 #define TURN_ENTER_OFF(state) (state = state & ~ENTER_MASK)
+#define TURN_ALT_OFF(state) (state = state & ~ALT_MASK)
 
 // check state macros
 #define CAPS_LOCK_ON(state) (state & CAPS_LOCK_MASK)
@@ -43,6 +51,7 @@
 #define BACKSPACE_ON(state) (state & BACKSPACE_MASK)
 #define ENTER_ON(state) (state & ENTER_MASK)
 #define SHIFT_ON(state) (state & SHIFT_MASK)
+#define ALT_ON(state) (state & ALT_MASK)
 #define R_SHIFT_ON(state) (state & R_SHIFT_MASK)
 
 // initializer for a multibyte scancode sequence
@@ -84,18 +93,41 @@
 #define ENTER_PRESS 0x1C
 #define ENTER_RELEASE 0x9C
 
+#define ALT_PRESS 0x38
+#define ALT_RELEASE 0xB8
+
 // attribute related defines
-#define ASCII_SIX  54
+#define ASCII_ONE   49
+#define ASCII_TWO   50
+#define ASCII_THREE 51
+#define ASCII_FOUR  52
+#define ASCII_FIVE  53
+#define ASCII_SIX   54
 #define ASCII_SEVEN 55
 #define MAX_ATTRIB 0x0F
 #define MIN_ATTRIB 0x01
 #define MAX_BACKGROUD_ATTRIB 0x0F
 #define MIN_BACKGROUD_ATTRIB 0x00
 
+#define NUM_TERMINALS 3
+#define STATE_ONE 0
+#define STATE_TWO 1
+#define STATE_THREE 2
+
+// used to check if terminals is viable to switch to
+#define CAN_SWITCH_TWO(launched, mask, state) (((!(launched&mask) && (get_available_pid() != FAILURE))|| (launched & mask)) && state != STATE_TWO)
+#define CAN_SWITCH_THREE(launched, mask, state) (((!(launched&mask) && (get_available_pid() != FAILURE))|| (launched & mask)) && state != STATE_THREE)
+
+
+
 /* Process the sent scancode after an interrupt */
 extern unsigned long process_sent_scancode();
 /* Initialize the keyboard device */
 extern void init_kbd();
+
+/* Returns the currently active terminal number */
+extern uint8_t get_terminal_state();
+extern uint8_t get_launched_terminals();
 
 /* Driver related functions */
 extern int32_t open_terminal(const uint8_t *pathname);
@@ -103,5 +135,22 @@ extern int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes);
 extern int32_t write_terminal(int32_t fd, const void *buf, int32_t nbytes);
 extern int32_t close_terminal(int32_t fd);
 
+extern void vm_flush_page(pte_t entry);
+
+typedef struct
+{
+    int screen_x;
+    int screen_y;
+    // Stdin and index
+	uint8_t stdin[KEYBOARD_BUFF_SIZE];   // number of chars in a row is 80 ---> why do we want 128 then?
+	int stdin_index;                     // points to current free spot in stdin
+
+	// variables associated with reading
+	volatile int allowed_to_read;        // allows read to stop blocking
+	volatile int read_waiting;
+    uint8_t pid;
+} terminal_t;
+
+extern terminal_t terminals[NUM_TERMINALS];
 
 #endif

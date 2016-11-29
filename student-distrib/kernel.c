@@ -12,6 +12,7 @@
 #include "devices/keyboard.h"
 #include "filesystem.h"
 #include "syscalls.h"
+#include "scheduling.h"
 
 extern unsigned long* idt_jmp_table;
 
@@ -58,7 +59,7 @@ void init_idt()
 			SET_IDT_ENTRY(idt[i],idt_handler[i]);
 			idt[i].seg_selector = KERNEL_CS;
 			idt[i].reserved4 = RESERVED_4_DEFAULT;
-			idt[i].reserved3 = TRAP_GATE;
+			idt[i].reserved3 = INTERRUPT_GATE;
 			idt[i].reserved2 = RESERVED_2_DEFAULT;
 			idt[i].reserved1 = RESERVED_1_DEFAULT;
 			idt[i].size = DEFAULT_SIZE;
@@ -252,7 +253,12 @@ entry (unsigned long magic, unsigned long addr)
 	// Initialize filesystem
 	init_filesystem(filesys_start_addr, filesys_size);
 
-	clear_and_reset();
+	// Reset the video mem backing store for each terminal and reset video memory
+	initialize_video_memory();
+
+	// inits scheduling
+	init_scheduling();
+
 
 	/* Enable interrupts */
     sti();
@@ -271,9 +277,7 @@ entry (unsigned long magic, unsigned long addr)
 
 	/* Execute the first program (`shell') ... */
 
-	while(1) {
-		execute((uint8_t*) "shell");
-	}
+	internal_execute((uint8_t*) "shell", FIRST_TERM_SHELL);
 
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
