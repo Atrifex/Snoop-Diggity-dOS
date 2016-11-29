@@ -66,6 +66,7 @@ struct pcb_t
 	pcb_t * parentPCB;
 	uint32_t esp0; 		// Parent's kernel stack pointer
 
+	uint32_t eip;		 	// current instruction pointer
 	uint32_t esp_k; 	// current's kernel stack pointer
 	uint32_t ebp_k; 	// current's kernel base pointer
 	uint32_t eflags;  // eflags of current process - kernel or user

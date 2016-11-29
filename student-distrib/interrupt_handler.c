@@ -30,7 +30,6 @@ void ignore_int_sub()
 */
 void exception_handler_0_sub()
 {
-	clear_and_reset();
 	printf_t("EXCEPTION: DIVIDE BY ZERO ERROR\n");
 	halt_excep(EXCEPTION_HALT_RET_VAL);
 }
@@ -291,11 +290,12 @@ void exception_handler_19_sub()
 */
 void IRQ0_handler_sub()
 {
+	send_eoi(TIMER_CHIP_LINE_NO);
+
 	if(in_hardware_int() == TRUE){
 		return;
 	}
-
-	printf_t("IRQ: Timer Chip\n");
+	round_robin_scheduler();
 }
 
 /*
