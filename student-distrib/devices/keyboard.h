@@ -97,6 +97,9 @@
 #define ALT_RELEASE 0xB8
 
 // attribute related defines
+#define F1_MAKE 14
+#define F2_MAKE 16
+#define F3_MAKE 18
 #define ASCII_ONE   49
 #define ASCII_TWO   50
 #define ASCII_THREE 51

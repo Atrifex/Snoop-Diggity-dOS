@@ -340,13 +340,13 @@ unsigned long process_sent_scancode()
     if(ALT_ON(keyboard_state)){
         cli();
         switch(mapped.result) {
-            case (ASCII_ONE):
+            case (F1_MAKE):
                 if(terminal_state != STATE_ONE){
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_ONE);
                 }
                 break;
-            case (ASCII_TWO):
+            case (F2_MAKE):
                 if(CAN_SWITCH_TWO(terminals_launched, TERMINAL_TWO_MASK, terminal_state)){
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_TWO);
@@ -363,7 +363,7 @@ unsigned long process_sent_scancode()
                     printf_t("391OS> ");            // prints prompt for shell
                 }
                 break;
-            case (ASCII_THREE):
+            case (F3_MAKE):
                 if(CAN_SWITCH_THREE(terminals_launched, TERMINAL_THREE_MASK, terminal_state)){
                     // change the configuration of video memory
                     change_terminal_state(terminal_state, STATE_THREE);
