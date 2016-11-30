@@ -235,9 +235,6 @@ void change_terminal_state(int from, int to)
 
     // copy memory from video memory    (dest, src, num bytes)
     memcpy((void*)(VIDEO+((from+1)*LITERAL_4KB)),(void*)(VIDEO),LITERAL_4KB);
-    // memcpy((void*)(VIDEO),(void*)(VIDEO+(1*LITERAL_4KB)),LITERAL_4KB);
-    // memcpy((void*)(VIDEO),(void*)(VIDEO+(2*LITERAL_4KB)),LITERAL_4KB);
-    // memcpy((void*)(VIDEO),(void*)(VIDEO+(3*LITERAL_4KB)),LITERAL_4KB);
     memcpy((void*)(VIDEO),(void*)(VIDEO+((to+1)*LITERAL_4KB)),LITERAL_4KB);
 
     // set screen locations
@@ -410,13 +407,13 @@ SWITCH_TERMINAL_CONTEXT:
             curr_attribute++;
             if(curr_attribute > MAX_ATTRIB)
                 curr_attribute = MIN_ATTRIB;
-            change_atribute((curr_back_attribute << 4) | curr_attribute);
+            change_atribute((curr_back_attribute << COLOR_SHIFT) | curr_attribute);
         } else if(mapped.result == ASCII_SEVEN){
             // ctrl + 7 is pressed then change color
             curr_back_attribute++;
             if(curr_back_attribute > MAX_BACKGROUD_ATTRIB)
                 curr_back_attribute = MIN_BACKGROUD_ATTRIB;
-            change_atribute((curr_back_attribute << 4) | curr_attribute);
+            change_atribute((curr_back_attribute << COLOR_SHIFT) | curr_attribute);
         }
         set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
         return keyboard_state;
