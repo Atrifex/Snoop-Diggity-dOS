@@ -87,6 +87,7 @@ void init_kbd()
         terminals[i].stdin_index = 0;
         terminals[i].allowed_to_read = 0;
         terminals[i].read_waiting = 0;
+        terminals[i].keyboard_mode = 0;
     }
 
     // enable the interrupt on the PIC
@@ -431,6 +432,8 @@ SWITCH_TERMINAL_CONTEXT:
         terminals[terminal_state].stdin[terminals[terminal_state].stdin_index] = NULL_CHAR;
 
         if(terminals[terminal_state].read_waiting == 1){
+            if(terminals[terminal_state].stdin[0] == NEW_LINE) terminals[terminal_state].stdin[1] = NULL_CHAR;
+
             // if shell is trying to read, then allow reading
             terminals[terminal_state].allowed_to_read = 1;
         }
