@@ -16,7 +16,9 @@ int main(void)
 	unsigned short int data;
 	unsigned short int compressedStartSquare, compressedEndSquare;
 	unsigned char startSquare, endSquare;
-	int prev_keycode;	// Holds the previous poll's keypress
+	unsigned char keycode = '\0', prev_keycode;	// Holds the previous poll's keypress
+
+	uint32_t read_ret;
 
 	unsigned char curSquare = 0x04; // Current square being highlighted
 	unsigned char nextSquare; // Square that will be highlighted upon an arrow press 
@@ -46,7 +48,10 @@ int main(void)
 			do {
 				ece391_fdputs(1, (uint8_t*)"Choose which chess variant you wish to play.\nSelect 0 for normal chess, 1 for atomic chess, and 2 for kriegspiel. \n");
 				if(-1 == ece391_read(0, (uint8_t*)&curVariant, 1))
-					return -1;
+				{
+					 ece391_fdputs (1, (uint8_t*)"Can't read keypress.\n");
+		        	return -1;
+				}
 				curVariant -= (int)'0'; // convert to integer representation. Necessary as it will be input as a character
 			} while((curVariant < 0) || (curVariant > 2));
 			data = curVariant;
@@ -83,83 +88,40 @@ int main(void)
 	
 		while(!moveMade && !gameEnded)
 		{
-			toggle++;
-			IO_write(HPI_ADDR,0x0500); //the start address
-			//data phase IN-1
-			IO_write(HPI_DATA,0x051c); //500
+			prev_keycode = keycode; // Store the previously pressed key
 
-			IO_write(HPI_DATA,0x000f & data_size);//2 data length
-
-			IO_write(HPI_DATA,0x0291);//4 //endpoint 1
-			if(toggle%2)
+			// poll for a new keypress
+			if(-1 == (read_ret = ece391_read(0, (uint8_t*)&keycode, 1)))
 			{
-				IO_write(HPI_DATA,0x0001);//6 //data 1
-			}
-			else
-			{
-				IO_write(HPI_DATA,0x0041);//6 //data 1
-			}
-			IO_write(HPI_DATA,0x0013);//8
-			IO_write(HPI_DATA,0x0000);//a
-			UsbWrite(HUSB_SIE1_pCurrentTDPtr,0x0500); //HUSB_SIE1_pCurrentTDPtr
-		
-			while (!(IO_read(HPI_STATUS) & HPI_STATUS_SIE1msg_FLAG) )  //read sie1 msg register
-			{
-				IO_write(HPI_ADDR,0x0500); //the start address
-			//data phase IN-1
-				IO_write(HPI_DATA,0x051c); //500
+		        ece391_fdputs (1, (uint8_t*)"Can't read keypress.\n");
+		        return -1;
+		    }
 
-				IO_write(HPI_DATA,0x000f & data_size);//2 data length
+		    else if(read_ret == 0) // Nothing was read -> no key was pressed
+		    {
+		    	keycode = '\0';
+		    }
 
-				IO_write(HPI_DATA,0x0291);//4 //endpoint 1
-				if(toggle%2)
-				{
-					IO_write(HPI_DATA,0x0001);//6 //data 1
-				}
-				else
-				{
-					IO_write(HPI_DATA,0x0041);//6 //data 1
-				}
-				IO_write(HPI_DATA,0x0013);//8
-				IO_write(HPI_DATA,0x0000);//
-				UsbWrite(HUSB_SIE1_pCurrentTDPtr,0x0500); //HUSB_SIE1_pCurrentTDPtr
-				usleep(10*1000);
-			}//end while
-
-
-
-			usb_ctl_val = UsbWaitTDListDone();
-
-			// packet starts from 0x051c, reading third byte
-			// TASK: Write the address to read from the memory for byte 3 of the report descriptor to HPI_ADDR.
-			IO_write(HPI_ADDR,0x051e); //the start address
-			keycode = IO_read(HPI_DATA);
-			printf("\nfirst two keycode values are %04x\n",keycode);
-
-			// Keypresses won't be considered until the key is released
-			if(keycode != 0) { 
-				prev_keycode = keycode;	/* Update the previously pressed key */
-			}
-			else if(prev_keycode != 0) { /* A key was just released */
+			if((prev_keycode != '\0') && (keycode == '\0')) { /* A key was just released */
 
 				if(promotion) { //Promotion key presses
-					switch(prev_keycode & 0xff) {
-						case 5: // Bishop ('b')
+					switch(prev_keycode) {
+						case 'b': // Bishop ('b')
 							data = 0x0002;
 							promote(endSquare, BISHOP);
 							break;
 
-						case 17: // Knight ('n')
+						case 'n': // Knight ('n')
 							data = 0x0003;
 							promote(endSquare, KNIGHT);
 							break;
 
-						case 20: // Queen ('q')
+						case 'q': // Queen ('q')
 							data = 0x0000;
 							promote(endSquare, QUEEN);
 							break;
 
-						case 21: // Rook ('r')
+						case 'r': // Rook ('r')
 							data = 0x0001;
 							promote(endSquare, ROOK);
 							break;
@@ -201,8 +163,8 @@ int main(void)
 				}	
 
 				else { //Other non promotion related key presses
-					switch(prev_keycode & 0xff) {
-						case 7:	 // Current player offered a draw ('d')
+					switch(prev_keycode) {
+						case 'l':	 // Current player offered a draw ('l')
 							if(numMoves >= 100) {
 								gameEnded = 1; // Game ends by 50-move rule
 								data = 0x0003;
@@ -243,7 +205,7 @@ int main(void)
 							}							
 							break;							
 
-						case 10: // Current player resigned ('g')
+						case 'g': // Current player resigned ('g')
 							if(currentTurn) { //Black resigned
 								data = 0x0004;
 							}
@@ -253,7 +215,7 @@ int main(void)
 							gameEnded = 1;
 							break;
 
-						case 29: // Current player is selecting a square for a move ('z')
+						case 'z': // Current player is selecting a square for a move ('z')
 							if(!starting_square_selected) {
 								startSquare = curSquare;
 								starting_square_selected = 1;
@@ -264,7 +226,7 @@ int main(void)
 							}
 							break;
 
-						case 79: // Right arrow key
+						case 'd': // Right arrow key
 							if(!((nextSquare = curSquare + 1) & BOUNDS)) {
 								compressedStartSquare = ((7 - (curSquare >> 4)) << 3 & 0x38) | (curSquare & 0x07);
 								compressedEndSquare = ((7 -(nextSquare >> 4)) << 3 & 0x38) | (nextSquare & 0x07);
@@ -285,7 +247,7 @@ int main(void)
 							}
 							break;
 
-						case 80: // Left arrow key
+						case 'a': // Left arrow key
 							if(!((nextSquare = curSquare -1) & BOUNDS)) {
 								compressedStartSquare = ((7 - (curSquare >> 4)) << 3 & 0x38) | (curSquare & 0x07);
 								compressedEndSquare = ((7 -(nextSquare >> 4)) << 3 & 0x38) | (nextSquare & 0x07);
@@ -306,7 +268,7 @@ int main(void)
 							}
 							break;
 
-						case 81: // Down arrow key
+						case 's': // Down arrow key
 							if(!((nextSquare = curSquare - 0x10) & BOUNDS)) {
 								compressedStartSquare = ((7 - (curSquare >> 4)) << 3 & 0x38) | (curSquare & 0x07);
 								compressedEndSquare = ((7 -(nextSquare >> 4)) << 3 & 0x38) | (nextSquare & 0x07);
@@ -327,7 +289,7 @@ int main(void)
 							}
 							break;
 
-						case 82: // Up arrow key
+						case 'w': // Up arrow key
 							if(!((nextSquare = curSquare + 0x10) & BOUNDS)) {
 								compressedStartSquare = ((7 - (curSquare >> 4)) << 3 & 0x38) | (curSquare & 0x07);
 								compressedEndSquare = ((7 -(nextSquare >> 4)) << 3 & 0x38) | (nextSquare & 0x07);
@@ -415,15 +377,7 @@ int main(void)
 				// Informing the user they need to select another move.
 				// Add this when we do font data.
 				// For now, just return to the beginning of the loop without sending transmission (keep to_hw_sig where it is)
-						compressedStartSquare = ((7 - (startSquare >> 4)) << 3 & 0x38) | (startSquare & 0x07);
-						compressedEndSquare = ((7 -(endSquare >> 4)) << 3 & 0x38) | (endSquare & 0x07);
-						data = 0x0002 | (compressedStartSquare << 9) | (compressedEndSquare << 3); // Deselect start square
-
-						// Handshake with hardware
-						*to_hw_sig = 1;
-						while(*to_sw_sig != 1);
-						IOWR(TRANSMISSION_BASE, 0, data & 0xffff); //The transmission code will be something else 
-						*to_hw_sig = 3;	
+						ece391_fdputs(1, (uint8_t*)"Invalid move.\n");
 					}
 					starting_square_selected = 0;
 					ending_square_selected = 0;
@@ -439,54 +393,19 @@ int main(void)
 				curSquare = 0x04;
 				promotion = 0;
 				do {
-					printf("Choose which chess variant you wish to play.\nSelect 0 for normal chess, 1 for atomic chess, and 2 for kriegspiel. \n");
-					scanf("%d", &curVariant);
+					ece391_fdputs(1, (uint8_t*)"Choose which chess variant you wish to play.\nSelect 0 for normal chess, 1 for atomic chess, and 2 for kriegspiel. \n");
+					if(-1 == ece391_read(0, (uint8_t*)&curVariant, 1))
+					{
+						 ece391_fdputs (1, (uint8_t*)"Can't read keypress.\n");
+			        	return -1;
+					}
+					curVariant -= (int)'0'; // convert to integer representation. Necessary as it will be input as a character
 				} while((curVariant < 0) || (curVariant > 2));
 				data = curVariant;
 				IOWR(TRANSMISSION_BASE, 0, data & 0xffff);
 				*to_hw_sig = 1;
 				init_chessboard(curVariant);
 			}		
-
-	/************************************************************************************************************
-		ALTERATIONS FOR FINAL PROJECT END HERE: All unnecessary printfs will be commented out and chessboard
-		code will be added
-	************************************************************************************************************/
-
-			usleep(200);//usleep(5000);
-			usb_ctl_val = UsbRead(ctl_reg);
-
-			if(!(usb_ctl_val & no_device))
-			{
-				//USB hot plug routine
-				for(hot_plug_count = 0 ; hot_plug_count < 7 ; hot_plug_count++)
-				{
-					usleep(5*1000);
-					usb_ctl_val = UsbRead(ctl_reg);
-					if(usb_ctl_val & no_device) break;
-				}
-				if(!(usb_ctl_val & no_device))
-				{
-					printf("\n[INFO]: the keyboard has been removed!!! \n");
-					printf("[INFO]: please insert again!!! \n");
-				}
-			}
-
-			while (!(usb_ctl_val & no_device))
-			{
-
-				usb_ctl_val = UsbRead(ctl_reg);
-				usleep(5*1000);
-				usb_ctl_val = UsbRead(ctl_reg);
-				usleep(5*1000);
-				usb_ctl_val = UsbRead(ctl_reg);
-				usleep(5*1000);
-
-				if(usb_ctl_val & no_device)
-					goto USB_HOT_PLUG;
-
-				usleep(200);
-			}
 
 		}//Stop polling for keyboard input to check if checkmate or stalemate has occurred
 		moveMade = 0;
