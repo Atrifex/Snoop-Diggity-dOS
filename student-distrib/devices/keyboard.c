@@ -121,6 +121,48 @@ int32_t close_terminal(int32_t fd)
 }
 
 
+int32_t read_terminal_non_blocking(void * buf, int32_t nbytes)
+{
+    unsigned long flags;
+
+    cli_and_save(flags);
+
+    uint8_t terminal_state_local = get_terminal_of_current_process();
+
+    // fixes type confussion
+    uint8_t * buffer = (uint8_t*) buf;
+
+    // copy all information uptil the null char char
+    int i = 0;
+    if(terminals[terminal_state_local].stdin[0] == NULL_CHAR){
+        buffer[0] = NULL_CHAR;
+        terminals[terminal_state_local].allowed_to_read = 0;
+        terminals[terminal_state_local].read_waiting = 0;
+        restore_flags(flags);
+        return 0;
+    }
+
+
+    while(terminals[terminal_state_local].stdin[i] != NULL_CHAR && i < KEYBOARD_BUFF_SIZE)
+    {
+        buffer[i] = terminals[terminal_state_local].stdin[i];
+        i++;
+    }
+
+    // flush buffer and set terminals[terminal_state].stdin_index to 0
+    memset(terminals[terminal_state_local].stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
+    terminals[terminal_state_local].stdin_index = 0;
+
+    // disallow reading
+    terminals[terminal_state_local].allowed_to_read = 0;
+    terminals[terminal_state_local].read_waiting = 0;
+    restore_flags(flags);
+
+    // return number of bytes read
+    return i;
+}
+
+
 /*
  * read_terminal
  * DESCRIPTION: gets pointer to input buffer
@@ -150,6 +192,9 @@ int32_t read_terminal(int32_t fd, void * buf, int32_t nbytes)
     // checks for error condition
     if(nbytes < 0)
         return FAILURE;
+
+    if(terminals[terminal_state_local].keyboard_mode == 1)
+        return read_terminal_non_blocking(buf,nbytes);
 
     // tells interrupt that there is a read waiting
     terminals[terminal_state_local].read_waiting = 1;
@@ -388,63 +433,65 @@ SWITCH_TERMINAL_CONTEXT:
     }
 
     // check if control is pressed
-    if(CONTROL_ON(keyboard_state)) {
-        if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
-            // ctrl + l is pressed then clear screen
-            cli_and_save(flags);
-            current_process_terminal = get_terminal_of_current_process();
-            clear_and_reset();
-            set_screen_x_y(0, 0);
-            set_cursor_location(0, 0);
-            terminals[terminal_state].screen_x = 0;
-            terminals[terminal_state].screen_y = 0;
-            set_terminal_of_current_process(terminal_state);
-            printf_t("391OS> ");            // prints prompt for shell
-            printf_t("%s",terminals[terminal_state].stdin);           // print current buffered value
-            set_terminal_of_current_process(current_process_terminal);
-            restore_flags(flags);
-        } else if(mapped.result == ASCII_SIX){
-            // ctrl + 6 is pressed then change color
-            curr_attribute++;
-            if(curr_attribute > MAX_ATTRIB)
-                curr_attribute = MIN_ATTRIB;
-            change_atribute((curr_back_attribute << COLOR_SHIFT) | curr_attribute);
-        } else if(mapped.result == ASCII_SEVEN){
-            // ctrl + 7 is pressed then change color
-            curr_back_attribute++;
-            if(curr_back_attribute > MAX_BACKGROUD_ATTRIB)
-                curr_back_attribute = MIN_BACKGROUD_ATTRIB;
-            change_atribute((curr_back_attribute << COLOR_SHIFT) | curr_attribute);
-        }
-        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
-        return keyboard_state;
-	} else if(BACKSPACE_ON(keyboard_state)){
-        // if there are values in terminals[terminal_state].stdin BKSP_CHAR is seen, then delete last char
-        if(terminals[terminal_state].stdin_index > 0) {
-            putc_kbd(BKSP_CHAR);
-            terminals[terminal_state].stdin[--terminals[terminal_state].stdin_index] = NULL_CHAR;
-        }
-    } else if(mapped.result == NEW_LINE && terminals[terminal_state].stdin_index < KEYBOARD_BUFF_SIZE-1) {
-        // play new line on screen
-        putc_kbd(NEW_LINE);
-        // place NEW_LINE in buffer followed by a NULL_CHAR
-        terminals[terminal_state].stdin[terminals[terminal_state].stdin_index++] = NEW_LINE;
-        terminals[terminal_state].stdin[terminals[terminal_state].stdin_index] = NULL_CHAR;
+    if(terminals[terminal_state].keyboard_mode == 0){
+        if(CONTROL_ON(keyboard_state)) {
+            if(mapped.result == CLEAR_SCREEN_SHORTCUT) {
+                // ctrl + l is pressed then clear screen
+                cli_and_save(flags);
+                current_process_terminal = get_terminal_of_current_process();
+                clear_and_reset();
+                set_screen_x_y(0, 0);
+                set_cursor_location(0, 0);
+                terminals[terminal_state].screen_x = 0;
+                terminals[terminal_state].screen_y = 0;
+                set_terminal_of_current_process(terminal_state);
+                printf_t("391OS> ");            // prints prompt for shell
+                printf_t("%s",terminals[terminal_state].stdin);           // print current buffered value
+                set_terminal_of_current_process(current_process_terminal);
+                restore_flags(flags);
+            } else if(mapped.result == ASCII_SIX){
+                // ctrl + 6 is pressed then change color
+                curr_attribute++;
+                if(curr_attribute > MAX_ATTRIB)
+                    curr_attribute = MIN_ATTRIB;
+                change_atribute((curr_back_attribute << COLOR_SHIFT) | curr_attribute);
+            } else if(mapped.result == ASCII_SEVEN){
+                // ctrl + 7 is pressed then change color
+                curr_back_attribute++;
+                if(curr_back_attribute > MAX_BACKGROUD_ATTRIB)
+                    curr_back_attribute = MIN_BACKGROUD_ATTRIB;
+                change_atribute((curr_back_attribute << COLOR_SHIFT) | curr_attribute);
+            }
+            set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
+            return keyboard_state;
+    	} else if(BACKSPACE_ON(keyboard_state)){
+            // if there are values in terminals[terminal_state].stdin BKSP_CHAR is seen, then delete last char
+            if(terminals[terminal_state].stdin_index > 0) {
+                putc_kbd(BKSP_CHAR);
+                terminals[terminal_state].stdin[--terminals[terminal_state].stdin_index] = NULL_CHAR;
+            }
+        } else if(mapped.result == NEW_LINE && terminals[terminal_state].stdin_index < KEYBOARD_BUFF_SIZE-1) {
+            // play new line on screen
+            putc_kbd(NEW_LINE);
+            // place NEW_LINE in buffer followed by a NULL_CHAR
+            terminals[terminal_state].stdin[terminals[terminal_state].stdin_index++] = NEW_LINE;
+            terminals[terminal_state].stdin[terminals[terminal_state].stdin_index] = NULL_CHAR;
 
-        if(terminals[terminal_state].read_waiting == 1){
-            if(terminals[terminal_state].stdin[0] == NEW_LINE) terminals[terminal_state].stdin[1] = NULL_CHAR;
+            if(terminals[terminal_state].read_waiting == 1){
+                if(terminals[terminal_state].stdin[0] == NEW_LINE) terminals[terminal_state].stdin[1] = NULL_CHAR;
 
-            // if shell is trying to read, then allow reading
-            terminals[terminal_state].allowed_to_read = 1;
+                // if shell is trying to read, then allow reading
+                terminals[terminal_state].allowed_to_read = 1;
+            }
+            else{
+                //else clear terminals[terminal_state].stdin and disallow reading
+                memset(terminals[terminal_state].stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
+                terminals[terminal_state].stdin_index = 0;
+                terminals[terminal_state].allowed_to_read = 0;
+            }
+            set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
+            return keyboard_state;
         }
-        else{
-            //else clear terminals[terminal_state].stdin and disallow reading
-            memset(terminals[terminal_state].stdin, NULL_CHAR, KEYBOARD_BUFF_SIZE);
-            terminals[terminal_state].stdin_index = 0;
-            terminals[terminal_state].allowed_to_read = 0;
-        }
-        set_new_page_directory(get_page_directory_for_pid(terminals[get_terminal_of_current_process()].pid));
-        return keyboard_state;
     }
 
     // stop user from adding greater than 128 keyboard inputs

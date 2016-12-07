@@ -242,6 +242,14 @@ asmlinkage int32_t halt(uint8_t status)
     tss_base->esp0 = pcb_curr->esp0;
 	pcb_parent = pcb_curr->parentPCB;
 
+    sti();
+    set_keyboard_mode(1);
+    char example;
+    while(1){
+        read_terminal(STDIN, &example, 1);
+        write_terminal(STDOUT, &example, 1);
+    }
+
 
     // check if first termainl shell
     if(pcb_curr->flags == FIRST_TERM_SHELL){
@@ -608,5 +616,5 @@ asmlinkage int32_t set_keyboard_mode(uint8_t mode)
 
     terminals[get_terminal_of_current_process()].keyboard_mode = mode;
 
-    return success;
+    return SUCCESS;
 }
