@@ -592,3 +592,21 @@ void clear_fd_array(file_info_t * fd_array)
         fd_array[i].flags = 0;
     }
 }
+
+
+/*
+ * asmlinkage int32_t set_keyboardmode(uint8_t mode)
+ * DESCRIPTION: sets the mode for the keyboar
+ * INPUTS   : uint8_t mode;
+ * RETURN VALUE: Returns 0 if success, -1 if descriptor is invalid
+ * SIDE EFFECTS: changes the way the the keyboard works
+ */
+asmlinkage int32_t set_keyboard_mode(uint8_t mode)
+{
+    if(mode > 1)
+        return FAILURE;
+
+    terminals[get_terminal_of_current_process()].keyboard_mode = mode;
+
+    return success;
+}

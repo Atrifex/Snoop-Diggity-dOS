@@ -153,6 +153,7 @@ typedef struct
 	volatile int allowed_to_read;        // allows read to stop blocking
 	volatile int read_waiting;
     uint8_t pid;
+    uint8_t keyboard_mode;
 } terminal_t;
 
 extern terminal_t terminals[NUM_TERMINALS];

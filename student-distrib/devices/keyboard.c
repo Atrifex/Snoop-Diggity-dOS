@@ -87,6 +87,7 @@ void init_kbd()
         terminals[i].stdin_index = 0;
         terminals[i].allowed_to_read = 0;
         terminals[i].read_waiting = 0;
+        terminals[i].keyboard_mode = 0;
     }
 
     // enable the interrupt on the PIC
