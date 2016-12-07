@@ -225,3 +225,8 @@ ece391_close (int32_t fd)
     return 0;
 }
 
+/*int32_t ece391_set_keyboard_mode(uint8_t mode)
+{
+    DO_CALL(set_keyboard_mode, 11);
+}*/
+
